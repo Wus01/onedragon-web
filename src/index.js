@@ -1,14 +1,14 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
+import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';  // 부트스트랩 스타일 추가
+import App from './app/App';
+import "./i18n";
+import * as serviceWorker from './serviceWorker';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-    <React.StrictMode>
-        <BrowserRouter>
-            <App />
-        </BrowserRouter>
-    </React.StrictMode>
-);
+ReactDOM.render(
+  <BrowserRouter basename="/">
+    <App />
+  </BrowserRouter>
+, document.getElementById('root'));
+
+serviceWorker.unregister();

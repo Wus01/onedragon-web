@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { Form } from 'react-bootstrap';
 //import Logo from '../../assets/images/logo.svg';
 import { ReactComponent as Logo } from '../../assets/images/logo.svg';
-import { ReactComponent as TestLogo } from "../../assets/images/test-logo.svg";
 import TestImage  from "../../assets/images/temp.jpg";
 
 export class Login extends Component {
@@ -14,8 +13,8 @@ export class Login extends Component {
           <div className="row w-100 mx-0">
             <div className="col-lg-4 mx-auto">
               <div className="auth-form-light text-left py-5 px-4 px-sm-5">
-                <div className="brand-logo">
-                    <img src={TestImage } alt="" width="50px" height="50px"/>
+                <div className="brand-logo" >
+                    <img src={TestImage } alt="" width="150px" height="150px"/>
                 </div>
                 <h4>Hello! let's get started</h4>
                 <h6 className="font-weight-light">Sign in to continue.</h6>
@@ -45,7 +44,7 @@ export class Login extends Component {
                     </button>
                   </div>
                   <div className="text-center mt-4 font-weight-light">
-                    Don't have an account? <Link to="/user-pages/register" className="text-primary">Create</Link>
+                    Don't have an account? <Link to="/register" className="text-primary">Create</Link>
                   </div>
                 </Form>
               </div>
