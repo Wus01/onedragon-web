@@ -1,62 +1,110 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
+import TestImage from "../../assets/images/temp.jpg";
 
-export class Register extends Component {
-  render() {
+function Register() {
+    const history = useHistory();
+
+    const [id, setId] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirm, setConfirm] = useState("");
+    const [agree, setAgree] = useState(false);
+
+    const registerCheck = (e) => {
+        e.preventDefault();
+
+        if (!id || !email || !password || !confirm) {
+            alert("모든 정보를 입력해주세요.");
+            return;
+        }
+
+        if (password !== confirm) {
+            alert("비밀번호가 일치하지 않습니다.");
+            return;
+        }
+
+        if (!agree) {
+            alert("약관에 동의해주세요.");
+            return;
+        }
+
+        alert("회원가입이 완료되었습니다.");
+        history.push("/dashboard");
+    };
+
     return (
-      <div>
         <div className="d-flex align-items-center auth px-0">
-          <div className="row w-100 mx-0">
-            <div className="col-lg-4 mx-auto">
-              <div className="auth-form-light text-left py-5 px-4 px-sm-5">
-                <div className="brand-logo">
-                  <img src="/images/logo.svg" alt="logo" />
-                </div>
-                <h4>New here?</h4>
-                <h6 className="font-weight-light">Signing up is easy. It only takes a few steps</h6>
-                <form className="pt-3">
-                  <div className="form-group">
-                    <input type="text" className="form-control form-control-lg" id="exampleInputUsername1" placeholder="Username" />
-                  </div>
-                  <div className="form-group">
-                    <input type="email" className="form-control form-control-lg" id="exampleInputEmail1" placeholder="Email" />
-                  </div>
-                  <div className="form-group">
-                    <select className="form-control form-control-lg" id="exampleFormControlSelect2">
-                      <option>Country</option>
-                      <option>United States of America</option>
-                      <option>United Kingdom</option>
-                      <option>India</option>
-                      <option>Germany</option>
-                      <option>Argentina</option>
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <input type="password" className="form-control form-control-lg" id="exampleInputPassword1" placeholder="Password" />
-                  </div>
-                  <div className="mb-4">
-                    <div className="form-check">
-                      <label className="form-check-label text-muted">
-                        <input type="checkbox" className="form-check-input" />
-                        <i className="input-helper"></i>
-                        I agree to all Terms & Conditions
-                      </label>
+            <div className="row w-100 mx-0">
+                <div className="col-lg-4 mx-auto">
+                    <div className="auth-form-light text-left py-5 px-4 px-sm-5">
+                        <div className="brand-logo">
+                            <img src={TestImage} alt="로고" width="50" height="50" />
+                        </div>
+                        <h4>회원가입</h4>
+                        <form className="pt-3" onSubmit={registerCheck}>
+                            <div className="form-group">
+                                <input
+                                    type="id"
+                                    className="form-control form-control-lg"
+                                    placeholder="아이디 입력"
+                                    value={id}
+                                    onChange={(e) => setId(e.target.value)}
+                                />
+                            </div><div className="form-group">
+                                <input
+                                    type="email"
+                                    className="form-control form-control-lg"
+                                    placeholder="이메일 입력"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <input
+                                    type="password"
+                                    className="form-control form-control-lg"
+                                    placeholder="비밀번호 입력"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <input
+                                    type="password"
+                                    className="form-control form-control-lg"
+                                    placeholder="비밀번호 확인"
+                                    value={confirm}
+                                    onChange={(e) => setConfirm(e.target.value)}
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <div className="form-check">
+                                    <label className="form-check-label text-muted">
+                                        <input
+                                            type="checkbox"
+                                            className="form-check-input"
+                                            checked={agree}
+                                            onChange={(e) => setAgree(e.target.checked)}
+                                        />
+                                        <i className="input-helper"></i> 약관 동의
+                                    </label>
+                                </div>
+                            </div>
+                            <div className="mt-3">
+                                <button
+                                    type="submit"
+                                    className="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn"
+                                >
+                                    가입하기
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                  </div>
-                  <div className="mt-3">
-                    <Link className="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn" to="/dashboard">SIGN UP</Link>
-                  </div>
-                  <div className="text-center mt-4 font-weight-light">
-                    Already have an account? <Link to="/user-pages/login" className="text-primary">Login</Link>
-                  </div>
-                </form>
-              </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-    )
-  }
+    );
 }
 
-export default Register
+export default Register;
