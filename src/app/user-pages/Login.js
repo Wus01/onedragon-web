@@ -14,7 +14,7 @@ export class Login extends Component {
             <div className="col-lg-4 mx-auto">
               <div className="auth-form-light text-left py-5 px-4 px-sm-5">
                 <div className="brand-logo">
-                    <img src={TestImage } alt="" width="50px" height="50px"/>
+                    <img src={TestImage } alt="" width="150px" height="150px"/>
                 </div>
                 <h4>일용이네</h4>
                 <Form className="pt-3">

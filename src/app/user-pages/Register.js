@@ -39,7 +39,7 @@ function Register() {
                 <div className="col-lg-4 mx-auto">
                     <div className="auth-form-light text-left py-5 px-4 px-sm-5">
                         <div className="brand-logo">
-                            <img src={TestImage} alt="로고" width="50" height="50" />
+                            <img src={TestImage} alt="로고" width="150" height="150" />
                         </div>
                         <h4>회원가입</h4>
                         <form className="pt-3" onSubmit={registerCheck}>
