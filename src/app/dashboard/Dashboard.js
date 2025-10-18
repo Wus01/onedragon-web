@@ -685,40 +685,40 @@ export class Dashboard extends Component {
   componentDidMount(){
 
     //your code
-    var ctx = document.getElementById('visitChart').getContext("2d")
-    var gradientBar1 = ctx.createLinearGradient(0, 0, 0, 181)
-    gradientBar1.addColorStop(1, 'rgba(110,123,247,0.7)')
-    gradientBar1.addColorStop(0, 'rgba(255,255,255,0)')
+    // var ctx = document.getElementById('visitChart').getContext("2d")
+    // var gradientBar1 = ctx.createLinearGradient(0, 0, 0, 181)
+    // gradientBar1.addColorStop(1, 'rgba(110,123,247,0.7)')
+    // gradientBar1.addColorStop(0, 'rgba(255,255,255,0)')
 
-    var ctx2 = document.getElementById('imoressionChart').getContext("2d")
-    var gradientBar2 = ctx2.createLinearGradient(0, 0, 0, 181)
-    gradientBar2.addColorStop(1, 'rgba(110,123,247,0.7)')
-    gradientBar2.addColorStop(0, 'rgba(255,255,255,0)')
+    // var ctx2 = document.getElementById('imoressionChart').getContext("2d")
+    // var gradientBar2 = ctx2.createLinearGradient(0, 0, 0, 181)
+    // gradientBar2.addColorStop(1, 'rgba(110,123,247,0.7)')
+    // gradientBar2.addColorStop(0, 'rgba(255,255,255,0)')
 
-    var ctx3 = document.getElementById('conversionChart').getContext("2d")
-    var gradientBar3 = ctx3.createLinearGradient(0, 0, 0, 181)
-    gradientBar3.addColorStop(1, 'rgba(110,123,247,0.7)')
-    gradientBar3.addColorStop(0, 'rgba(255,255,255,0)')
+    // var ctx3 = document.getElementById('conversionChart').getContext("2d")
+    // var gradientBar3 = ctx3.createLinearGradient(0, 0, 0, 181)
+    // gradientBar3.addColorStop(1, 'rgba(110,123,247,0.7)')
+    // gradientBar3.addColorStop(0, 'rgba(255,255,255,0)')
 
-    var ctx4 = document.getElementById('downloadChart').getContext("2d")
-    var gradientBar4 = ctx4.createLinearGradient(0, 0, 0, 181)
-    gradientBar4.addColorStop(1, 'rgba(110,123,247,0.7)')
-    gradientBar4.addColorStop(0, 'rgba(255,255,255,0)')
+    // var ctx4 = document.getElementById('downloadChart').getContext("2d")
+    // var gradientBar4 = ctx4.createLinearGradient(0, 0, 0, 181)
+    // gradientBar4.addColorStop(1, 'rgba(110,123,247,0.7)')
+    // gradientBar4.addColorStop(0, 'rgba(255,255,255,0)')
 
-    var ctx5 = document.getElementById('salesStatisticsChart').getContext("2d")
-    var gradientBar5 = ctx5.createLinearGradient(0, 0, 0, 450)
-    gradientBar5.addColorStop(1, 'rgba(255,255,255, 0.0)')
-    gradientBar5.addColorStop(0, 'rgba(102,78,235, 0.2)')
+    // var ctx5 = document.getElementById('salesStatisticsChart').getContext("2d")
+    // var gradientBar5 = ctx5.createLinearGradient(0, 0, 0, 450)
+    // gradientBar5.addColorStop(1, 'rgba(255,255,255, 0.0)')
+    // gradientBar5.addColorStop(0, 'rgba(102,78,235, 0.2)')
 
-    var ctx6 = document.getElementById('salesStatisticsChart').getContext("2d")
-    var gradientBar6 = ctx6.createLinearGradient(0, 0, 0, 400)
-    gradientBar6.addColorStop(1, 'rgba(255, 255, 255, 0.01)')
-    gradientBar6.addColorStop(0, '#14c671')
+    // var ctx6 = document.getElementById('salesStatisticsChart').getContext("2d")
+    // var gradientBar6 = ctx6.createLinearGradient(0, 0, 0, 400)
+    // gradientBar6.addColorStop(1, 'rgba(255, 255, 255, 0.01)')
+    // gradientBar6.addColorStop(0, '#14c671')
 
-    var ctx7 = document.getElementById('totaltransactionChart').getContext("2d")
-    var gradientBar7 = ctx7.createLinearGradient(0, 100, 200, 0)
-    gradientBar7.addColorStop(1, '#fa3252')
-    gradientBar7.addColorStop(0, '#fa5539')
+    // var ctx7 = document.getElementById('totaltransactionChart').getContext("2d")
+    // var gradientBar7 = ctx7.createLinearGradient(0, 100, 200, 0)
+    // gradientBar7.addColorStop(1, '#fa3252')
+    // gradientBar7.addColorStop(0, '#fa5539')
 
     
 
@@ -728,7 +728,7 @@ export class Dashboard extends Component {
         label: 'Profit',
         data: [7, 6, 9, 7, 8, 6, 8, 5, 7, 8, 6, 7, 7],
         borderColor: '#6d7cfc',
-        backgroundColor: gradientBar1,
+        // backgroundColor: gradientBar1,
         borderWidth: 3,
         fill: true
       }]
@@ -739,7 +739,7 @@ export class Dashboard extends Component {
         label: 'Profit',
         data: [7, 6, 8, 5, 7, 8, 6, 7, 7, 6, 9, 7, 8],
         borderColor: '#6d7cfc',
-        backgroundColor: gradientBar2,
+        // backgroundColor: gradientBar2,
         borderWidth: 3,
         fill: true
       }]
@@ -750,7 +750,7 @@ export class Dashboard extends Component {
         label: 'Profit',
         data: [8, 6, 7, 8, 5, 7, 9, 7, 8, 7, 6, 7, 6],
         borderColor: '#6d7cfc',
-        backgroundColor: gradientBar3,
+        // backgroundColor: gradientBar3,
         borderWidth: 3,
         fill: true
       }]
@@ -761,7 +761,7 @@ export class Dashboard extends Component {
         label: 'Profit',
         data: [7, 6, 8, 5, 8, 6, 8, 7, 8, 6, 9, 7, 7],
         borderColor: '#6d7cfc',
-        backgroundColor: gradientBar4,
+        // backgroundColor: gradientBar4,
         borderWidth: 3,
         fill: true
       }]
@@ -782,14 +782,14 @@ export class Dashboard extends Component {
         label: 'Revenue',
         data: Datas,
         borderColor: '#8862e0',
-        backgroundColor: gradientBar5,
+        // backgroundColor: gradientBar5,
         borderWidth: 2,
         fill: true
       }, {
         label: 'Sales',
         data: Datas1,
         borderColor: '#5ed2a1',
-        backgroundColor: gradientBar6,
+        // backgroundColor: gradientBar6,
         borderWidth: 2,
         fill: true
       }]
@@ -834,7 +834,7 @@ export class Dashboard extends Component {
       datasets: [{
         label: 'Sessions',
         data: [320, 280, 300, 280, 300, 270, 350],
-        backgroundColor: gradientBar7,
+        // backgroundColor: gradientBar7,
         borderColor: '#fa394e',
         borderWidth: 0,
         pointBackgroundColor: "#fa394e",
@@ -857,15 +857,7 @@ export class Dashboard extends Component {
   render () {
     return (
       <div>
-        <div className="row proBanner">
-          <div className="col-12">
-            <span className="d-flex align-items-center purchase-popup">
-              <p>Get tons of UI components, Plugins, multiple layouts, 20+ sample pages, and more!</p>
-              <a href="https://www.bootstrapdash.com/product/star-admin-pro-react/" rel="noopener noreferrer" target="_blank" className="btn purchase-button ml-auto">Check Pro Version</a>
-              <i className="mdi mdi-close bannerClose" onClick={this.toggleProBanner}></i>
-            </span>
-          </div>
-        </div>
+        
         <div className="row page-title-header">
           <div className="col-12">
             <div className="page-header">
@@ -888,7 +880,7 @@ export class Dashboard extends Component {
             <div className="page-header-toolbar">
               <div className="btn-group toolbar-item" role="group" aria-label="Basic example">
                 <button type="button" className="btn btn-secondary"><i className="mdi mdi-chevron-left"></i></button>
-                <button type="button" className="btn btn-secondary">03/02/2019 - 20/08/2019</button>
+                <button type="button" className="btn btn-secondary">01/10/2025 - 31/10/2025</button>
                 <button type="button" className="btn btn-secondary"><i className="mdi mdi-chevron-right"></i></button>
               </div>
               <div className="filter-wrapper">
@@ -926,55 +918,72 @@ export class Dashboard extends Component {
           <div className="col-md-12 grid-margin">
             <div className="card">
               <div className="card-body">
-                <div className="row">
-                  <div className="col-xl-3 col-lg-6 col-sm-6 grid-margin-xl-0 grid-margin">
-                    <div className="d-flex">
-                      <div className="wrapper">
-                        <h3 className="mb-0 font-weight-semibold">32,451</h3>
-                        <h5 className="mb-0 font-weight-medium text-primary">Visits</h5>
-                        <p className="mb-0 text-muted">+14.00(+0.50%)</p>
-                      </div>
-                      <div className="wrapper my-auto ml-auto ml-lg-4">
-                        <Line ref='chart' data={this.state.visitChartData} options={this.state.areaOptions}  datasetKeyProvider={this.state.datasetKeyProvider} height={50} width={100} id="visitChart" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-xl-3 col-lg-6 col-sm-6 mt-md-0 mt-4 grid-margin-xl-0 grid-margin">
-                    <div className="d-flex">
-                      <div className="wrapper">
-                        <h3 className="mb-0 font-weight-semibold">15,236</h3>
-                        <h5 className="mb-0 font-weight-medium text-primary">Impressions</h5>
-                        <p className="mb-0 text-muted">+138.97(+0.54%)</p>
-                      </div>
-                      <div className="wrapper my-auto ml-auto ml-lg-4">
-                        <Line ref='chart' data={this.state.impressionChartData} options={this.state.areaOptions}  datasetKeyProvider={this.state.datasetKeyProvider} height={50} width={100} id="imoressionChart" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-xl-3 col-lg-6 col-sm-6 mt-md-0 mt-4 grid-margin-xl-0 grid-margin">
-                    <div className="d-flex">
-                      <div className="wrapper">
-                        <h3 className="mb-0 font-weight-semibold">7,688</h3>
-                        <h5 className="mb-0 font-weight-medium text-primary">Conversion</h5>
-                        <p className="mb-0 text-muted">+57.62(+0.76%)</p>
-                      </div>
-                      <div className="wrapper my-auto ml-auto ml-lg-4">
-                        <Line ref='chart' data={this.state.conversionChartData} options={this.state.areaOptions}  datasetKeyProvider={this.state.datasetKeyProvider} height={50} width={100} id="conversionChart" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-xl-3 col-lg-6 col-sm-6 mt-md-0 mt-4 grid-margin-xl-0 grid-margin">
-                    <div className="d-flex">
-                      <div className="wrapper">
-                        <h3 className="mb-0 font-weight-semibold">1,553</h3>
-                        <h5 className="mb-0 font-weight-medium text-primary">Downloads</h5>
-                        <p className="mb-0 text-muted">+138.97(+0.54%)</p>
-                      </div>
-                      <div className="wrapper my-auto ml-auto ml-lg-4">
-                        <Line ref='chart' data={this.state.downloadChartData} options={this.state.areaOptions}  datasetKeyProvider={this.state.datasetKeyProvider} height={50} width={100} id="downloadChart" />
-                      </div>
-                    </div>
-                  </div>
+                <h4 className="card-title">알바 모집 공고 !!</h4>
+                <p className="card-description"> Add className <code>.table-hover</code>
+                </p>
+                <div className="">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th style={{fontWeight:'bold', fontSize:'25'}}>지역</th>
+                        <th>일용이 모집글</th>
+                        <th>급여</th>
+                        <th> 지원여부</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>시흥 배곧동</td>
+                        <td>배곧점 GS25 야간 <span className='text-danger'>급구</span>(30분 전)</td>
+                        <td> 10,320원 </td>
+                        <td><label className="badge badge-warning">지원하기</label></td>
+                      </tr>
+                      <tr>
+                        <td>안산시 상록구 사동</td>
+                        <td>석호중앙점 GS25 야간 <span className='text-danger'>급구</span>(1시간 전)</td>
+                        <td > 11,000원 </td>
+                        {/* <td><label className="badge badge-warning">지원하기</label></td>                         */}
+                        <td><label className="badge badge-danger">마감하기</label></td>
+                      </tr>
+                      <tr>
+                        <td>안산시 단원구 고잔동</td>
+                        <td>고잔점 GS25 주간 일반(3시간 전)</td>
+                        <td> 10,320원 </td>
+                        <td><label className="badge badge-warning">지원하기</label></td>
+                      </tr>
+                      <tr>
+                        <td>시흥 배곧동</td>
+                        <td>배곧점 GS25 야간 <span className='text-danger'>급구</span>(7시간 전)</td>
+                        <td> 10,320원 </td>
+                        <td><label className="badge badge-warning">지원하기</label></td>
+                      </tr>
+                      <tr>
+                        <td>안산시 상록구 사동</td>
+                        <td>석호중앙점 GS25 야간 <span className='text-danger'>급구</span>(10시간 전)</td>
+                        <td> 11,000원 </td>
+                        {/* <td><label className="badge badge-warning">지원하기</label></td>                         */}
+                        <td><label className="badge badge-danger">마감하기</label></td>
+                      </tr>
+                      <tr>
+                        <td>안산시 단원구 고잔동</td>
+                        <td>고잔점 GS25 주간 일반(1일 전)</td>
+                        <td> 10,320원 </td>
+                        <td><label className="badge badge-warning">지원하기</label></td>
+                      </tr>
+                      {/* <tr>
+                        <td>Peter</td>
+                        <td>After effects</td>
+                        <td className="text-success"> 82.00% </td>
+                        <td><label className="badge badge-success">Completed</label></td>
+                      </tr>
+                      <tr>
+                        <td>Dave</td>
+                        <td>53275535</td>
+                        <td className="text-success"> 98.05% </td>
+                        <td><label className="badge badge-warning">In progress</label></td>
+                      </tr> */}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
@@ -1058,7 +1067,7 @@ export class Dashboard extends Component {
             </div>
           </div>
         </div>
-        <div className="row">
+        {/* <div className="row">
           <div className="col-md-8">
             <div className="row">
               <div className="col-xl-6 col-lg-12 grid-margin stretch-card">
@@ -1495,7 +1504,7 @@ export class Dashboard extends Component {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
         
       </div> 
     );
