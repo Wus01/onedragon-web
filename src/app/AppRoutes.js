@@ -21,6 +21,7 @@ const Mdi = lazy(() => import('./icons/Mdi'));
 
 const Login = lazy(() => import('./user-pages/Login'));
 const Register1 = lazy(() => import('./user-pages/Register'));
+const ApplyDetail = lazy(() => import('./tables/ApplyDetail'));
 
 
 class AppRoutes extends Component {
@@ -44,7 +45,7 @@ class AppRoutes extends Component {
 
           <Route path="/login" component={ Login } />
           <Route path="/register" component={ Register1 } />
-
+          <Route path="/applyDetail" component={ ApplyDetail } />
           {/* <Route path="/error-pages/error-404" component={ Error404 } />
           <Route path="/error-pages/error-500" component={ Error500 } /> */}
 
