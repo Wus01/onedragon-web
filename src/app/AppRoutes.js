@@ -10,18 +10,18 @@ const Dropdowns = lazy(() => import('./basic-ui/Dropdowns'));
 
 const BasicElements = lazy(() => import('./form-elements/BasicElements'));
 
+
 const BasicTable = lazy(() => import('./tables/BasicTable'));
 
 const Mdi = lazy(() => import('./icons/Mdi'));
 
-// const ChartJs = lazy(() => import('./charts/ChartJs'));
-
-// const Error404 = lazy(() => import('./error-pages/Error404'));
-// const Error500 = lazy(() => import('./error-pages/Error500'));
-
 const Login = lazy(() => import('./user-pages/Login'));
 const Register1 = lazy(() => import('./user-pages/Register'));
 const ApplyDetail = lazy(() => import('./tables/ApplyDetail'));
+const CrrHstrCreate = lazy(() => import('./form-elements/CrrHstrCreate'));
+
+
+
 
 
 class AppRoutes extends Component {
@@ -46,6 +46,11 @@ class AppRoutes extends Component {
           <Route path="/login" component={ Login } />
           <Route path="/register" component={ Register1 } />
           <Route path="/applyDetail" component={ ApplyDetail } />
+          <Route path="/crrHstrCreate" component={ CrrHstrCreate } />
+
+
+
+
           {/* <Route path="/error-pages/error-404" component={ Error404 } />
           <Route path="/error-pages/error-500" component={ Error500 } /> */}
 
