@@ -1,17 +1,45 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form } from 'react-bootstrap';
 import bsCustomFileInput from 'bs-custom-file-input';
 // ProgressBar는 코드에서 사용되지 않아 제거 가능하지만, 원본에 따라 남겨둡니다.
 import { ProgressBar } from 'react-bootstrap';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+//import axios from 'axios';
 
-// export const ApplyDetail = () => {
-function ApplyDetail(){
-  // 클래스 컴포넌트의 componentDidMount 역할을 useEffect로 대체
-  useEffect(() => {
-    // bsCustomFileInput 초기화는 필요한 경우에만 유지합니다.
-    // 현재 코드에서는 파일 입력(file input)이 없지만, 만약 사용한다면 필요합니다.
-    bsCustomFileInput.init();
-  }, []); // 빈 배열은 컴포넌트가 마운트될 때 한 번만 실행됨을 의미합니다.
+// export const  = () => {
+function HiringDetail(){
+//  // 클래스 컴포넌트의 componentDidMount 역할을 useEffect로 대체
+//  useEffect(() => {
+//    // bsCustomFileInput 초기화는 필요한 경우에만 유지합니다.
+//    // 현재 코드에서는 파일 입력(file input)이 없지만, 만약 사용한다면 필요합니다.
+//    bsCustomFileInput.init();
+//  }, []); // 빈 배열은 컴포넌트가 마운트될 때 한 번만 실행됨을 의미합니다.
+//
+
+
+
+//    const { id } = useParams(); // alt+enter
+//    const navigate = useNavigate();
+//
+//    let [hiring,setHiring] = useState({
+//            hiringTitle:"",
+//            hiringText:""
+//        });
+//
+//        // 게시글 불러오기
+//        useEffect(() => {
+//            axios.get(`${process.env.REACT_APP_API_URL}/hiring/${id}`)
+//                .then(response => {
+//                    console.log('게시글 가져오기 성공:', response.data);
+//                    setHiring(response.data);
+//                })
+//                .catch(error => {
+//                    console.error('게시글 가져오기 실패:', error);
+//                    alert("게시글을 불러오는 데 실패했습니다.");
+//                });
+//        }, [id]);
+
+
 
     function fn_confirm(){
         alert("확정하시겠습니까?");
@@ -36,7 +64,7 @@ function ApplyDetail(){
             <form className="forms-sample">
               {/* 1. 점포명 (Form.Control 사용, readOnly) */}
               <Form.Group className="mb-3">
-                <Form.Label htmlFor="inputStoreName">점포명</Form.Label>
+                {/*<Form.Label htmlFor="inputStoreName" value={hiring?.hiringTitle}>{hiring?.hiringTitle}</Form.Label>*/}
                 {/* type="selectBox" 대신 type="text"를 사용하고, id를 수정했습니다. */}
                 <Form.Control type="text" id="inputStoreName" readOnly />
               </Form.Group>
@@ -91,4 +119,4 @@ function ApplyDetail(){
   );
 }
 
-export default ApplyDetail;
+export default HiringDetail;

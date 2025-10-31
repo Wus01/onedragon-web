@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 // import { Line, Doughnut, Bar, Radar } from 'react-chartjs-2';
 import { Line, Bar, Radar } from 'react-chartjs-2';
-
+import { Link } from 'react-router-dom';
 import { ProgressBar, Dropdown } from 'react-bootstrap';
 import GaugeChart from 'react-gauge-chart';
 import { VectorMap } from "react-jvectormap"
@@ -854,6 +854,7 @@ export class Dashboard extends Component {
   toggleProBanner() {
     document.querySelector('.proBanner').classList.toggle("hide");
   }
+
   render () {
     return (
       <div>
@@ -934,7 +935,7 @@ export class Dashboard extends Component {
                     <tbody>
                       <tr>
                         <td>시흥 배곧동</td>
-                        <td>배곧점 GS25 야간 <span className='text-danger'>급구</span>(30분 전)</td>
+                        <td><Link to={`/hiring/1`}>배곧점 GS25 야간 <span className='text-danger'>급구</span>(30분 전)</Link></td>
                         <td> 10,320원 </td>
                         <td><label className="badge badge-warning">지원하기</label></td>
                       </tr>
