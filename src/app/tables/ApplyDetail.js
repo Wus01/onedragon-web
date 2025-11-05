@@ -7,7 +7,7 @@ import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 
 // export const  = () => {
-function HiringDetail(){
+function ApplyDetail(){
 //  // 클래스 컴포넌트의 componentDidMount 역할을 useEffect로 대체
 //  useEffect(() => {
 //    // bsCustomFileInput 초기화는 필요한 경우에만 유지합니다.
@@ -21,18 +21,18 @@ function HiringDetail(){
     const { id } = useParams(); // alt+enter
 //    const navigate = useNavigate();
 
-    let [hiring,setHiring] = useState({
+    let [applyInfo,setApplyInfo] = useState({
             hiringTitle:"",
             hiringText:""
         });
 
         // 게시글 불러오기
         useEffect(() => {
-            axios.get(`${process.env.REACT_APP_API_URL}/hiring/${id}`)
+            axios.get(`${process.env.REACT_APP_API_URL}/apply/${id}`)
 //            axios.get(`/hiring/${id}`)
                 .then(response => {
                     console.log('게시글 가져오기 성공:', response.data);
-                    setHiring(response.data);
+                    setApplyInfo(response.data);
                 })
                 .catch(error => {
                     console.error('게시글 가져오기 실패:', error);
@@ -49,7 +49,7 @@ function HiringDetail(){
   return (
     <div>
       <div className="page-header">
-        <h3 className="page-title">지원자 상세보기</h3>
+        <h3 className="page-title">지원 상세보기 </h3>
         <nav aria-label="breadcrumb">
           <ol className="breadcrumb">
             <li className="breadcrumb-item"><a href="#!" onClick={event => event.preventDefault()}>Tables</a></li>
@@ -61,26 +61,26 @@ function HiringDetail(){
       <div className="auth-form-light text-left py-5 px-4 px-sm-5">
         <div className="card">
           <div className="card-body">
-            <h4 className="card-title">지점명</h4>
+            <h4 className="card-title">지원 상세보기</h4>
             <form className="forms-sample">
               {/* 1. 점포명 (Form.Control 사용, readOnly) */}
               <Form.Group className="mb-3">
                 {/*<Form.Label htmlFor="inputStoreName" value={hiring?.hiringTitle}>{hiring?.hiringTitle}</Form.Label>*/}
                 {/* type="selectBox" 대신 type="text"를 사용하고, id를 수정했습니다. */}
-                <Form.Control type="text" id="inputStoreName" value={hiring.storeId || hiring.hiringTitle || ''} readOnly />
+                <Form.Control type="text" id="inputStoreName" value={applyInfo.storeId || ''} readOnly />
               </Form.Group>
 
               {/* 2. 제목 (Form.Control 사용, readOnly) */}
               <Form.Group className="mb-3">
                 <Form.Label htmlFor="inputTitle">제목</Form.Label>
                 {/* type="email" 대신 type="text"를 사용하는 것이 적절합니다. */}
-                <Form.Control type="text" id="inputTitle" value={hiring.hiringTitle || ''} readOnly />
+                <Form.Control type="text" id="inputTitle" value={applyInfo.storeId || ''} readOnly />
               </Form.Group>
 
               {/* 3. 지원자 (Form.Control 사용, readOnly) */}
               <Form.Group className="mb-3">
                 <Form.Label htmlFor="inputApplicant">지원자</Form.Label>
-                <Form.Control type="text" id="inputApplicant" value={hiring.rgstId || ''} readOnly />
+                <Form.Control type="text" id="inputApplicant" value={applyInfo.userId || ''} readOnly />
               </Form.Group>
 
               {/* 4. 성별 (select 대신 Form.Control as="select" 사용, readOnly) */}
@@ -111,73 +111,6 @@ function HiringDetail(){
                 <Form.Control as="textarea" id="textareaResume" rows={4} readOnly />
               </Form.Group>
 
-
-
-              <div className="">
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th style={{fontWeight:'bold', fontSize:'25'}}>지역</th>
-                      <th>일용이 모집글</th>
-                      <th>급여</th>
-                      <th> 지원여부</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>시흥 배곧동</td>
-                      <td><Link to={`/hiring/1`}>배곧점 GS25 야간 <span className='text-danger'>급구</span>(30분 전)</Link></td>
-                      <td> 10,320원 </td>
-                      <td><label className="badge badge-warning">지원하기</label></td>
-                    </tr>
-                    <tr>
-                      <td>안산시 상록구 사동</td>
-                      <td>석호중앙점 GS25 야간 <span className='text-danger'>급구</span>(1시간 전)</td>
-                      <td > 11,000원 </td>
-                      {/* <td><label className="badge badge-warning">지원하기</label></td>                         */}
-                      <td><label className="badge badge-danger">마감하기</label></td>
-                    </tr>
-                    <tr>
-                      <td>안산시 단원구 고잔동</td>
-                      <td>고잔점 GS25 주간 일반(3시간 전)</td>
-                      <td> 10,320원 </td>
-                      <td><label className="badge badge-warning">지원하기</label></td>
-                    </tr>
-                    <tr>
-                      <td>시흥 배곧동</td>
-                      <td>배곧점 GS25 야간 <span className='text-danger'>급구</span>(7시간 전)</td>
-                      <td> 10,320원 </td>
-                      <td><label className="badge badge-warning">지원하기</label></td>
-                    </tr>
-                    <tr>
-                      <td>안산시 상록구 사동</td>
-                      <td>석호중앙점 GS25 야간 <span className='text-danger'>급구</span>(10시간 전)</td>
-                      <td> 11,000원 </td>
-                      {/* <td><label className="badge badge-warning">지원하기</label></td>                         */}
-                      <td><label className="badge badge-danger">마감하기</label></td>
-                    </tr>
-                    <tr>
-                      <td>안산시 단원구 고잔동</td>
-                      <td>고잔점 GS25 주간 일반(1일 전)</td>
-                      <td> 10,320원 </td>
-                      <td><label className="badge badge-warning">지원하기</label></td>
-                    </tr>
-                    {/* <tr>
-                      <td>Peter</td>
-                      <td>After effects</td>
-                      <td className="text-success"> 82.00% </td>
-                      <td><label className="badge badge-success">Completed</label></td>
-                    </tr>
-                    <tr>
-                      <td>Dave</td>
-                      <td>53275535</td>
-                      <td className="text-success"> 98.05% </td>
-                      <td><label className="badge badge-warning">In progress</label></td>
-                    </tr> */}
-                  </tbody>
-                </table>
-              </div>
-
               <button type="button" className="btn btn-primary mr-2" onClick={fn_confirm}>확정</button>
             </form>
           </div>
@@ -187,4 +120,4 @@ function HiringDetail(){
   );
 }
 
-export default HiringDetail;
+export default ApplyDetail;

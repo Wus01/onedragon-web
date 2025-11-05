@@ -22,6 +22,8 @@ const Mdi = lazy(() => import('./icons/Mdi'));
 const Login = lazy(() => import('./user-pages/Login'));
 const Register1 = lazy(() => import('./user-pages/Register'));
 const HiringDetail = lazy(() => import('./tables/HiringDetail'));
+const ApplyDetail = lazy(() => import('./tables/ApplyDetail'));
+const ApplyList = lazy(() => import('./tables/ApplyList'));
 
 
 class AppRoutes extends Component {
@@ -46,6 +48,8 @@ class AppRoutes extends Component {
           <Route path="/login" component={ Login } />
           <Route path="/register" component={ Register1 } />
           <Route path={"/hiring/:id"} component={HiringDetail} />
+          <Route path={"/apply/list/:id"} component={ApplyList} />
+          <Route path={"/apply/:id"} component={ApplyDetail} />
           {/* <Route path="/error-pages/error-404" component={ Error404 } />
           <Route path="/error-pages/error-500" component={ Error500 } /> */}
 
