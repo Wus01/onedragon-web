@@ -24,6 +24,7 @@ const Register1 = lazy(() => import('./user-pages/Register'));
 const HiringDetail = lazy(() => import('./tables/HiringDetail'));
 const ApplyDetail = lazy(() => import('./tables/ApplyDetail'));
 const CrrHstrCreate = lazy(() => import('./form-elements/CrrHstrCreate'));
+const StoreInfoList = lazy(() => import('./storeInfo/StoreInfoList'));
 
 
 
@@ -54,6 +55,7 @@ class AppRoutes extends Component {
           <Route path="/applyDetail" component={ ApplyDetail } />
           {/* <Route path="/error-pages/error-404" component={ Error404 } />
           <Route path="/error-pages/error-500" component={ Error500 } /> */}
+          <Route path='/storelist' component={ StoreInfoList } />
 
 
           <Redirect to="/dashboard" />
