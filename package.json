@@ -77,9 +77,9 @@
     "slick-carousel": "^1.8.1",
     "sweetalert2-react": "^0.8.3",
     "ti-icons": "^0.1.2",
-    "typicons.font": "^2.0.9",
-    "proxy": "http://localhost:8080"
+    "typicons.font": "^2.0.9"
   },
+  "proxy": "http://localhost:8080",
   "scripts": {
     "start": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
     "build": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts build",
