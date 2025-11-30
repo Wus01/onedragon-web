@@ -56,6 +56,9 @@ class AppRoutes extends Component {
           {/* <Route path="/error-pages/error-404" component={ Error404 } />
           <Route path="/error-pages/error-500" component={ Error500 } /> */}
           <Route path='/storelist' component={ StoreInfoList } />
+          {/*재직이력 조회용 http://localhost:3000/CrrHstrCreate/1/7 */}
+          <Route path='/CrrHstrCreate/:userId/:storeId' component={ CrrHstrCreate } />
+          {/*재직이력 등록용*/}
           <Route path='/CrrHstrCreate' component={ CrrHstrCreate } />
 
 

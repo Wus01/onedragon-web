@@ -4,6 +4,14 @@ import { Form } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
+/* http://localhost:3000/CrrHstrCreate/1/23 => 조회
+* http://localhost:3000/CrrHstrCreate => 생성
+*
+* < 수정 예정 >
+* rgst_id , user_id 세션에서 가져오기 추후 수정예정
+* 삭제후 redirect 어디로 보낼지 추후 수정
+* */
+
 
 export class CrrHstrCreate extends Component {
 
@@ -88,6 +96,48 @@ safeDate(str) {
                 .catch(err => console.error("등록 실패:", err));
         }
     }
+
+    handleUpdate = () => {
+        const { startDate, endDate, storeId, authYn } = this.state;
+        const { userId, storeId: pathStoreId } = this.props.match.params;
+
+        if (!window.confirm("정말 수정하시겠습니까?")) return;
+
+        const payload = {
+            userId: Number(userId),
+            storeId: Number(pathStoreId),
+            crrStrtDate: startDate ? startDate.toISOString().slice(0, 10) : null,
+            crrEndDate: endDate ? endDate.toISOString().slice(0, 10) : null,
+            authYn: authYn
+        };
+
+        axios.put(`${process.env.REACT_APP_API_URL}/crrHstr/${userId}/${pathStoreId}`, payload)
+            .then(() => {
+                alert("수정 완료!");
+                // 수정 후 이동하고 싶으면:
+                // this.props.history.push("/목적지");
+            })
+            .catch(err => {
+                console.error("수정 실패:", err);
+                alert("수정 실패!");
+            });
+    };
+
+    handleDelete = () => {
+        const { userId, storeId } = this.props.match.params;
+
+        if (!window.confirm("정말 삭제하시겠습니까?")) return;
+
+        axios.delete(`${process.env.REACT_APP_API_URL}/crrHstr/${userId}/${storeId}`)
+            .then(() => {
+                alert("삭제 완료!");
+                this.props.history.push("/storelist"); // 추후에 삭제후 어디로 페이지 보낼지 정하기
+            })
+            .catch(err => {
+                console.error("삭제 실패:", err);
+                alert("삭제 실패!");
+            });
+    };
     render() {
         return (
             <div>
@@ -191,14 +241,40 @@ safeDate(str) {
 
                                     {/* 버튼 */}
                                     <div className="d-flex justify-content-center mt-4">
-                                        <button
-                                            type="button"
-                                            onClick={this.handleSave}
-                                            className="btn btn-primary me-2"
-                                        >
-                                            {this.isEditMode() ? "수정" : "등록"}
-                                        </button>
+                                        {this.isEditMode() ? (
+                                            <>
+                                                {/* 수정 버튼 */}
+                                                <button
+                                                    type="button"
+                                                    onClick={this.handleUpdate}
+                                                    className="btn btn-primary me-2"
+                                                >
+                                                    수정
+                                                </button>
 
+                                                {/* 삭제 버튼 */}
+                                                <button
+                                                    type="button"
+                                                    onClick={this.handleDelete}
+                                                    className="btn btn-danger me-2"
+                                                >
+                                                    삭제
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <>
+                                                {/* 등록 버튼 */}
+                                                <button
+                                                    type="button"
+                                                    onClick={this.handleSave}
+                                                    className="btn btn-primary me-2"
+                                                >
+                                                    등록
+                                                </button>
+                                            </>
+                                        )}
+
+                                        {/* 취소 버튼 (공통) */}
                                         <button type="button" className="btn btn-light">
                                             취소
                                         </button>
