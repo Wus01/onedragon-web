@@ -5,7 +5,9 @@ import bsCustomFileInput from 'bs-custom-file-input';
 import { ProgressBar } from 'react-bootstrap';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
+//import API_BASE_URL from '../../config/apiConfig';
 
+console.log('***HiringDetail File is Loaded***');
 // export const  = () => {
 function HiringDetail(){
 //  // 클래스 컴포넌트의 componentDidMount 역할을 useEffect로 대체
@@ -29,7 +31,6 @@ function HiringDetail(){
         // 게시글 불러오기
         useEffect(() => {
             axios.get(`${process.env.REACT_APP_API_URL}/hiring/${id}`)
-//            axios.get(`/hiring/${id}`)
                 .then(response => {
                     console.log('게시글 가져오기 성공:', response.data);
                     setHiring(response.data);
@@ -49,7 +50,7 @@ function HiringDetail(){
   return (
     <div>
       <div className="page-header">
-        <h3 className="page-title">지원자 상세보기</h3>
+        <h3 className="page-title">공고 상세보기</h3>
         <nav aria-label="breadcrumb">
           <ol className="breadcrumb">
             <li className="breadcrumb-item"><a href="#!" onClick={event => event.preventDefault()}>Tables</a></li>
@@ -67,7 +68,7 @@ function HiringDetail(){
               <Form.Group className="mb-3">
                 {/*<Form.Label htmlFor="inputStoreName" value={hiring?.hiringTitle}>{hiring?.hiringTitle}</Form.Label>*/}
                 {/* type="selectBox" 대신 type="text"를 사용하고, id를 수정했습니다. */}
-                <Form.Control type="text" id="inputStoreName" value={hiring.storeId || hiring.hiringTitle || ''} readOnly />
+                <Form.Control type="text" id="inputStoreName" value={hiring.storeInfo.storeNm || ''} readOnly />
               </Form.Group>
 
               {/* 2. 제목 (Form.Control 사용, readOnly) */}
@@ -77,38 +78,13 @@ function HiringDetail(){
                 <Form.Control type="text" id="inputTitle" value={hiring.hiringTitle || ''} readOnly />
               </Form.Group>
 
-              {/* 3. 지원자 (Form.Control 사용, readOnly) */}
-              <Form.Group className="mb-3">
-                <Form.Label htmlFor="inputApplicant">지원자</Form.Label>
-                <Form.Control type="text" id="inputApplicant" value={hiring.rgstId || ''} readOnly />
-              </Form.Group>
 
-              {/* 4. 성별 (select 대신 Form.Control as="select" 사용, readOnly) */}
-              <Form.Group className="mb-3">
-                <Form.Label htmlFor="exampleSelectGender">성별</Form.Label>
-                {/* Form.Control을 사용하고 as="select"로 지정하여 readOnly를 적용합니다. */}
-                {/* select에 readOnly를 사용하면 UI적으로는 여전히 활성화된 것처럼 보일 수 있으나,
-                    Bootstrap 스타일과 prop을 일관되게 적용하기 위함입니다.
-                    사용자가 선택을 변경하지 못하게 하려면 'disabled'를 사용하는 것이 일반적입니다.
-                    (여기서는 원본에 맞춰 readOnly 유지)
-                */}
-                <Form.Control as="select" id="exampleSelectGender" readOnly>
-                  <option>여</option>
-                  <option>남</option>
-                </Form.Control>
-              </Form.Group>
 
-              {/* 5. 나이 (Form.Control 사용, readOnly) */}
+              {/* 3. 내용 (Form.Control as="textarea" 사용, readOnly) */}
               <Form.Group className="mb-3">
-                <Form.Label htmlFor="inputAge">나이</Form.Label>
-                <Form.Control type="text" id="inputAge" readOnly />
-              </Form.Group>
-
-              {/* 6. 이력사항 (Form.Control as="textarea" 사용, readOnly) */}
-              <Form.Group className="mb-3">
-                <Form.Label htmlFor="textareaResume">이력사항</Form.Label>
+                <Form.Label htmlFor="textareaResume">내용</Form.Label>
                 {/* <textarea> 대신 Form.Control as="textarea"와 readOnly 사용 */}
-                <Form.Control as="textarea" id="textareaResume" rows={4} readOnly />
+                <Form.Control as="textarea" id="textareaResume" rows={4} value={hiring.hiringText || ''} readOnly />
               </Form.Group>
 
 
@@ -116,64 +92,41 @@ function HiringDetail(){
               <div className="">
                 <table className="table">
                   <thead>
+                  <p style={{fontWeight:'bold', fontSize:'30'}}>지원자 목록</p>
                     <tr>
-                      <th style={{fontWeight:'bold', fontSize:'25'}}>지역</th>
-                      <th>일용이 모집글</th>
-                      <th>급여</th>
-                      <th> 지원여부</th>
+                      <th style={{fontWeight:'bold', fontSize:'25'}}><input type="checkbox"/></th>
+                      <th>이름</th>
+                      <th>지점명</th>
+                      <th>경력</th>
+
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <td>시흥 배곧동</td>
-                      <td><Link to={`/hiring/1`}>배곧점 GS25 야간 <span className='text-danger'>급구</span>(30분 전)</Link></td>
-                      <td> 10,320원 </td>
-                      <td><label className="badge badge-warning">지원하기</label></td>
+                      <td><input type="checkbox"/></td>
+                      <td><Link to={`/hiring/1`}>곽혜진</Link></td>
+                      <td>GS편의점</td>
+                      <td>1년</td>
                     </tr>
                     <tr>
-                      <td>안산시 상록구 사동</td>
-                      <td>석호중앙점 GS25 야간 <span className='text-danger'>급구</span>(1시간 전)</td>
-                      <td > 11,000원 </td>
-                      {/* <td><label className="badge badge-warning">지원하기</label></td>                         */}
-                      <td><label className="badge badge-danger">마감하기</label></td>
+                        <td><input type="checkbox"/></td>
+                        <td><Link to={`/hiring/1`}>김한희</Link></td>
+                        <td>GS편의점, 세븐일레븐</td>
+                        <td>2년 1개월</td>
                     </tr>
                     <tr>
-                      <td>안산시 단원구 고잔동</td>
-                      <td>고잔점 GS25 주간 일반(3시간 전)</td>
-                      <td> 10,320원 </td>
-                      <td><label className="badge badge-warning">지원하기</label></td>
+                      <td><input type="checkbox"/></td>
+                      <td><Link to={`/hiring/1`}>황지현</Link></td>
+                      <td>GS편의점, 세븐일레븐</td>
+                      <td>3년 5개월</td>
                     </tr>
                     <tr>
-                      <td>시흥 배곧동</td>
-                      <td>배곧점 GS25 야간 <span className='text-danger'>급구</span>(7시간 전)</td>
-                      <td> 10,320원 </td>
-                      <td><label className="badge badge-warning">지원하기</label></td>
+                      <td><input type="checkbox"/></td>
+                      <td><Link to={`/hiring/1`}>황원정</Link></td>
+                      <td>GS편의점, 세븐일레븐</td>
+                      <td>3개월</td>
                     </tr>
-                    <tr>
-                      <td>안산시 상록구 사동</td>
-                      <td>석호중앙점 GS25 야간 <span className='text-danger'>급구</span>(10시간 전)</td>
-                      <td> 11,000원 </td>
-                      {/* <td><label className="badge badge-warning">지원하기</label></td>                         */}
-                      <td><label className="badge badge-danger">마감하기</label></td>
-                    </tr>
-                    <tr>
-                      <td>안산시 단원구 고잔동</td>
-                      <td>고잔점 GS25 주간 일반(1일 전)</td>
-                      <td> 10,320원 </td>
-                      <td><label className="badge badge-warning">지원하기</label></td>
-                    </tr>
-                    {/* <tr>
-                      <td>Peter</td>
-                      <td>After effects</td>
-                      <td className="text-success"> 82.00% </td>
-                      <td><label className="badge badge-success">Completed</label></td>
-                    </tr>
-                    <tr>
-                      <td>Dave</td>
-                      <td>53275535</td>
-                      <td className="text-success"> 98.05% </td>
-                      <td><label className="badge badge-warning">In progress</label></td>
-                    </tr> */}
+
                   </tbody>
                 </table>
               </div>

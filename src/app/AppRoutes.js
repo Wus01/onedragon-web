@@ -2,7 +2,7 @@ import React, { Component,Suspense, lazy } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 
 import Spinner from '../app/shared/Spinner';
-
+const HiringDetail = lazy(() => import('./tables/HiringDetail'));
 const Dashboard = lazy(() => import('./dashboard/Dashboard'));
 
 const Buttons = lazy(() => import('./basic-ui/Buttons'));
@@ -21,7 +21,7 @@ const Mdi = lazy(() => import('./icons/Mdi'));
 
 const Login = lazy(() => import('./user-pages/Login'));
 const Register1 = lazy(() => import('./user-pages/Register'));
-const HiringDetail = lazy(() => import('./tables/HiringDetail'));
+
 const ApplyDetail = lazy(() => import('./tables/ApplyDetail'));
 const CrrHstrCreate = lazy(() => import('./form-elements/CrrHstrCreate'));
 const StoreInfoList = lazy(() => import('./storeInfo/StoreInfoList'));
@@ -52,7 +52,8 @@ class AppRoutes extends Component {
 
           <Route path="/login" component={ Login } />
           <Route path="/register" component={ Register1 } />
-          <Route path="/applyDetail" component={ ApplyDetail } />
+          <Route path="/apply/:id" component={ ApplyDetail } />
+          <Route path="/hiringDetail/:id" component={ HiringDetail } />
           {/* <Route path="/error-pages/error-404" component={ Error404 } />
           <Route path="/error-pages/error-500" component={ Error500 } /> */}
           <Route path='/storelist' component={ StoreInfoList } />
