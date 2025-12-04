@@ -1,6 +1,7 @@
 // 1. JSON 파일 가져오기
 import rawData from '../../json/Ansan-si_GS25_list.json'; 
 import axios from "axios";
+import { postStoreList } from './getStores';
 
 function ShopListFromFile() {
   // 2. 불러온 데이터에서 'results' 배열 GET
@@ -16,14 +17,10 @@ function ShopListFromFile() {
   const onClickSubmit = () => {
       // 백앤드로 데이터 전송
       try{
-          axios.post(`${process.env.REACT_APP_API_URL}/store/batch`,shopData).then(res => {
-              console.log(res.data);
-          }).catch(err => {
-              console.error(err);
-          })
+        postStoreList(shopData);
 
       }catch(e){
-          console.error(e);
+        console.error(e);
       }
   }
 
