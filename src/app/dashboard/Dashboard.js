@@ -5,6 +5,7 @@ import axios from "axios";
 import { ProgressBar, Dropdown } from "react-bootstrap";
 import GaugeChart from "react-gauge-chart";
 import { VectorMap } from "react-jvectormap";
+import { getStoreList } from '../storeInfo/getStores';
 
 const mapData = {
   CN: 100000,
@@ -27,25 +28,22 @@ function Dashboard() {
 
   const storesPerPage = 10;
 
-  const getStoreList = () => {
-    axios
-      .get(`${process.env.REACT_APP_API_URL}/store/getStores`, {
-        params: { page: currentPage - 1, size: storesPerPage },
-      })
-      .then((res) => {
-        setStores(res.data.content);
-        setTotalPages(res.data.totalPages);
-      })
-      .catch((err) => console.error(err));
+  const storeList = () => {
+    try{
+      getStoreList()
+
+    }catch(e){
+      console.error(e);
+    }
   };
 
   useEffect(() => {
-    // getStoreList();
+    storeList();
   }, []);
 
-  useEffect(() => {
-    // getStoreList();
-  }, [currentPage]);
+  // useEffect(() => {
+  //   storeList();
+  // }, [currentPage]);
 
   const handlePageChange = (page) => setCurrentPage(page);
 
