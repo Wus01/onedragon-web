@@ -5,7 +5,8 @@ import axios from "axios";
 import { ProgressBar, Dropdown } from "react-bootstrap";
 import GaugeChart from "react-gauge-chart";
 import { VectorMap } from "react-jvectormap";
-import { getStoreList } from '../storeInfo/getStores';
+import { getStoreList } from '../../api/storeApi'
+import { getHiringList } from "../../api/hiringBoardApi";
 
 const mapData = {
   CN: 100000,
@@ -22,23 +23,41 @@ function Dashboard() {
   /** ------------------------------------
    *  pagination / store list
    * ------------------------------------ */
-  const [stores, setStores] = useState([]);
+  // const [stores, setStores] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const storesPerPage = 10;
+  const [hiring, setHiring] = useState([]);
+  // const storesPerPage = 10;
+  const hiringsPerPage = 10;
 
-  const storeList = () => {
+  // 점포 데이터 호출
+  // const storeList = async () => {
+  //   try{
+  //     const list = await getStoreList(currentPage,storesPerPage)
+  //     console.log("list ===> ",list.content);
+  //     setStores(list.content);
+
+  //   }catch(e){
+  //     console.error(e);
+  //   }
+  // };
+
+  // 공고 데이터 호출
+  const hiringList = async () => {
     try{
-      getStoreList()
+      const list = await getHiringList(currentPage,hiringsPerPage)
+      console.log("list ===> ",list.content);
+      setHiring(list.content);
 
     }catch(e){
       console.error(e);
     }
-  };
+  }
 
   useEffect(() => {
-    storeList();
+    // storeList();
+    hiringList();
   }, []);
 
   // useEffect(() => {
@@ -337,11 +356,33 @@ function Dashboard() {
                         <td> 10,320원 </td>
                         <td><label className="badge badge-warning">지원하기</label></td>
                       </tr>
+                    </tbody>
+                    {hiring.map((item) => (
+                      <tbody>
+                        <tr key={item.hiringNo}>
+                          <td>{item.storeInfo.storeNm}</td>
+                          <td>{item.hiringTitle}</td>
+                          {/* <td>석호중앙점 GS25 야간 <span className='text-danger'>급구</span>(1시간 전)</td> */}
+                          {/* <td > 11,000원 </td> */}
+                          <td></td>
+                          <td><label className="badge badge-warning">지원하기</label></td>                        
+                          {/* <td><label className="badge badge-danger">마감하기</label></td> */}
+                        </tr>                      
+                      </tbody>
+                    ))}
+                    
+                    {/* <tbody>
+                      <tr>
+                        <td>시흥 배곧동</td>
+                        <td><Link to={`/hiring/1`}>배곧점 GS25 야간 <span className='text-danger'>급구</span>(30분 전)</Link></td>
+                        <td> 10,320원 </td>
+                        <td><label className="badge badge-warning">지원하기</label></td>
+                      </tr>
                       <tr>
                         <td>안산시 상록구 사동</td>
                         <td>석호중앙점 GS25 야간 <span className='text-danger'>급구</span>(1시간 전)</td>
                         <td > 11,000원 </td>
-                        {/* <td><label className="badge badge-warning">지원하기</label></td>                         */}
+                        <td><label className="badge badge-warning">지원하기</label></td>                        
                         <td><label className="badge badge-danger">마감하기</label></td>
                       </tr>
                       <tr>
@@ -360,7 +401,7 @@ function Dashboard() {
                         <td>안산시 상록구 사동</td>
                         <td>석호중앙점 GS25 야간 <span className='text-danger'>급구</span>(10시간 전)</td>
                         <td> 11,000원 </td>
-                        {/* <td><label className="badge badge-warning">지원하기</label></td>                         */}
+                        <td><label className="badge badge-warning">지원하기</label></td>                        
                         <td><label className="badge badge-danger">마감하기</label></td>
                       </tr>
                       <tr>
@@ -369,7 +410,7 @@ function Dashboard() {
                         <td> 10,320원 </td>
                         <td><label className="badge badge-warning">지원하기</label></td>
                       </tr>
-                      {/* <tr>
+                      <tr>
                         <td>Peter</td>
                         <td>After effects</td>
                         <td className="text-success"> 82.00% </td>
@@ -380,8 +421,8 @@ function Dashboard() {
                         <td>53275535</td>
                         <td className="text-success"> 98.05% </td>
                         <td><label className="badge badge-warning">In progress</label></td>
-                      </tr> */}
-                    </tbody>
+                      </tr>
+                    </tbody> */}
                   </table>
                 </div>
               </div>
