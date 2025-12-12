@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Line, Bar, Radar } from "react-chartjs-2";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import { ProgressBar, Dropdown } from "react-bootstrap";
+import { ProgressBar, Dropdown, Modal } from "react-bootstrap";
 import GaugeChart from "react-gauge-chart";
 import { VectorMap } from "react-jvectormap";
 import { getStoreList } from '../../api/storeApi'
 import { getHiringList } from "../../api/hiringBoardApi";
+import CustModal from "../common/Modal";
 
 const mapData = {
   CN: 100000,
@@ -268,6 +269,14 @@ function Dashboard() {
     });
   }, []);
 
+  const [isOpen, setIsOpen] = useState(false);
+  const [isClose, setIsClose] = useState(false);
+  const [header, setHeader] = useState('');
+
+  const closeModalHandler = () => {
+    setIsOpen(false);
+  };
+
   /** ------------------------------------
    *  Render
    * ------------------------------------ */
@@ -315,7 +324,7 @@ function Dashboard() {
                 <a href="!#" onClick={evt =>evt.preventDefault()} className="advanced-link toolbar-item">Advanced Options</a>
               </div>
               <div className="sort-wrapper justify-content-between">
-              <button type="button" className="btn btn-primary" onClick={() => alert("새 글 작성")}>작성하기</button>
+              <button type="button" className="btn btn-primary" onClick={() => setIsOpen(true)}>작성하기</button>
                 <Dropdown>
                   <Dropdown.Toggle variant="btn btn-secondary dropdown-toggle  toolbar-item" id="dropdownMenuButton2">
                     Export
@@ -370,65 +379,19 @@ function Dashboard() {
                         </tr>
                       </tbody>
                     ))}
-                    
-                    {/* <tbody>
-                      <tr>
-                        <td>시흥 배곧동</td>
-                        <td><Link to={`/hiring/1`}>배곧점 GS25 야간 <span className='text-danger'>급구</span>(30분 전)</Link></td>
-                        <td> 10,320원 </td>
-                        <td><label className="badge badge-warning">지원하기</label></td>
-                      </tr>
-                      <tr>
-                        <td>안산시 상록구 사동</td>
-                        <td>석호중앙점 GS25 야간 <span className='text-danger'>급구</span>(1시간 전)</td>
-                        <td > 11,000원 </td>
-                        <td><label className="badge badge-warning">지원하기</label></td>                        
-                        <td><label className="badge badge-danger">마감하기</label></td>
-                      </tr>
-                      <tr>
-                        <td>안산시 단원구 고잔동</td>
-                        <td>고잔점 GS25 주간 일반(3시간 전)</td>
-                        <td> 10,320원 </td>
-                        <td><label className="badge badge-warning">지원하기</label></td>
-                      </tr>
-                      <tr>
-                        <td>시흥 배곧동</td>
-                        <td>배곧점 GS25 야간 <span className='text-danger'>급구</span>(7시간 전)</td>
-                        <td> 10,320원 </td>
-                        <td><label className="badge badge-warning">지원하기</label></td>
-                      </tr>
-                      <tr>
-                        <td>안산시 상록구 사동</td>
-                        <td>석호중앙점 GS25 야간 <span className='text-danger'>급구</span>(10시간 전)</td>
-                        <td> 11,000원 </td>
-                        <td><label className="badge badge-warning">지원하기</label></td>                        
-                        <td><label className="badge badge-danger">마감하기</label></td>
-                      </tr>
-                      <tr>
-                        <td>안산시 단원구 고잔동</td>
-                        <td>고잔점 GS25 주간 일반(1일 전)</td>
-                        <td> 10,320원 </td>
-                        <td><label className="badge badge-warning">지원하기</label></td>
-                      </tr>
-                      <tr>
-                        <td>Peter</td>
-                        <td>After effects</td>
-                        <td className="text-success"> 82.00% </td>
-                        <td><label className="badge badge-success">Completed</label></td>
-                      </tr>
-                      <tr>
-                        <td>Dave</td>
-                        <td>53275535</td>
-                        <td className="text-success"> 98.05% </td>
-                        <td><label className="badge badge-warning">In progress</label></td>
-                      </tr>
-                    </tbody> */}
                   </table>
                 </div>
               </div>
             </div>
           </div>
         </div>
+
+        <CustModal
+          open={isOpen}
+          close={closeModalHandler}
+          header="새 글 작성"            
+        />
+        
       {/** ------------ Chart Section ------------ */}
       <div className="row">
         <div className="col-md-8 grid-margin stretch-card">
