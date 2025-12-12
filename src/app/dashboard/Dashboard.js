@@ -349,25 +349,25 @@ function Dashboard() {
                         <th> 지원여부</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    {/* <tbody>
                       <tr>
                         <td>시흥 배곧동</td>
                         <td><Link to={`/hiring/1`}>배곧점 GS25 야간 <span className='text-danger'>급구</span>(30분 전)</Link></td>
                         <td> 10,320원 </td>
                         <td><label className="badge badge-warning">지원하기</label></td>
                       </tr>
-                    </tbody>
+                    </tbody> */}
                     {hiring.map((item) => (
                       <tbody>
                         <tr key={item.hiringNo}>
                           <td>{item.storeInfo.storeNm}</td>
-                          <td>{item.hiringTitle}</td>
+                          <td><Link to={`/hiringDetail/${item.hiringNo}`}>{item.hiringTitle}</Link></td>
+                          <td>{item.payPerHour}</td>
                           {/* <td>석호중앙점 GS25 야간 <span className='text-danger'>급구</span>(1시간 전)</td> */}
                           {/* <td > 11,000원 </td> */}
-                          <td></td>
                           <td><label className="badge badge-warning">지원하기</label></td>                        
                           {/* <td><label className="badge badge-danger">마감하기</label></td> */}
-                        </tr>                      
+                        </tr>
                       </tbody>
                     ))}
                     

@@ -23,10 +23,7 @@ function HiringDetail(){
     const { id } = useParams(); // alt+enter
 //    const navigate = useNavigate();
 
-    let [hiring,setHiring] = useState({
-            hiringTitle:"",
-            hiringText:""
-        });
+    const [hiring,setHiring] = useState({});
 
         // 게시글 불러오기
         useEffect(() => {
@@ -68,7 +65,9 @@ function HiringDetail(){
               <Form.Group className="mb-3">
                 {/*<Form.Label htmlFor="inputStoreName" value={hiring?.hiringTitle}>{hiring?.hiringTitle}</Form.Label>*/}
                 {/* type="selectBox" 대신 type="text"를 사용하고, id를 수정했습니다. */}
-                <Form.Control type="text" id="inputStoreName" value={hiring.storeInfo.storeNm || ''} readOnly />
+
+                {/* 지점 데이터가 존재하고, storeNm이 있을때만 표시 */}
+                <Form.Control type="text" id="inputStoreName" value={hiring.storeInfo?.storeNm??''} readOnly />
               </Form.Group>
 
               {/* 2. 제목 (Form.Control 사용, readOnly) */}
