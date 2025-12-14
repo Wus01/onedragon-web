@@ -25,6 +25,8 @@ const Register1 = lazy(() => import('./user-pages/Register'));
 const ApplyDetail = lazy(() => import('./tables/ApplyDetail'));
 const CrrHstrCreate = lazy(() => import('./form-elements/CrrHstrCreate'));
 const StoreInfoList = lazy(() => import('./storeInfo/StoreInfoList'));
+const MypageHome = lazy(() => import('./form-elements/MypageHome'));
+
 
 
 
@@ -61,6 +63,9 @@ class AppRoutes extends Component {
           <Route path='/CrrHstrCreate/:userId/:storeId' component={ CrrHstrCreate } />
           {/*재직이력 등록용*/}
           <Route path='/CrrHstrCreate' component={ CrrHstrCreate } />
+          {/*마이페이지*/}
+          <Route path='/MypageHome' component={ MypageHome } />
+
 
 
 
