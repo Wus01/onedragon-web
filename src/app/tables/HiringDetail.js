@@ -38,20 +38,41 @@ function HiringDetail(){
                 });
         }, [id]);
 
+        // 지원자목록 불러오기
+        // 1. 초기값 수정: 리스트(배열)를 받아야 하므로 []로 초기화하세요.
+        const [applyList, setApplyList] = useState([]);
+
+        useEffect(() => {
+            // 2. URL의 id는 현재 페이지의 파라미터(id)를 그대로 쓰되,
+            //    백엔드 컨트롤러 주소와 일치시키면 됩니다.
+            axios.get(`${process.env.REACT_APP_API_URL}/apply/list/${id}`)
+                .then(response => {
+                    console.log('지원자목록 가져오기 성공!:', response.data);
+
+                    setApplyList(response.data);
+                })
+                .catch(error => {
+                    console.error('지원자목록 가져오기 실패:', error);
+                    alert("지원자목록을 불러오는 데 실패했습니다.");
+                });
+        }, [id]); // id가 바뀔 때마다 다시 실행
+
 
 
     function fn_confirm(){
         alert("확정하시겠습니까?");
     }
+
   // JSX 반환
   return (
+
     <div>
       <div className="page-header">
         <h3 className="page-title">공고 상세보기</h3>
         <nav aria-label="breadcrumb">
           <ol className="breadcrumb">
-            <li className="breadcrumb-item"><a href="#!" onClick={event => event.preventDefault()}>Tables</a></li>
-            <li className="breadcrumb-item active" aria-current="page">Basic tables</li>
+            {/*<li className="breadcrumb-item"><a href="#!" onClick={event => event.preventDefault()}>Tables</a></li>
+            <li className="breadcrumb-item active" aria-current="page">Basic tables</li>*/}
           </ol>
         </nav>
       </div>
@@ -87,45 +108,33 @@ function HiringDetail(){
               </Form.Group>
 
 
-
+<p style={{fontWeight:'bold', fontSize:'30'}}>지원자 목록({applyList.length}명)</p>
               <div className="">
                 <table className="table">
                   <thead>
-                  <p style={{fontWeight:'bold', fontSize:'30'}}>지원자 목록</p>
                     <tr>
                       <th style={{fontWeight:'bold', fontSize:'25'}}><input type="checkbox"/></th>
+                      <th>번호</th>
                       <th>이름</th>
                       <th>지점명</th>
                       <th>경력</th>
-
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td><input type="checkbox"/></td>
-                      <td><Link to={`/hiring/1`}>곽혜진</Link></td>
-                      <td>GS편의점</td>
-                      <td>1년</td>
-                    </tr>
-                    <tr>
-                        <td><input type="checkbox"/></td>
-                        <td><Link to={`/hiring/1`}>김한희</Link></td>
-                        <td>GS편의점, 세븐일레븐</td>
-                        <td>2년 1개월</td>
-                    </tr>
-                    <tr>
-                      <td><input type="checkbox"/></td>
-                      <td><Link to={`/hiring/1`}>황지현</Link></td>
-                      <td>GS편의점, 세븐일레븐</td>
-                      <td>3년 5개월</td>
-                    </tr>
-                    <tr>
-                      <td><input type="checkbox"/></td>
-                      <td><Link to={`/hiring/1`}>황원정</Link></td>
-                      <td>GS편의점, 세븐일레븐</td>
-                      <td>3개월</td>
-                    </tr>
-
+                    {applyList && applyList.length > 0 ? (
+                      applyList.map((apply, index) => (
+                        <tr key={apply.applyNo || index}>
+                          <td><input type="checkbox" /></td>
+                          <td>{index + 1}</td>
+                          <td>{apply.userInfo?.userNm || ''}</td>
+                          <td>{apply.userInfo?.userPhone || ''}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="4" className="text-center">지원자가 없습니다.</td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>

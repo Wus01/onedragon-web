@@ -53,7 +53,7 @@ class AppRoutes extends Component {
           <Route path="/login" component={ Login } />
           <Route path="/register" component={ Register1 } />
           <Route path="/apply/:id" component={ ApplyDetail } />
-          <Route path="/hiringDetail/:id" component={ HiringDetail } />
+          <Route path="/hiring/:id" component={ HiringDetail } />
           {/* <Route path="/error-pages/error-404" component={ Error404 } />
           <Route path="/error-pages/error-500" component={ Error500 } /> */}
           <Route path='/storelist' component={ StoreInfoList } />
