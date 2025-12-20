@@ -11,7 +11,6 @@ const Login = () => {
     const [userPwd, setUserPwd] = useState("");
 
     const baseUrl = process.env.REACT_APP_API_URL;
-    // 예: http://localhost:8080/api
 
     const onLogin = async (e) => {
         e.preventDefault();
@@ -27,11 +26,7 @@ const Login = () => {
                 userPwd
             };
 
-            console.log("로그인 요청 payload:", payload);
-
             const res = await axios.post(`${baseUrl}/userInfo/login`, payload);
-
-            console.log("로그인 응답:", res.data);
 
             // 서버에서 JWT 발급한다고 가정
             if (res.data.token) {
@@ -42,8 +37,6 @@ const Login = () => {
             history.push("/dashboard");
 
         } catch (err) {
-            console.log("에러: "+err);
-            console.error("[로그인 실패]", err);
 
             let errorMessage = "로그인에 실패했습니다.";
 
@@ -113,19 +106,10 @@ const Login = () => {
                                 </div>
 
                                 <div className="my-2 d-flex justify-content-between align-items-center">
+                                    <a href="/register" className="auth-link text-black">회원가입</a>
                                     <a href="#!" className="auth-link text-black">아이디 찾기</a>
-                                </div>
-
-                                <div className="my-2 d-flex justify-content-between align-items-center">
                                     <a href="#!" className="auth-link text-black">비밀번호 찾기</a>
                                 </div>
-
-                                <div className="my-2 d-flex justify-content-between align-items-center">
-                                    <Link to="/register" className="text-primary">
-                                        회원가입
-                                    </Link>
-                                </div>
-
                             </Form>
                         </div>
                     </div>
