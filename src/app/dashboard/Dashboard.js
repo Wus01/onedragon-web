@@ -370,11 +370,11 @@ function Dashboard() {
                       <tbody>
                         <tr key={item.hiringNo}>
                           <td>{item.storeInfo.storeNm}</td>
-                          <td><Link to={`/hiringDetail/${item.hiringNo}`}>{item.hiringTitle}</Link></td>
+                          <td><Link to={`/hiring/${item.hiringNo}`}>{item.hiringTitle}</Link></td>
                           <td>{item.payPerHour}</td>
                           {/* <td>석호중앙점 GS25 야간 <span className='text-danger'>급구</span>(1시간 전)</td> */}
                           {/* <td > 11,000원 </td> */}
-                          <td><label className="badge badge-warning">지원하기</label></td>                        
+                          <td><label className="badge badge-warning">지원하기</label></td>
                           {/* <td><label className="badge badge-danger">마감하기</label></td> */}
                         </tr>
                       </tbody>
@@ -389,7 +389,7 @@ function Dashboard() {
         <CustModal
           open={isOpen}
           close={closeModalHandler}
-          header="새 글 작성"            
+          header="공고작성"            
         />
         
       {/** ------------ Chart Section ------------ */}
