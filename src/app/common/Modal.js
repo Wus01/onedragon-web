@@ -44,6 +44,11 @@ const CustModal = (props) => {
       setEndDate(dayjs(date).format('YYYY-MM-DD'));
     }
   };
+
+  // 점포 등록 개수에 따라 달라지게 !!
+  const list = [{value:'1',name:'석호중앙점'}];
+  // const list = [{value:'1',name:'석호중앙점'}, {value:'2', name:'고잔중앙점'}];
+
   return (
     // 모달이 열릴때 openModal 클래스가 생성된다.
     <div className={open ? 'openModal modal' : 'modal'}>
@@ -60,10 +65,21 @@ const CustModal = (props) => {
             <div>
               <label style={{margin:15}}>지점</label>
               <select style={{marginLeft:30}} name="지점" onChange={handleSelect} >
-                <option value="" selected disabled>선택</option>
-                <option value="1">히히</option>
-                <option value="2">하하</option>
-                <option value="3">호호</option>              
+                {list.length > 1 ? 
+                  <>
+                    <option value="" selected disabled>선택</option>
+                    {
+                      list.map((item) => (
+                        <option key={item.value} value={item.value}>{item.name}</option>
+                      ))
+                    }
+                  </>
+                :
+                (
+                  <>
+                    <option key={list[0].value} value={list[0].value}>{list[0].name}</option>
+                  </>
+                )}
               </select>
             </div>
             <div>
@@ -129,14 +145,26 @@ const CustModal = (props) => {
               </label>
             </div>
             <div>
-              <label style={{margin:15}}>
+              <label style={{marginLeft:15, marginTop:15}}>
                 제목
-                <input 
-                  style={{marginLeft:45}}
+                <textarea 
+                  style={{marginLeft:45, width:250, height:30, verticalAlign: 'top'}}
                   type='text'
+                  placeholder='지점 + 업무 + 주/야간 + 긴급성'
                 />
               </label>
-            </div>            
+            </div>
+            <div>
+              <label style={{marginLeft:15, marginTop:5}}>
+                내용
+                <textarea
+                  style={{marginLeft:45, width:250, height:150, verticalAlign: 'top'}}
+                  multiple={true}
+                  type='text'
+                  placeholder='업무 내용 및 원하는 인재상??'
+                />
+              </label>
+            </div>
           </main>
           <footer>
             <button onClick={close}>
