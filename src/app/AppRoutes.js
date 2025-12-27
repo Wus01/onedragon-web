@@ -21,6 +21,7 @@ const Mdi = lazy(() => import('./icons/Mdi'));
 
 const Login = lazy(() => import('./user-pages/Login'));
 const Register1 = lazy(() => import('./user-pages/Register'));
+const FindIdPw = lazy(() => import('./user-pages/FindIdPw'));
 
 const ApplyDetail = lazy(() => import('./tables/ApplyDetail'));
 const CrrHstrCreate = lazy(() => import('./form-elements/CrrHstrCreate'));
@@ -55,6 +56,7 @@ class AppRoutes extends Component {
 
           <Route path="/login" component={ Login } />
           <Route path="/register" component={ Register1 } />
+          <Route path="/findIdPw" component={ FindIdPw } />
           <Route path="/apply/:id" component={ ApplyDetail } />
           <Route path="/hiring/:id" component={ HiringDetail } />
           {/* <Route path="/error-pages/error-404" component={ Error404 } />

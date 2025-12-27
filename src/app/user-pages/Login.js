@@ -108,8 +108,8 @@ const Login = () => {
 
                                 <div className="my-2 d-flex justify-content-between align-items-center">
                                     <a href="/register" className="auth-link text-black">회원가입</a>
-                                    <a href="#!" className="auth-link text-black">아이디 찾기</a>
-                                    <a href="#!" className="auth-link text-black">비밀번호 찾기</a>
+                                    <a href="/findIdPw?type=id" className="auth-link text-black">아이디 찾기</a>
+                                    <a href="/findIdPw?type=pw" className="auth-link text-black">비밀번호 찾기</a>
                                 </div>
                             </Form>
                         </div>
