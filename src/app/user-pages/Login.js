@@ -31,6 +31,7 @@ const Login = () => {
             // 서버에서 JWT 발급한다고 가정
             if (res.data.token) {
                 localStorage.setItem("token", res.data.token);
+                localStorage.setItem('userId', res.data.userId);
             }
 
             alert("로그인 성공!");
