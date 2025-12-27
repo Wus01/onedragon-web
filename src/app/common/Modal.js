@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import CustomDatePicker from './Datepicker';
-import { ko } from 'date-fns/esm/locale';
+import { ko } from 'date-fns/locale';
 import styled from '@emotion/styled';
 import '../../assets/css/modal.css';
 import dayjs from 'dayjs';
