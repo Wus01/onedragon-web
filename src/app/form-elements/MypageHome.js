@@ -49,13 +49,56 @@ const ApplicationCard = ({ application }) => {
 
 // 3. 메인 컴포넌트 (부트스트랩 스타일 적용)
 const MyPageHome = () => {
-    const [profile, setProfile] = useState(mockProfileData);
-    const [applications, setApplications] = useState(mockApplicationData);
+    const [profile, setProfile] = useState(null);
+    const [applications, setApplications] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
     // DB 연결이 안 되었으므로 로딩/API 호출 로직은 주석 처리
     /* useEffect(() => { ... API Logic ... }, []); */
+
+    useEffect(() => {
+        const userId = localStorage.getItem('userId');
+
+        if (!userId) {
+            setError('로그인이 필요합니다.');
+            return;
+        }
+
+        setLoading(true);
+
+        fetch(`/api/mypage/${userId}`)
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('회원정보 조회 실패');
+                }
+                return res.json();
+            })
+            .then(data => {
+                console.log('마이페이지 회원조회 결과:', data);
+
+                const user = data.data; // ⭐ 핵심 포인트
+
+                setProfile({
+                    name: user.userNm,
+                    phone: user.userPhone ?? '',   // 없으면 빈 값
+                    email: user.userEmail,
+                    profileImageUrl: null,
+                    applicationCount: 0
+                });
+
+                // 지원 현황이 아직 없으면 빈 배열
+                setApplications(data.applications ?? []);
+            })
+            .catch(err => {
+                console.error(err);
+                setError(err.message);
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    }, []);
+
 
     if (loading) {
         return <div className="p-4 text-center text-secondary">데이터 로딩 중...</div>;
@@ -73,9 +116,16 @@ const MyPageHome = () => {
             <div className="card shadow mb-4 p-4 border-0 rounded-3">
                 <div className="d-flex align-items-center gap-4">
                     {/* 프로필 사진 */}
-                    <div className="rounded-circle bg-light d-flex align-items-center justify-content-center text-secondary" style={{ width: '80px', height: '80px' }}>
-                        {profile.profileImageUrl ? (
-                            <img src={profile.profileImageUrl} alt="프로필" className="img-fluid rounded-circle" />
+                    <div
+                        className="rounded-circle bg-light d-flex align-items-center justify-content-center text-secondary"
+                        style={{ width: '80px', height: '80px' }}
+                    >
+                        {profile?.profileImageUrl ? (
+                            <img
+                                src={profile.profileImageUrl}
+                                alt="프로필"
+                                className="img-fluid rounded-circle"
+                            />
                         ) : (
                             <FaUserCircle size={48} />
                         )}
@@ -83,12 +133,17 @@ const MyPageHome = () => {
 
                     {/* 정보 */}
                     <div className="flex-grow-1">
-                        {/* 이름 */}
-                        <h2 className="fs-5 fw-bold mb-1">{profile.name}</h2>
-                        {/* 핸드폰 번호 */}
-                        <p className="text-muted mb-1">{profile.phone}</p>
-                        {/* 이메일 */}
-                        <p className="text-muted mb-0">{profile.email}</p>
+                        <h2 className="fs-5 fw-bold mb-1">
+                            {profile?.name}
+                        </h2>
+
+                        <p className="text-muted mb-1">
+                            {profile?.phone}
+                        </p>
+
+                        <p className="text-muted mb-0">
+                            {profile?.email}
+                        </p>
                     </div>
 
                     {/* 수정 버튼 */}
@@ -99,7 +154,10 @@ const MyPageHome = () => {
             </div>
 
             <h2 className="fs-5 fw-semibold text-secondary mb-3">
-                지원 현황 <span className="text-primary ms-1">{profile.applicationCount}건</span>
+                지원 현황{' '}
+                <span className="text-primary ms-1">
+                 {profile?.applicationCount ?? 0}건
+            </span>
             </h2>
 
             {/* -------------------- 2. 지원 현황 리스트 영역 -------------------- */}

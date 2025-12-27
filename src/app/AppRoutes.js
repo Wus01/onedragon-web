@@ -30,6 +30,7 @@ const MypageHome = lazy(() => import('./form-elements/MypageHome'));
 
 
 
+
 const ApplyList = lazy(() => import('./tables/ApplyList'));
 
 
@@ -65,9 +66,6 @@ class AppRoutes extends Component {
           <Route path='/CrrHstrCreate' component={ CrrHstrCreate } />
           {/*마이페이지*/}
           <Route path='/MypageHome' component={ MypageHome } />
-
-
-
 
           <Redirect to="/dashboard" />
         </Switch>
