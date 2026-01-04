@@ -3,270 +3,191 @@ import axios from 'axios';
 import { Form } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-// v5 호환: useHistory 사용
 import { useParams, useHistory } from 'react-router-dom';
 
-// 날짜 변환 헬퍼 함수: 유효한 Date 객체 또는 null 반환 보장
 const safeDate = (str) => {
     if (!str) return null;
-
-    // 1) YYYYMMDD 형식 처리
-    if (/^\d{8}$/.test(str)) {
+    if (typeof str === 'string' && /^\d{8}$/.test(str)) {
         const yyyy = str.substring(0, 4);
         const mm = str.substring(4, 6);
         const dd = str.substring(6, 8);
         return new Date(`${yyyy}-${mm}-${dd}`);
     }
-
-    // 2) "2025-11-02 20:23:56.993" 형식 처리
-    if (str.includes(" ")) {
-        str = str.replace(" ", "T");
-    }
-
-    const d = new Date(str);
-    // Invalid Date 객체일 경우 null 반환하여 Controlled Component 상태 유지
+    let dateStr = String(str);
+    if (dateStr.includes(" ")) dateStr = dateStr.replace(" ", "T");
+    const d = new Date(dateStr);
     return isNaN(d.getTime()) ? null : d;
 }
 
 export const CrrHstrCreate = () => {
-    // State 정의
-    const [userId, setUserId] = useState(1);
-    // 경고 해결: 입력 필드의 value가 null/undefined가 되지 않도록 빈 문자열("")로 초기화
-    const [storeId, setStoreId] = useState("");
+    const { storeId: pathStoreId } = useParams();
+    const history = useHistory();
+    const storageUserId = localStorage.getItem('userId');
+    const isEditMode = Boolean(storageUserId && pathStoreId);
+    const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8080/api";
+
+    const [userId, setUserId] = useState(storageUserId || "");
+    const [storeId, setStoreId] = useState(pathStoreId || "");
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [authYn, setAuthYn] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
-    // 라우팅 훅 사용 (v5)
-    const { userId: pathUserId, storeId: pathStoreId } = useParams();
-    const history = useHistory();
-
-    const isEditMode = pathUserId && pathStoreId;
-
-    // 데이터 조회 (componentDidMount 대체)
     useEffect(() => {
-        if (isEditMode) {
-            axios.get(`${process.env.REACT_APP_API_URL}/crrHstr/${pathUserId}/${pathStoreId}`)
-                .then(res => {
-                    // ⭐ 핵심 수정: 서버 응답 구조 변경에 따라 res.data.data에 접근
-                    // 응답 본체가 { success: true, message: "...", data: {...} } 형태임
-                    const data = res.data.data;
-
-                    // Controlled Component 경고 방지 로직 적용
-                    setStoreId(data.storeId || "");
-                    setStartDate(safeDate(data.crrStrtDate || null));
-                    setEndDate(safeDate(data.crrEndDate || null));
-
-                    setUserId(data.userId);
-                    setAuthYn(data.authYn);
-                })
-                .catch(err => {
-                    console.error("조회 실패:", err);
-                    alert("데이터 조회에 실패했습니다.");
-                });
+        if (!storageUserId) {
+            alert("로그인이 필요한 서비스입니다.");
+            history.push("/login");
+            return;
         }
-    }, [isEditMode, pathUserId, pathStoreId]);
 
-    // 공통 Payload 구성
-    const createPayload = (currentStoreId) => ({
-        userId: userId,
-        storeId: currentStoreId || storeId,
-        crrStrtDate: startDate ? startDate.toISOString().slice(0, 10) : null,
-        crrEndDate: endDate ? endDate.toISOString().slice(0, 10) : null,
-        authYn: authYn
-    });
+        // pathStoreId가 있을 때만 조회 로직 실행
+        if (pathStoreId) {
+            setIsLoading(true);
+            axios.get(`${API_BASE_URL}/crrHstr/${storageUserId}/${pathStoreId}`)
+                .then(res => {
+                    const result = res.data.data || res.data;
+                    if (result) {
+                        setUserId(storageUserId);
+                        setStoreId(result.storeId);
+                        setStartDate(safeDate(result.crrStrtDate));
+                        setEndDate(safeDate(result.crrEndDate));
+                        setAuthYn(result.authYn === true || result.authYn === 'Y');
+                    }
+                })
+                .catch(err => console.error("데이터 로드 실패:", err))
+                .finally(() => setIsLoading(false));
+        } else {
+            // 신규 등록 모드로 진입 시 필드 초기화
+            setStoreId("");
+            setStartDate(null);
+            setEndDate(null);
+            setAuthYn(false);
+        }
+    }, [pathStoreId, storageUserId, history, API_BASE_URL]);
 
-    // 등록 (POST)
+    const getPayload = () => {
+        const formatDate = (date) => {
+            if (!date) return null;
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}${month}${day}`;
+        };
+
+        return {
+            userId: storageUserId,
+            storeId: parseInt(storeId),
+            crrStrtDate: formatDate(startDate),
+            crrEndDate: formatDate(endDate),
+            authYn: authYn,
+            delYn: false
+        };
+    };
+
+    // [등록] 완료 후 해당 아이디의 조회 화면으로 이동
     const handleSave = () => {
-        const payload = createPayload(storeId);
+        if(!storeId) { alert("지점 ID를 입력해주세요."); return; }
+        axios.post(`${API_BASE_URL}/crrHstr`, getPayload())
+            .then(() => {
+                alert("등록 완료!");
+                // 등록 성공 후 URL에 storeId를 붙여서 페이지를 리다이렉트 (조회 모드로 전환됨)
+                history.push(`/CrrHstrCreate/${storeId}`);
+            }).catch(() => alert("등록 실패"));
+    };
 
-        axios.post(`${process.env.REACT_APP_API_URL}/crrHstr`, payload)
-            .then(res => {
-                // API 응답 구조를 반영하여 success 여부 체크
-                if (res.data.success) {
-                    alert("등록 완료!");
-                } else {
-                    alert("등록 실패: " + (res.data.message || "서버 오류"));
-                }
-            })
-            .catch(err => {
-                console.error("등록 실패:", err);
-                alert("등록 실패! 중복 값 또는 필수 값이 누락되었는지 확인해주세요.");
-            });
-    }
-
-    // 수정 (PUT)
+    // [수정] 완료 후 현재 상태 유지 (useEffect가 자동으로 다시 불러옴)
     const handleUpdate = () => {
-        if (!window.confirm("정말 수정하시겠습니까?")) return;
-
-        const payload = createPayload(pathStoreId);
-        const url = `${process.env.REACT_APP_API_URL}/crrHstr/${pathUserId}/${pathStoreId}`;
-
-        axios.put(url, payload)
-            .then(res => {
-                if (res.data.success) {
-                    alert("수정 완료!");
-                } else {
-                    alert("수정 실패: " + (res.data.message || "서버 오류"));
-                }
-            })
-            .catch(err => {
-                console.error("수정 실패:", err);
-                alert("수정 실패!");
-            });
+        if (!window.confirm("수정하시겠습니까?")) return;
+        axios.put(`${API_BASE_URL}/crrHstr/${storageUserId}/${pathStoreId}`, getPayload())
+            .then(() => {
+                alert("수정 완료!");
+                // 현재 URL과 동일하므로 강제로 조회 로직이 타게 됨
+                window.location.reload();
+            }).catch(() => alert("수정 실패"));
     };
 
-    // 삭제 (DELETE)
     const handleDelete = () => {
-        if (!window.confirm("정말 삭제하시겠습니까?")) return;
-
-        axios.delete(`${process.env.REACT_APP_API_URL}/crrHstr/${pathUserId}/${pathStoreId}`)
-            .then(res => {
-                if (res.data.success) {
-                    alert("삭제 완료!");
-                    history.push("/storelist"); // 삭제 후 페이지 이동
-                } else {
-                    alert("삭제 실패: " + (res.data.message || "서버 오류"));
-                }
-            })
-            .catch(err => {
-                console.error("삭제 실패:", err);
-                alert("삭제 실패!");
-            });
+        if (!window.confirm("삭제하시겠습니까?")) return;
+        axios.delete(`${API_BASE_URL}/crrHstr/${storageUserId}/${pathStoreId}`)
+            .then(() => {
+                alert("삭제 완료");
+                history.push("/MypageHome");
+            }).catch(() => alert("삭제 실패"));
     };
 
-    // 렌더링
+    if (isLoading) return <div className="p-5 text-center">데이터 로딩 중...</div>;
+
     return (
-        <div>
-            <div className="page-header">
-                <h3 className="page-title">
-                    {isEditMode ? "재직 수정" : "재직 등록"}
+        <div className="p-4 bg-light min-vh-100">
+            <div className="card shadow-sm border-0 rounded-4 p-4 mx-auto" style={{ maxWidth: '700px' }}>
+                <h3 className="fw-bold mb-4 text-primary border-bottom pb-3">
+                    {isEditMode ? "🏠 재직 정보 상세/수정" : "➕ 신규 재직 등록"}
                 </h3>
-            </div>
-            <div className="row">
-                <div className="col-12 grid-margin stretch-card">
-                    <div className="card">
-                        <div className="card-body">
-                            <form className="forms-sample">
-                                {/* 지점 입력 */}
-                                <Form.Group as="div" className="row align-items-center mb-3">
-                                    <label htmlFor="exampleInputName1" className="col-sm-2 col-form-label">
-                                        지점
-                                    </label>
-                                    <div className="col-sm-3">
-                                        <Form.Control
-                                            type="text"
-                                            value={storeId}
-                                            onChange={(e) => setStoreId(e.target.value)}
-                                            className="form-control"
-                                            id="exampleInputName1"
-                                            placeholder="지점 선택 (Store ID 입력)"
-                                        />
-                                    </div>
-                                </Form.Group>
-
-                                {/* 근무 기간 입력 */}
-                                <Form.Group as="div" className="row align-items-center mb-3">
-                                    <label htmlFor="exampleInputDate" className="col-sm-2 col-form-label">
-                                        근무 기간
-                                    </label>
-                                    <div className="col-sm-10">
-                                        <div className="d-flex align-items-center">
-                                            <DatePicker
-                                                selected={startDate}
-                                                onChange={(date) => setStartDate(date)}
-                                                className="form-control"
-                                                placeholderText="시작일"
-                                                dateFormat="yyyy-MM-dd"
-                                            />
-                                            <span className="mx-2">~</span>
-                                            <DatePicker
-                                                selected={endDate}
-                                                onChange={(date) => setEndDate(date)}
-                                                className="form-control"
-                                                placeholderText="종료일"
-                                                dateFormat="yyyy-MM-dd"
-                                            />
-                                        </div>
-                                    </div>
-                                </Form.Group>
-
-                                {/* 재직 인증 여부 */}
-                                <Form.Group as="div" className="row align-items-center mb-3">
-                                    <label htmlFor="exampleInputName1" className="col-sm-2 col-form-label">
-                                        재직인증여부
-                                    </label>
-                                    <div className="col-sm-10">
-                                        {authYn === false ? (
-                                            <label
-                                                className="badge badge-danger"
-                                                style={{ cursor: "pointer" }}
-                                                onClick={() => {
-                                                    if (window.confirm("인증요청하시겠습니까?")) {
-                                                        alert("인증요청이 완료되었습니다!");
-                                                        // 실제 구현 시, 여기서 인증 요청 API 호출 로직 추가
-                                                    }
-                                                }}
-                                            >
-                                                미인증
-                                            </label>
-                                        ) : (
-                                            <label className="badge badge-success">인증완료</label>
-                                        )}
-                                    </div>
-                                </Form.Group>
-
-                                {/* 버튼 영역 */}
-                                <div className="d-flex justify-content-center mt-4">
-                                    {isEditMode ? (
-                                        <>
-                                            {/* 수정 버튼 */}
-                                            <button
-                                                type="button"
-                                                onClick={handleUpdate}
-                                                className="btn btn-primary me-2"
-                                            >
-                                                수정
-                                            </button>
-
-                                            {/* 삭제 버튼 */}
-                                            <button
-                                                type="button"
-                                                onClick={handleDelete}
-                                                className="btn btn-danger me-2"
-                                            >
-                                                삭제
-                                            </button>
-                                        </>
-                                    ) : (
-                                        <>
-                                            {/* 등록 버튼 */}
-                                            <button
-                                                type="button"
-                                                onClick={handleSave}
-                                                className="btn btn-primary me-2"
-                                            >
-                                                등록
-                                            </button>
-                                        </>
-                                    )}
-
-                                    {/* 취소 버튼 (공통) */}
-                                    <button
-                                        type="button"
-                                        className="btn btn-light"
-                                        onClick={() => history.goBack()}
-                                    >
-                                        취소
-                                    </button>
-                                </div>
-                            </form>
+                <Form>
+                    <Form.Group className="row mb-3 align-items-center">
+                        <Form.Label className="col-sm-3 fw-bold">신청인 ID</Form.Label>
+                        <div className="col-sm-9">
+                            <Form.Control type="text" value={storageUserId} readOnly className="bg-light border-0" />
                         </div>
+                    </Form.Group>
+                    <Form.Group className="row mb-3 align-items-center">
+                        <Form.Label className="col-sm-3 fw-bold">지점 ID</Form.Label>
+                        <div className="col-sm-9">
+                            <Form.Control
+                                type="number"
+                                value={storeId}
+                                onChange={(e) => setStoreId(e.target.value)}
+                                readOnly={isEditMode}
+                                className={isEditMode ? "bg-light" : ""}
+                            />
+                        </div>
+                    </Form.Group>
+                    <Form.Group className="row mb-4 align-items-center">
+                        <Form.Label className="col-sm-3 fw-bold">근무 기간</Form.Label>
+                        <div className="col-sm-9 d-flex gap-2 align-items-center">
+                            <DatePicker
+                                selected={startDate}
+                                onChange={(date) => setStartDate(date)}
+                                className="form-control"
+                                dateFormat="yyyy-MM-dd"
+                                placeholderText="시작일"
+                            />
+                            <span>~</span>
+                            <DatePicker
+                                selected={endDate}
+                                onChange={(date) => setEndDate(date)}
+                                className="form-control"
+                                dateFormat="yyyy-MM-dd"
+                                placeholderText="종료일"
+                            />
+                        </div>
+                    </Form.Group>
+
+                    {/* 수정 모드일 때만 인증 상태 배지 표시 */}
+                    {isEditMode && (
+                        <Form.Group className="row mb-4 align-items-center">
+                            <Form.Label className="col-sm-3 fw-bold">상태</Form.Label>
+                            <div className="col-sm-9">
+                                {authYn ? <span className="badge bg-success">인증 완료</span> : <span className="badge bg-warning text-dark">인증 대기</span>}
+                            </div>
+                        </Form.Group>
+                    )}
+
+                    <div className="d-flex justify-content-end gap-2 border-top pt-4">
+                        {isEditMode ? (
+                            <>
+                                <button type="button" className="btn btn-primary px-4" onClick={handleUpdate}>수정 내용 저장</button>
+                                <button type="button" className="btn btn-outline-danger" onClick={handleDelete}>기록 삭제</button>
+                            </>
+                        ) : (
+                            <button type="button" className="btn btn-success px-4" onClick={handleSave}>등록 후 확인</button>
+                        )}
+                        <button type="button" className="btn btn-light" onClick={() => history.push("/MypageHome")}>목록으로</button>
                     </div>
-                </div>
+                </Form>
             </div>
         </div>
     );
-}
+};
 
 export default CrrHstrCreate;
