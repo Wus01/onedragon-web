@@ -1,183 +1,191 @@
-import React, { useState, useEffect } from 'react';
-// 아이콘: 부트스트랩 환경이지만, 아이콘을 위해 react-icons는 유지
-import { FaUserCircle, FaChevronRight } from 'react-icons/fa';
-// axios import는 실제 API 연결 시 필요합니다.
-// import axios from 'axios';
+import React, { useState, useEffect, useRef } from 'react';
+import { FaUserCircle, FaChevronRight, FaChevronLeft } from 'react-icons/fa';
 
-// 1. 화면 표시를 위한 더미 데이터 정의
-const mockProfileData = {
-    name: "홍길동",
-    phone: "010-1234-5678",
-    email: "abc123@gmail.com",
-    profileImageUrl: null,
-    applicationCount: 13,
+const STATUS_LABEL = {
+    '01': '지원완료', '02': '서류검토중', '03': '면접제의',
+    '04': '최종합격', '05': '불합격', '09': '지원취소'
 };
 
-const mockApplicationData = [
-    { id: 1, status: "지원완료", title: "석호중앙점 주말 오전 알바구합니다.", company: "석호중앙점" },
-    { id: 2, status: "서류검토중", title: "(급)내일 야간 1일 구함", company: "고잔점" },
-    { id: 3, status: "면접제의", title: "평일 오전 2시간만 봐주실분", company: "사동점" },
-    { id: 4, status: "최종합격", title: "평일 오후 4시부터 6시까지", company: "본오점" },
-];
-
-// 2. 지원 현황 카드 컴포넌트 (부트스트랩 스타일 적용)
-const ApplicationCard = ({ application }) => {
-    // 상태별 스타일 정의 (부트스트랩 뱃지 클래스 사용)
-    let statusClass = 'bg-primary'; // 지원완료
-    if (application.status === '서류검토중') statusClass = 'bg-secondary';
-    if (application.status === '면접제의') statusClass = 'bg-warning text-dark';
-    if (application.status === '최종합격') statusClass = 'bg-success';
-
-    return (
-        <div className="card shadow-sm p-3 me-3" style={{ width: '250px' }}>
-            {/* 상태 뱃지 */}
-            <span className={`badge ${statusClass} rounded-pill mb-3`} style={{ width: 'fit-content' }}>
-                {application.status}
-            </span>
-            {/* 내용 */}
-            <h4 className="card-title fs-5 mb-1 text-truncate">{application.title}</h4>
-            <p className="card-text text-muted text-sm text-truncate">{application.company}</p>
-            <div className="mt-3 text-end">
-                <a href="#" className="btn btn-link btn-sm p-0 text-decoration-none">
-                    상세보기
-                </a>
-            </div>
+const ApplicationCard = ({ application }) => (
+    <div className="card shadow-sm p-3 border-0 rounded-3 application-card" style={{ minWidth: '250px' }}>
+        <span className="badge bg-primary rounded-pill mb-3" style={{ width: 'fit-content' }}>
+            {STATUS_LABEL[application.status] || '지원완료'}
+        </span>
+        <h4 className="card-title fs-6 mb-1 text-truncate" title={application.storeNm}>{application.storeNm}</h4>
+        <p className="card-text text-muted small">지원일: {application.applyDate}</p>
+        <div className="mt-2 text-end">
+            <button className="btn btn-link btn-sm p-0 text-decoration-none">상세보기</button>
         </div>
-    );
-};
+    </div>
+);
 
-
-// 3. 메인 컴포넌트 (부트스트랩 스타일 적용)
 const MyPageHome = () => {
     const [profile, setProfile] = useState(null);
     const [applications, setApplications] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const scrollRef = useRef(null);
 
-    // DB 연결이 안 되었으므로 로딩/API 호출 로직은 주석 처리
-    /* useEffect(() => { ... API Logic ... }, []); */
+    // 드래그 상태 관리를 위한 변수
+    const [isDrag, setIsDrag] = useState(false);
+    const [startX, setStartX] = useState(0);
+    const [scrollLeft, setScrollLeft] = useState(0);
+
+    const API_BASE_URL = process.env.REACT_APP_API_URL;
+
+    // 1. 마우스 드래그 시작
+    const onDragStart = (e) => {
+        e.preventDefault();
+        setIsDrag(true);
+        setStartX(e.pageX + scrollRef.current.scrollLeft);
+    };
+
+    // 2. 마우스 드래그 중
+    const onDragMove = (e) => {
+        if (!isDrag) return;
+        const { scrollWidth, clientWidth } = scrollRef.current;
+
+        scrollRef.current.scrollLeft = startX - e.pageX;
+
+        if (scrollRef.current.scrollLeft <= 0) {
+            setStartX(e.pageX);
+        } else if (scrollRef.current.scrollLeft >= scrollWidth - clientWidth) {
+            setStartX(e.pageX + scrollRef.current.scrollLeft);
+        }
+    };
+
+    // 3. 마우스 드래그 종료
+    const onDragEnd = () => {
+        setIsDrag(false);
+    };
+
+    // 기존 버튼 클릭 이동 함수
+    const handleScroll = (direction) => {
+        if (scrollRef.current) {
+            const moveDistance = 600;
+            const currentScroll = scrollRef.current.scrollLeft;
+            scrollRef.current.scrollTo({
+                left: direction === 'left' ? currentScroll - moveDistance : currentScroll + moveDistance,
+                behavior: 'smooth'
+            });
+        }
+    };
 
     useEffect(() => {
-        const userId = localStorage.getItem('userId');
-
-        if (!userId) {
-            setError('로그인이 필요합니다.');
-            return;
-        }
-
+        const userId = localStorage.getItem('userId') || 'abc123';
         setLoading(true);
-
-        fetch(`/api/mypage/${userId}`)
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error('회원정보 조회 실패');
+        fetch(`${API_BASE_URL}/mypage/${userId}`)
+            .then(res => res.json())
+            .then(json => {
+                if (json.success) {
+                    setProfile({
+                        name: json.data.userInfo.userNm,
+                        email: json.data.userInfo.userEmail,
+                        count: json.data.applications.length
+                    });
+                    setApplications(json.data.applications);
                 }
-                return res.json();
             })
-            .then(data => {
-                console.log('마이페이지 회원조회 결과:', data);
+            .finally(() => setLoading(false));
+    }, [API_BASE_URL]);
 
-                const user = data.data; // ⭐ 핵심 포인트
-
-                setProfile({
-                    name: user.userNm,
-                    phone: user.userPhone ?? '',   // 없으면 빈 값
-                    email: user.userEmail,
-                    profileImageUrl: null,
-                    applicationCount: 0
-                });
-
-                // 지원 현황이 아직 없으면 빈 배열
-                setApplications(data.applications ?? []);
-            })
-            .catch(err => {
-                console.error(err);
-                setError(err.message);
-            })
-            .finally(() => {
-                setLoading(false);
-            });
-    }, []);
-
-
-    if (loading) {
-        return <div className="p-4 text-center text-secondary">데이터 로딩 중...</div>;
-    }
-
-    if (error) {
-        return <div className="p-4 text-center text-danger">에러: {error}</div>;
-    }
+    if (loading) return <div className="p-5 text-center">로딩 중...</div>;
 
     return (
-        <div className="container-fluid py-4 bg-light min-vh-100">
-            <h1 className="fs-4 fw-bold text-dark mb-4 border-bottom pb-2"># 마이페이지홈</h1>
+        <div className="container-fluid p-0 m-0 bg-light min-vh-100">
+            <div className="p-4" style={{ marginLeft: '10px' }}>
+                <h1 className="fs-4 fw-bold mb-4">마이페이지</h1>
 
-            {/* -------------------- 1. 프로필 조회 영역 -------------------- */}
-            <div className="card shadow mb-4 p-4 border-0 rounded-3">
-                <div className="d-flex align-items-center gap-4">
-                    {/* 프로필 사진 */}
+                <div className="card shadow-sm mb-5 p-4 border-0 rounded-3" style={{ maxWidth: '1000px' }}>
+                    <div className="d-flex align-items-center gap-3">
+                        <FaUserCircle size={60} className="text-primary opacity-75" />
+                        <div>
+                            <h2 className="fs-5 fw-bold mb-0">{profile?.name}님 <span className="ms-2 badge bg-info bg-opacity-10 text-primary fw-normal" style={{ fontSize: '12px' }}>개인회원</span></h2>
+                            <p className="text-muted small mb-0">{profile?.email}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 className="fs-6 fw-bold text-secondary mb-3">최근 지원 현황</h3>
+
+                <div className="position-relative d-flex align-items-center" style={{ maxWidth: '1100px' }}>
+                    <button onClick={() => handleScroll('left')} className="btn-move-arrow me-2">
+                        <FaChevronLeft size={22} />
+                    </button>
+
+                    {/* 드래그 이벤트 연결 */}
                     <div
-                        className="rounded-circle bg-light d-flex align-items-center justify-content-center text-secondary"
-                        style={{ width: '80px', height: '80px' }}
+                        ref={scrollRef}
+                        className={`d-flex overflow-auto gap-3 pb-3 scroll-container ${isDrag ? 'is-dragging' : ''}`}
+                        onMouseDown={onDragStart}
+                        onMouseMove={onDragMove}
+                        onMouseUp={onDragEnd}
+                        onMouseLeave={onDragEnd}
                     >
-                        {profile?.profileImageUrl ? (
-                            <img
-                                src={profile.profileImageUrl}
-                                alt="프로필"
-                                className="img-fluid rounded-circle"
-                            />
-                        ) : (
-                            <FaUserCircle size={48} />
-                        )}
+                        {applications.map((app, index) => (
+                            <div key={index} className="d-flex align-items-center scroll-item">
+                                <ApplicationCard application={app} />
+                                {index < applications.length - 1 && (
+                                    <FaChevronRight className="ms-3 text-muted opacity-50" style={{ fontSize: '14px' }} />
+                                )}
+                            </div>
+                        ))}
                     </div>
 
-                    {/* 정보 */}
-                    <div className="flex-grow-1">
-                        <h2 className="fs-5 fw-bold mb-1">
-                            {profile?.name}
-                        </h2>
-
-                        <p className="text-muted mb-1">
-                            {profile?.phone}
-                        </p>
-
-                        <p className="text-muted mb-0">
-                            {profile?.email}
-                        </p>
-                    </div>
-
-                    {/* 수정 버튼 */}
-                    <button className="btn btn-link text-primary text-decoration-none p-0">
-                        프로필 수정 &gt;
+                    <button onClick={() => handleScroll('right')} className="btn-move-arrow ms-2">
+                        <FaChevronRight size={22} />
                     </button>
                 </div>
             </div>
 
-            <h2 className="fs-5 fw-semibold text-secondary mb-3">
-                지원 현황{' '}
-                <span className="text-primary ms-1">
-                 {profile?.applicationCount ?? 0}건
-            </span>
-            </h2>
+            <style>{`
+                .container-fluid { padding-left: 0 !important; }
 
-            {/* -------------------- 2. 지원 현황 리스트 영역 -------------------- */}
-            <div className="card shadow p-4 border-0 rounded-3">
-                {/* overflow-auto를 사용하여 수평 스크롤 가능하게 함 */}
-                <div className="d-flex overflow-auto pb-2">
-                    {applications.map((application, index) => (
-                        <React.Fragment key={application.id}>
-                            <ApplicationCard application={application} />
+                .scroll-container {
+                    scrollbar-width: none;
+                    -ms-overflow-style: none;
+                    cursor: grab;
+                    scroll-snap-type: x mandatory; /* 드래그 후 딱 맞게 멈춤 */
+                    user-select: none; /* 드래그 시 텍스트 선택 방지 */
+                }
+                .scroll-container::-webkit-scrollbar { display: none; }
+                
+                .scroll-container.is-dragging {
+                    cursor: grabbing;
+                    scroll-behavior: auto; /* 드래그 중에는 즉각적인 반응을 위해 smooth 끔 */
+                    scroll-snap-type: none; /* 드래그 중에는 자석 효과 잠시 끔 */
+                }
 
-                            {/* 흐름 화살표 */}
-                            {index < applications.length - 1 && (
-                                <div className="d-flex align-items-center text-muted mx-1 flex-shrink-0">
-                                    <FaChevronRight size={20} />
-                                </div>
-                            )}
-                        </React.Fragment>
-                    ))}
-                </div>
-            </div>
+                .scroll-item {
+                    scroll-snap-align: start;
+                    flex-shrink: 0;
+                }
+
+                .btn-move-arrow {
+                    background: none; border: none; color: #adb5bd;
+                    padding: 0; display: flex; align-items: center; justify-content: center;
+                    transition: all 0.2s; cursor: pointer;
+                }
+                .btn-move-arrow:hover { color: #6c757d; transform: scale(1.2); }
+                
+                
+                .application-card {
+        min-width: 250px;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* 부드러운 움직임을 위한 곡선 */
+        cursor: grab;
+        background-color: white;
+    }
+
+    /* 마우스를 올렸을 때 움찔하는 효과 */
+    .application-card:hover {
+        transform: translateY(-10px) scale(1.02); /* 위로 10px 이동하고 2% 커짐 */
+        box-shadow: 0 10px 20px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.06) !important; /* 그림자도 더 깊게 */
+        z-index: 5; /* 옆 카드보다 위로 올라오게 */
+    }
+
+    .scroll-container.is-dragging .application-card:hover {
+        transform: none; /* 드래그 중에는 움찔 효과 끄기 (어지러움 방지) */
+    }
+            `}</style>
         </div>
     );
 };
