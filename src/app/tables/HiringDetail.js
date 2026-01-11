@@ -7,7 +7,8 @@ import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 //import API_BASE_URL from '../../config/apiConfig';
 
-console.log('***HiringDetail File is Loaded***');
+
+console.log("API URL:", process.env.REACT_APP_API_URL);
 // export const  = () => {
 function HiringDetail(){
 //  // 클래스 컴포넌트의 componentDidMount 역할을 useEffect로 대체
@@ -58,11 +59,50 @@ function HiringDetail(){
         }, [id]); // id가 바뀔 때마다 다시 실행
 
 
+    // 컴포넌트 내부 상단
+    const [selectedIds, setSelectedIds] = useState([]);
+    const handleCheck = (applyNo) => {
+        console.log("1");
+      setSelectedIds((prev) =>
+        prev.includes(applyNo)
+          ? prev.filter((id) => id !== applyNo) // 이미 있으면 제거
+          : [...prev, applyNo]                  // 없으면 추가
+      );
+    };
+    const fn_confirm = () => {
+      if (selectedIds.length === 0) {
+        alert("확정할 지원자를 선택해주세요.");
+        return;
+      }
 
-    function fn_confirm(){
-        alert("확정하시겠습니까?");
-    }
+      alert(`선택된 지원자 번호: ${selectedIds.join(", ")} \n총 ${selectedIds.length}명을 확정하시겠습니까?`);
 
+      // 여기서 서버로 selectedIds를 보내는 axios 요청을 하면 됩니다!
+    };
+
+    const calculateTotalExperience = (crrHstrList) => {
+      if (!crrHstrList || crrHstrList.length === 0) return "신입";
+
+      let totalDays = 0;
+
+      crrHstrList.forEach((hstr) => {
+        const start = new Date(hstr.crrStrtDate);
+        const end = hstr.crrEndDate ? new Date(hstr.crrEndDate) : new Date(); // 종료일 없으면 오늘 기준
+
+        const diffTime = Math.abs(end - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // 밀리초를 일 단위로 변환
+        totalDays += diffDays;
+      });
+
+      const years = Math.floor(totalDays / 365);
+      const months = Math.floor((totalDays % 365) / 30);
+
+      let result = "";
+      if (years > 0) result += `${years}년 `;
+      if (months > 0) result += `${months}개월`;
+
+      return result || "1개월 미만";
+    };
   // JSX 반환
   return (
 
@@ -113,7 +153,7 @@ function HiringDetail(){
                 <table className="table">
                   <thead>
                     <tr>
-                      <th style={{fontWeight:'bold', fontSize:'25'}}><input type="checkbox"/></th>
+                      <th style={{fontWeight:'bold', fontSize:'25'}}><input type="checkbox" /></th>
                       <th>번호</th>
                       <th>이름</th>
                       <th>지점명</th>
@@ -124,10 +164,15 @@ function HiringDetail(){
                     {applyList && applyList.length > 0 ? (
                       applyList.map((apply, index) => (
                         <tr key={apply.applyNo || index}>
-                          <td><input type="checkbox" /></td>
+                          <td><input type="checkbox" checked={selectedIds.includes(apply.applyNo)} onChange={() => handleCheck(apply.applyNo)}/></td>
                           <td>{index + 1}</td>
                           <td>{apply.userInfo?.userNm || ''}</td>
-                          <td>{apply.userInfo?.userPhone || ''}</td>
+                          <td>{apply.userInfo?.crrHstrList?.length > 0
+                                          ? apply.userInfo.crrHstrList[0].storeInfo?.storeNm
+                                          : ''}</td>
+                          <td>{apply.userInfo?.crrHstrList?.length > 0
+                                    ? `총 ${calculateTotalExperience(apply.userInfo.crrHstrList)}`
+                                    : ''}</td>
                         </tr>
                       ))
                     ) : (
