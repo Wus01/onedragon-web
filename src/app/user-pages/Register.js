@@ -11,11 +11,12 @@ function Register() {
     const [userPwd, setUserPwd] = useState("");
     const [confirm, setConfirm] = useState("");
     const [agreementTerms, setAgreementTerms] = useState(false);
+    const [userPhoneNm, setUserPhoneNm] = useState("");
 
     const registerCheck = async (e) => {
         e.preventDefault();
 
-        if (!userNm || !userId || !userEmail || !userPwd || !confirm) {
+        if (!userNm || !userId || !userEmail || !userPwd || !confirm || !userPhoneNm) {
             alert("모든 정보를 입력해주세요.");
             return;
         }
@@ -36,7 +37,8 @@ function Register() {
             userId,
             userEmail,
             userPwd,
-            agreementTerms
+            agreementTerms,
+            userPhoneNm
         };
 
         try {
@@ -135,6 +137,15 @@ function Register() {
                                     placeholder="비밀번호 확인"
                                     value={confirm}
                                     onChange={(e) => setConfirm(e.target.value)}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <input
+                                    type="text"
+                                    className="form-control form-control-lg"
+                                    placeholder="핸드폰번호 입력 (- 없이 숫자만)"
+                                    value={userPhoneNm}
+                                    onChange={(e) => setUserPhoneNm(e.target.value)}
                                 />
                             </div>
                             <div className="mb-4">
