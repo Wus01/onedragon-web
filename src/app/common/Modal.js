@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useReducer, useRef, useState} from 'react';
 import CustomDatePicker from './Datepicker';
 import { ko } from 'date-fns/locale';
 import styled from '@emotion/styled';
@@ -9,12 +9,24 @@ import dayjs from 'dayjs';
 const CustModal = (props) => {
   // 열기, 닫기, 모달 헤더 텍스트를 부모로부터 받아옴
   const { open, close, header} = props;
-  const [selected, setSelected] = useState("토픽 선택");
+  const [selectedStore, setSelectedStore] = useState("토픽 선택");
 
   const handleSelect = (e) => {
-    setSelected(e.target.value);
+    setSelectedStore(e.target.value);
   };
 
+  // 지점, 업무, 협의여부, 긴급성, 제목, 내용
+  const [store, setStore] = useState("");
+  const [serviceTp, setServiceTp] = useState("편의점");
+  const [negotiYn, setNegotiYn] = useState("Y");
+  const [isChecked, setIsChecked] = useState(true);
+  const [urgencyYn, setUrgencyYn] = useState("일반");
+  const [hiringTitle, setHiringTitle] = useState("");
+  const [hiringText, setHiringText] = useState("");
+
+  const [title, setTitle] = useState("")
+  const [text, setText] = useState("")
+  
   // 1. State 선언 (타입 지정 부분 삭제)
   const [selectedStartDate, setSelectedStartDate] = useState(null);
   const [startDate, setStartDate] = useState(undefined);
@@ -44,6 +56,55 @@ const CustModal = (props) => {
       setEndDate(dayjs(date).format('YYYY-MM-DD'));
     }
   };
+
+  // 업무 변경
+  const handleWorkChange = (e) => {
+    const value = e.target.value;
+    setServiceTp(value);
+    // console.log("선택된 업무 = ",value);
+
+  }
+
+  // 협의가능 변경
+  const handleNegotiChange = () => {
+    setIsChecked((prev) => !prev);
+
+  }
+
+  // 긴급성 변경
+  const handleUrgencyYnChange = (e) => {
+    const value = e.target.value;
+    setUrgencyYn(value);
+  }
+
+  // 제목 변경
+  const handleTitleChange = (e) => {
+    const value = e.target.value;
+    setTitle(value);
+  }
+
+  // 내용 변경
+  const handleTextChange = (e) => {
+    const value = e.target.value;
+    setText(value);
+  }
+
+  // 공고 저장
+  const saveHiring = () => {
+    setStore(selectedStore);
+    setNegotiYn(isChecked);
+    setHiringTitle(title);
+    setHiringText(text);
+
+    console.log("지점 -- ", store);
+    console.log("업종 -- ",serviceTp);
+    console.log("시작일자 -- ", startDate);
+    console.log("종료일자 -- ", endDate);
+    console.log("협의가능 -- ",negotiYn);
+    console.log("제목 -- ",title);
+    console.log("내용 -- ",text);
+    
+  }
 
   // 점포 등록 개수에 따라 달라지게 !!
   const list = [{value:'1',name:'석호중앙점'}];
@@ -87,17 +148,20 @@ const CustModal = (props) => {
               <label style={{marginLeft:30}}>
                 <input
                   type="radio"
-                  value="1"
+                  value="편의점"
                   name="업무"
-                  checked
+                  checked={serviceTp === "편의점"}
+                  onChange={handleWorkChange}
                 />
                 편의점
               </label>
               <label style={{marginLeft:10}}>
                 <input
                   type="radio"
-                  value="2"
+                  value="카페"
                   name="업무"
+                  checked={serviceTp === "카페"}
+                  onChange={handleWorkChange}
                 />
                 카페
               </label>
@@ -119,7 +183,7 @@ const CustModal = (props) => {
               
               <div style={{margin:15}}>
                 <label>
-                  <input style={{marginLeft:75}} type='checkbox' />
+                  <input style={{marginLeft:75}} type='checkbox' checked={isChecked} onChange={handleNegotiChange} />
                   협의가능
                 </label>
               </div>              
@@ -129,17 +193,20 @@ const CustModal = (props) => {
               <label style={{margin:15}}>
                 <input
                   type="radio"
-                  value="1"
+                  value="일반"
                   name="긴급성"
-                  checked
+                  checked={urgencyYn === "일반"}
+                  onChange={handleUrgencyYnChange}                  
                 />
                 일반
               </label>
               <label>
                 <input
                   type="radio"
-                  value="2"
+                  value="급구"
                   name="긴급성"
+                  checked={urgencyYn === "급구"}
+                  onChange={handleUrgencyYnChange}
                 />
                 급구
               </label>
@@ -150,6 +217,8 @@ const CustModal = (props) => {
                 <textarea 
                   style={{marginLeft:45, width:250, height:30, verticalAlign: 'top'}}
                   type='text'
+                  value={title}
+                  onChange={handleTitleChange}
                   placeholder='지점 + 업무 + 주/야간 + 긴급성'
                 />
               </label>
@@ -161,6 +230,8 @@ const CustModal = (props) => {
                   style={{marginLeft:45, width:250, height:150, verticalAlign: 'top'}}
                   multiple={true}
                   type='text'
+                  value={text}
+                  onChange={handleTextChange}
                   placeholder='업무 내용 및 원하는 인재상??'
                 />
               </label>
@@ -170,7 +241,7 @@ const CustModal = (props) => {
             <button onClick={close}>
               close
             </button>
-            <button onClick={close} style={{marginLeft:10, backgroundColor:'#1388f6ff'}}>
+            <button onClick={saveHiring} style={{marginLeft:10, backgroundColor:'#1388f6ff'}}>
               save
             </button>
           </footer>
