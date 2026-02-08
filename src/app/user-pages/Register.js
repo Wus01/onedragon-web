@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import TestImage from "../../assets/images/temp.jpg";
+import { TERMS_DATA } from "./TermsData";
 
 function Register() {
     const history = useHistory();
@@ -12,6 +13,15 @@ function Register() {
     const [confirm, setConfirm] = useState("");
     const [agreementTerms, setAgreementTerms] = useState(false);
     const [userPhoneNm, setUserPhoneNm] = useState("");
+
+    // 약관 텍스트 창 표시 여부 상태
+    const [showTerms, setShowTerms] = useState(false);
+
+    // 약관 읽기 버튼 핸들러
+    const toggleTerms = (e) => {
+        e.preventDefault();
+        setShowTerms(!showTerms);
+    };
 
     const registerCheck = async (e) => {
         e.preventDefault();
@@ -31,7 +41,6 @@ function Register() {
             return;
         }
 
-        // 백엔드로 보낼 데이터 묶음 세팅
         const payload = {
             userNm,
             userId,
@@ -42,35 +51,25 @@ function Register() {
         };
 
         try {
-            // 백엔드 호출
             const res = await fetch("/api/userInfo/signup", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             });
 
-            // 응답 파싱
             const raw = await res.text();
             let body;
             try {
                 body = raw ? JSON.parse(raw) : null;
             } catch (e) {
-                /**
-                 * npm start 로컬 개발환경일 경우에만
-                 * npm run build 배포 후에는 안 보이게
-                 */
                 if (process.env.NODE_ENV === "development") {
                     console.groupCollapsed("[SIGNUP] 응답");
                     console.log("status:", res.status, res.statusText);
-                    console.log("ok:", res.ok);
-                    console.log("body(raw):", raw);
-                    console.log("body(parsed):", body);
                     console.groupEnd();
                 }
                 body = raw || null;
             }
 
-            // 성공/실패 분기
             if (res.ok) {
                 alert("회원가입이 완료되었습니다.");
                 history.push("/dashboard");
@@ -80,8 +79,6 @@ function Register() {
             }
         } catch (err) {
             console.error("[회원가입 요청 오류]", err);
-
-            // 네트워크 단절, 서버 다운, CORS 오류 등 res 자체가 안 왔을 때
             alert("서버와 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
         }
     };
@@ -96,76 +93,72 @@ function Register() {
                         </div>
                         <h4>회원가입</h4>
                         <form className="pt-3" onSubmit={registerCheck}>
+                            {/* 기존 인풋들 생략 (이름, 아이디, 이메일, 비번, 핸드폰번호) */}
                             <div className="form-group">
-                                <input
-                                    type="text"
-                                    className="form-control form-control-lg"
-                                    placeholder="이름 입력"
-                                    value={userNm}
-                                    onChange={(e) => setUserNm(e.target.value)}
-                                />
-                            </div><div className="form-group">
-                                <input
-                                    type="text"
-                                    className="form-control form-control-lg"
-                                    placeholder="아이디 입력"
-                                    value={userId}
-                                    onChange={(e) => setUserId(e.target.value)}
-                                />
-                            </div><div className="form-group">
-                                <input
-                                    type="email"
-                                    className="form-control form-control-lg"
-                                    placeholder="이메일 입력"
-                                    value={userEmail}
-                                    onChange={(e) => setUserEmail(e.target.value)}
-                                />
+                                <input type="text" className="form-control form-control-lg" placeholder="이름 입력" value={userNm} onChange={(e) => setUserNm(e.target.value)} />
                             </div>
                             <div className="form-group">
-                                <input
-                                    type="password"
-                                    className="form-control form-control-lg"
-                                    placeholder="비밀번호 입력"
-                                    value={userPwd}
-                                    onChange={(e) => setUserPwd(e.target.value)}
-                                />
+                                <input type="text" className="form-control form-control-lg" placeholder="아이디 입력" value={userId} onChange={(e) => setUserId(e.target.value)} />
                             </div>
                             <div className="form-group">
-                                <input
-                                    type="password"
-                                    className="form-control form-control-lg"
-                                    placeholder="비밀번호 확인"
-                                    value={confirm}
-                                    onChange={(e) => setConfirm(e.target.value)}
-                                />
+                                <input type="email" className="form-control form-control-lg" placeholder="이메일 입력" value={userEmail} onChange={(e) => setUserEmail(e.target.value)} />
                             </div>
                             <div className="form-group">
-                                <input
-                                    type="text"
-                                    className="form-control form-control-lg"
-                                    placeholder="핸드폰번호 입력 (- 없이 숫자만)"
-                                    value={userPhoneNm}
-                                    onChange={(e) => setUserPhoneNm(e.target.value)}
-                                />
+                                <input type="password" className="form-control form-control-lg" placeholder="비밀번호 입력" value={userPwd} onChange={(e) => setUserPwd(e.target.value)} />
                             </div>
+                            <div className="form-group">
+                                <input type="password" className="form-control form-control-lg" placeholder="비밀번호 확인" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+                            </div>
+                            <div className="form-group">
+                                <input type="text" className="form-control form-control-lg" placeholder="핸드폰번호 입력" value={userPhoneNm} onChange={(e) => setUserPhoneNm(e.target.value)} />
+                            </div>
+
+                            {/* 약관 동의 및 내용 보기 영역 */}
                             <div className="mb-4">
-                                <div className="form-check">
-                                    <label className="form-check-label text-muted">
-                                        <input
-                                            type="checkbox"
-                                            className="form-check-input"
-                                            checked={agreementTerms}
-                                            onChange={(e) => setAgreementTerms(e.target.checked)}
-                                        />
-                                        <i className="input-helper"></i> 약관 동의
-                                    </label>
+                                <div className="d-flex justify-content-between align-items-center">
+                                    <div className="form-check">
+                                        <label className="form-check-label text-muted">
+                                            <input
+                                                type="checkbox"
+                                                className="form-check-input"
+                                                checked={agreementTerms}
+                                                onChange={(e) => setAgreementTerms(e.target.checked)}
+                                            />
+                                            <i className="input-helper"></i> 약관 동의
+                                        </label>
+                                    </div>
+                                    <button
+                                        onClick={toggleTerms}
+                                        className="btn btn-link p-0"
+                                        style={{fontSize: '12px', textDecoration: 'none'}}
+                                    >
+                                        {showTerms ? "닫기" : "내용보기"}
+                                    </button>
                                 </div>
+
+                                {showTerms && (
+                                    <div className="mt-2 p-3 border rounded bg-light" style={{ maxHeight: '200px', overflowY: 'auto', fontSize: '12px', whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
+
+                                        {/* 1. 이용약관 출력 */}
+                                        <div className="mb-4">
+                                            <h6 style={{ fontSize: '13px', fontWeight: 'bold' }}>{TERMS_DATA.service.title}</h6>
+                                            <div className="text-muted">{TERMS_DATA.service.content}</div>
+                                        </div>
+
+                                        <hr />
+
+                                        {/* 2. 개인정보 처리방침 출력 */}
+                                        <div>
+                                            <h6 style={{ fontSize: '13px', fontWeight: 'bold' }}>{TERMS_DATA.privacy.title}</h6>
+                                            <div className="text-muted">{TERMS_DATA.privacy.content}</div>
+                                        </div>
+
+                                    </div>
+                                )}
                             </div>
+
                             <div className="mt-3">
-                                <button
-                                    type="submit"
-                                    className="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn"
-                                >
+                                <button type="submit" className="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">
                                     가입하기
                                 </button>
                             </div>
