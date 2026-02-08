@@ -25,6 +25,7 @@ const FindIdPw = lazy(() => import('./user-pages/FindIdPw'));
 
 const ApplyDetail = lazy(() => import('./tables/ApplyDetail'));
 const CrrHstrCreate = lazy(() => import('./form-elements/CrrHstrCreate'));
+const StoreSearchPopup = lazy(() => import('./form-elements/StoreSearchPopup'));
 const StoreInfoList = lazy(() => import('./storeInfo/StoreInfoList'));
 const MypageHome = lazy(() => import('./form-elements/MypageHome'));
 
@@ -68,7 +69,8 @@ class AppRoutes extends Component {
           <Route path='/CrrHstrCreate' component={ CrrHstrCreate } />
           {/*마이페이지*/}
           <Route path='/MypageHome' component={ MypageHome } />
-
+          {/*지점정보 검색*/}
+          <Route path="/StoreSearchPopup" component={ StoreSearchPopup } />
           <Redirect to="/dashboard" />
         </Switch>
       </Suspense>
