@@ -1,4 +1,4 @@
-import React, {useReducer, useRef, useState} from 'react';
+import React, {useEffect, useReducer, useRef, useState} from 'react';
 import CustomDatePicker from './Datepicker';
 import { ko } from 'date-fns/locale';
 import styled from '@emotion/styled';
@@ -18,8 +18,8 @@ const CustModal = (props) => {
   // 지점, 업무, 협의여부, 긴급성, 제목, 내용
   const [store, setStore] = useState("");
   const [serviceTp, setServiceTp] = useState("편의점");
-  const [negotiYn, setNegotiYn] = useState("Y");
-  const [isChecked, setIsChecked] = useState(true);
+  const [negotiYn, setNegotiYn] = useState(true);
+  const [isChecked, setIsChecked] = useState(true);  // 협의 체크 데이터
   const [urgencyYn, setUrgencyYn] = useState("일반");
   const [hiringTitle, setHiringTitle] = useState("");
   const [hiringText, setHiringText] = useState("");
@@ -44,7 +44,7 @@ const CustModal = (props) => {
     setDateBtn('');
     if (date) {
       setSelectedStartDate(date);
-      setStartDate(dayjs(date).format('YYYY-MM-DD')); // String()으로 감싸지 않아도 format은 문자열을 반환합니다.
+      setStartDate(dayjs(date).format('YYYY-MM-DD HH:mm')); // String()으로 감싸지 않아도 format은 문자열을 반환합니다.
     }
   };
 
@@ -53,7 +53,7 @@ const CustModal = (props) => {
     setDateBtn('');
     if (date) {
       setSelectedEndDate(date);
-      setEndDate(dayjs(date).format('YYYY-MM-DD'));
+      setEndDate(dayjs(date).format('YYYY-MM-DD HH:mm'));
     }
   };
 
@@ -66,8 +66,9 @@ const CustModal = (props) => {
   }
 
   // 협의가능 변경
-  const handleNegotiChange = () => {
-    setIsChecked((prev) => !prev);
+  const handleNegotiChange = (e) => {
+    // console.log("event === ",e.target.checked)
+    setIsChecked(e.target.checked);
 
   }
 
@@ -89,13 +90,15 @@ const CustModal = (props) => {
     setText(value);
   }
 
-  // 공고 저장
-  const saveHiring = () => {
+  // 데이터 리프레시
+  useEffect(()=> {
     setStore(selectedStore);
     setNegotiYn(isChecked);
     setHiringTitle(title);
     setHiringText(text);
-
+  })
+  // 공고 저장
+  const saveHiring = () => {
     console.log("지점 -- ", store);
     console.log("업종 -- ",serviceTp);
     console.log("시작일자 -- ", startDate);
@@ -107,9 +110,16 @@ const CustModal = (props) => {
   }
 
   // 점포 등록 개수에 따라 달라지게 !!
-  const list = [{value:'1',name:'석호중앙점'}];
-  // const list = [{value:'1',name:'석호중앙점'}, {value:'2', name:'고잔중앙점'}];
+  // const list = [{value:'1',name:'석호중앙점'}];
+  const list = [{value:'1',name:'석호중앙점'}, {value:'2', name:'고잔중앙점'}];
 
+  // 지점 리스트가 1개일 경우엔 자동 세팅되도록
+  useEffect(() => {
+    if (list && list.length === 1) {
+      setStore(list[0].value);
+    }
+  }, [list]); // list가 변경될 때마다 체크
+  
   return (
     // 모달이 열릴때 openModal 클래스가 생성된다.
     <div className={open ? 'openModal modal' : 'modal'}>
@@ -125,22 +135,17 @@ const CustModal = (props) => {
           <main>
             <div>
               <label style={{margin:15}}>지점</label>
-              <select style={{marginLeft:30}} name="지점" onChange={handleSelect} >
-                {list.length > 1 ? 
-                  <>
-                    <option value="" selected disabled>선택</option>
-                    {
-                      list.map((item) => (
-                        <option key={item.value} value={item.value}>{item.name}</option>
-                      ))
-                    }
-                  </>
-                :
-                (
-                  <>
-                    <option key={list[0].value} value={list[0].value}>{list[0].name}</option>
-                  </>
-                )}
+              <select style={{marginLeft:30}} name="지점" onChange={handleSelect}
+                value={list.length === 1 ? list[0].value : undefined} 
+              >
+                {/* 1개보다 많을 때만 "선택" 옵션을 보여줌 */}
+                {list.length > 1 && <option value="" disabled selected>선택</option>}
+                
+                {list.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.name}
+                  </option>
+                ))}                
               </select>
             </div>
             <div>

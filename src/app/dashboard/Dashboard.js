@@ -367,8 +367,8 @@ function Dashboard() {
                       </tr>
                     </tbody> */}
                     {hiring.map((item) => (
-                      <tbody>
-                        <tr key={item.hiringNo}>
+                      <tbody key={item.hiringNo}>
+                        <tr>
                           <td>{item.storeInfo.storeNm}</td>
                           <td><Link to={`/hiring/${item.hiringNo}`}>{item.hiringTitle}</Link></td>
                           <td>{item.payPerHour}</td>
