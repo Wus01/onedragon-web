@@ -75,7 +75,23 @@ function HiringDetail(){
         return;
       }
 
-      alert(`선택된 지원자 번호: ${selectedIds.join(", ")} \n총 ${selectedIds.length}명을 확정하시겠습니까?`);
+      if (window.confirm("확정하시겠습니까?")) {
+            try {
+              // 4. 컨트롤러단(백엔드) 호출
+              const response = await axios.post('`${process.env.REACT_APP_API_URL}/hiring/confirm', { id: selectedIds }`);
+
+
+              if (response.status === 200) {
+                alert("성공적으로 확정되었습니다.");
+                // 필요 시 목록 새로고침 로직 추가
+              }
+            } catch (error) {
+              console.error("에러 발생:", error);
+              alert("확정처리 중 오류에 실패하였습니다.");
+            }
+          }
+
+//      alert(`선택된 지원자 번호: ${selectedIds.join(", ")} \n총 ${selectedIds.length}명을 확정하시겠습니까?`);
 
       // 여기서 서버로 selectedIds를 보내는 axios 요청을 하면 됩니다!
     };
@@ -103,6 +119,7 @@ function HiringDetail(){
 
       return result || "1개월 미만";
     };
+    console.log("현재 렌더링 중인 hiring 상태:", hiring);
   // JSX 반환
   return (
 
