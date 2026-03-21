@@ -78,7 +78,7 @@ function HiringDetail(){
       if (window.confirm("확정하시겠습니까?")) {
             try {
               // 4. 컨트롤러단(백엔드) 호출
-              const response = await axios.post('`${process.env.REACT_APP_API_URL}/hiring/confirm', { id: selectedIds }`);
+              const response = axios.post(`${process.env.REACT_APP_API_URL}/hiring/confirm`, { id: selectedIds });
 
 
               if (response.status === 200) {
