@@ -4,6 +4,7 @@ import { ko } from 'date-fns/locale';
 import styled from '@emotion/styled';
 import '../../assets/css/modal.css';
 import dayjs from 'dayjs';
+import { postHiring } from '../../api/hiringBoardApi';
 
 
 const CustModal = (props) => {
@@ -97,6 +98,7 @@ const CustModal = (props) => {
     setHiringTitle(title);
     setHiringText(text);
   })
+
   // 공고 저장
   const saveHiring = () => {
     console.log("지점 -- ", store);
@@ -106,12 +108,38 @@ const CustModal = (props) => {
     console.log("협의가능 -- ",negotiYn);
     console.log("제목 -- ",title);
     console.log("내용 -- ",text);
+    console.log("긴급성 -- ",urgencyYn);
+
+
+    const userId = "tester1"
+    const hiringData ={
+      storeInfo: {
+        storeId: store // 현재 선택된 가게의 ID
+      },
+      userId: userId,
+      hiringSts: urgencyYn==true ? "Y":"N",
+      serviceType: serviceTp,
+      workStartDate: startDate,
+      workEndDate: endDate,
+      negotiableYn: negotiYn == true ? "Y":"N",
+      hiringTitle: title,
+      hiringText: text,
+      payPerHour: 8,
+      rgstId: userId
+    }
+
+    try{
+      postHiring(hiringData);
+
+    }catch(e){
+      console.error(e);
+    }
     
   }
 
   // 점포 등록 개수에 따라 달라지게 !!
   // const list = [{value:'1',name:'석호중앙점'}];
-  const list = [{value:'1',name:'석호중앙점'}, {value:'2', name:'고잔중앙점'}];
+  const list = [{value:'3',name:'석호중앙점'}, {value:'4', name:'고잔중앙점'}];
 
   // 지점 리스트가 1개일 경우엔 자동 세팅되도록
   useEffect(() => {
