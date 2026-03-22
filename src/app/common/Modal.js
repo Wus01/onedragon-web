@@ -130,6 +130,7 @@ const CustModal = (props) => {
 
     try{
       postHiring(hiringData);
+      close();
 
     }catch(e){
       console.error(e);
