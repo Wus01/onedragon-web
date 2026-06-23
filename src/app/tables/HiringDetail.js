@@ -11,16 +11,6 @@ import axios from 'axios';
 console.log("API URL:", process.env.REACT_APP_API_URL);
 // export const  = () => {
 function HiringDetail(){
-//  // 클래스 컴포넌트의 componentDidMount 역할을 useEffect로 대체
-//  useEffect(() => {
-//    // bsCustomFileInput 초기화는 필요한 경우에만 유지합니다.
-//    // 현재 코드에서는 파일 입력(file input)이 없지만, 만약 사용한다면 필요합니다.
-//    bsCustomFileInput.init();
-//  }, []); // 빈 배열은 컴포넌트가 마운트될 때 한 번만 실행됨을 의미합니다.
-//
-
-
-
     const { id } = useParams(); // alt+enter
 //    const navigate = useNavigate();
 
@@ -60,40 +50,38 @@ function HiringDetail(){
 
 
     // 컴포넌트 내부 상단
-    const [selectedIds, setSelectedIds] = useState([]);
+    const [selectedApplyNos, setSelectedApplyNos] = useState([]);
     const handleCheck = (applyNo) => {
-        console.log("1");
-      setSelectedIds((prev) =>
+
+      setSelectedApplyNos((prev) =>
         prev.includes(applyNo)
           ? prev.filter((id) => id !== applyNo) // 이미 있으면 제거
           : [...prev, applyNo]                  // 없으면 추가
       );
     };
     const fn_confirm = () => {
-      if (selectedIds.length === 0) {
+      if (selectedApplyNos.length === 0) {
         alert("확정할 지원자를 선택해주세요.");
         return;
       }
 
       if (window.confirm("확정하시겠습니까?")) {
-            try {
-              // 4. 컨트롤러단(백엔드) 호출
-              const response = axios.post(`${process.env.REACT_APP_API_URL}/hiring/confirm`, { id: selectedIds });
-
-
-              if (response.status === 200) {
-                alert("성공적으로 확정되었습니다.");
-                // 필요 시 목록 새로고침 로직 추가
-              }
-            } catch (error) {
-              console.error("에러 발생:", error);
-              alert("확정처리 중 오류에 실패하였습니다.");
-            }
+              const hiringNo = Number(hiring.hiringNo);
+              console.log("백엔드로 보낼 applyNos:", selectedApplyNos);
+//            컨트롤러단(백엔드) 호출
+              const response = axios.post(`${process.env.REACT_APP_API_URL}/hiring/confirm`
+              , { applyNos: selectedApplyNos
+                , hiringNo: hiringNo
+                , userId : 'tester' }//세션userId값
+                ).then(response => {
+                     alert("성공적으로 확정되었습니다.");
+                     window.location.reload();
+                 })
+                 .catch(error => {
+                     console.error("에러 발생:", error);
+                    alert("확정처리 중 오류에 실패하였습니다.");
+                 });
           }
-
-//      alert(`선택된 지원자 번호: ${selectedIds.join(", ")} \n총 ${selectedIds.length}명을 확정하시겠습니까?`);
-
-      // 여기서 서버로 selectedIds를 보내는 axios 요청을 하면 됩니다!
     };
 
     const calculateTotalExperience = (crrHstrList) => {
@@ -175,13 +163,14 @@ function HiringDetail(){
                       <th>이름</th>
                       <th>지점명</th>
                       <th>경력</th>
+                      <th>상태</th>
                     </tr>
                   </thead>
                   <tbody>
                     {applyList && applyList.length > 0 ? (
                       applyList.map((apply, index) => (
                         <tr key={apply.applyNo || index}>
-                          <td><input type="checkbox" checked={selectedIds.includes(apply.applyNo)} onChange={() => handleCheck(apply.applyNo)}/></td>
+                          <td><input type="checkbox" checked={selectedApplyNos.includes(apply.applyNo)} onChange={() => handleCheck(apply.applyNo)}/></td>
                           <td>{index + 1}</td>
                           <td>{apply.userInfo?.userNm || ''}</td>
                           <td>{apply.userInfo?.crrHstrList?.length > 0
@@ -190,6 +179,7 @@ function HiringDetail(){
                           <td>{apply.userInfo?.crrHstrList?.length > 0
                                     ? `총 ${calculateTotalExperience(apply.userInfo.crrHstrList)}`
                                     : ''}</td>
+                          <td>{apply.applySucYn == 'Y'?'확정':'미확정'}</td>
                         </tr>
                       ))
                     ) : (
@@ -200,8 +190,12 @@ function HiringDetail(){
                   </tbody>
                 </table>
               </div>
-
-              <button type="button" className="btn btn-primary mr-2" onClick={fn_confirm}>확정</button>
+                <div className="text-center">
+                <button type="button" className="btn btn-primary mr-2"
+                    onClick={fn_confirm}
+                    disabled={hiring.hiringSts === '02'}
+                    align='center' style={{ marginTop: '20px' }}>확정</button>
+                </div>
             </form>
           </div>
         </div>
