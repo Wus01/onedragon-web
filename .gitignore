@@ -9,7 +9,7 @@
 /coverage
 
 # production
-/build
+#/build
 
 # misc
 .DS_Store
@@ -29,3 +29,10 @@ yarn-error.log*
 
 # OS
 Thumbs.db
+
+# 내가 만든 차단용 폴더 제외 설정
+igonores/
+
+.env
+.env.local
+package-lock.json
