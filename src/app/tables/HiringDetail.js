@@ -16,7 +16,7 @@ function HiringDetail(){
 
     const [hiring,setHiring] = useState({});
 
-        // 게시글 불러오기
+        // 게시글 불러오기 
         useEffect(() => {
             axios.get(`${process.env.REACT_APP_API_URL}/hiring/${id}`)
                 .then(response => {
@@ -27,7 +27,7 @@ function HiringDetail(){
                     console.error('게시글 가져오기 실패:', error);
                     alert("게시글을 불러오는 데 실패했습니다.");
                 });
-        }, [id]); 
+        }, [id]);
 
         // 지원자목록 불러오기
         // 1. 초기값 수정: 리스트(배열)를 받아야 하므로 []로 초기화하세요.
