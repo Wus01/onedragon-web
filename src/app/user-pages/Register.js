@@ -51,7 +51,8 @@ function Register() {
         };
 
         try {
-            const res = await fetch("/api/userInfo/signup", {
+//            const res = await fetch("/api/userInfo/signup", {//절대 경로 통일을 위해 주석처리(26/07/08)
+                const res = await fetch(`${process.env.REACT_APP_API_URL}/userInfo/signup`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
@@ -72,7 +73,7 @@ function Register() {
 
             if (res.ok) {
                 alert("회원가입이 완료되었습니다.");
-                history.push("/dashboard");
+                history.push("/login");
             } else {
                 const msg = (body && (body.message || body.error || body.detail)) || "회원가입 실패";
                 alert(msg);

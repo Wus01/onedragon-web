@@ -2,6 +2,7 @@ import React, { Component,Suspense, lazy } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 
 import Spinner from '../app/shared/Spinner';
+import Sidebar from '../app/shared/Sidebar';
 const HiringDetail = lazy(() => import('./tables/HiringDetail'));
 const Dashboard = lazy(() => import('./dashboard/Dashboard'));
 
@@ -34,12 +35,16 @@ const MypageHome = lazy(() => import('./form-elements/MypageHome'));
 
 
 const ApplyList = lazy(() => import('./tables/ApplyList'));
+const isLoggedIn = !!localStorage.getItem("user_id");
 
 
 class AppRoutes extends Component {
+
   render () {
     return (
       <Suspense fallback={<Spinner/>}>
+      {/* 로그인 상태일 때만 메뉴바를 렌더링 */}
+      {isLoggedIn && <Sidebar />}
         <Switch>
           <Route exact path="/dashboard" component={ Dashboard } />
 
@@ -71,7 +76,7 @@ class AppRoutes extends Component {
           <Route path='/MypageHome' component={ MypageHome } />
           {/*지점정보 검색*/}
           <Route path="/StoreSearchPopup" component={ StoreSearchPopup } />
-          <Redirect to="/dashboard" />
+          <Redirect to="/login" />
         </Switch>
       </Suspense>
     );

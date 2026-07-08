@@ -35,8 +35,8 @@ const Login = () => {
             }
 
             alert("로그인 성공!");
-            history.push("/dashboard");
-
+//            history.push("/MypageHome");
+            window.location.href = "/MypageHome"; // 260708 메뉴 안보여서 새로고침 후 이동으로 수정
         } catch (err) {
 
             let errorMessage = "로그인에 실패했습니다.";
