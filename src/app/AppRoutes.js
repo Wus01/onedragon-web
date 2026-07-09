@@ -3,6 +3,9 @@ import { Switch, Route, Redirect } from 'react-router-dom';
 
 import Spinner from '../app/shared/Spinner';
 import Sidebar from '../app/shared/Sidebar';
+import HiringList from './tables/HiringList';
+
+
 const HiringDetail = lazy(() => import('./tables/HiringDetail'));
 const Dashboard = lazy(() => import('./dashboard/Dashboard'));
 
@@ -29,6 +32,7 @@ const CrrHstrCreate = lazy(() => import('./form-elements/CrrHstrCreate'));
 const StoreSearchPopup = lazy(() => import('./form-elements/StoreSearchPopup'));
 const StoreInfoList = lazy(() => import('./storeInfo/StoreInfoList'));
 const MypageHome = lazy(() => import('./form-elements/MypageHome'));
+
 
 
 
@@ -76,6 +80,9 @@ class AppRoutes extends Component {
           <Route path='/MypageHome' component={ MypageHome } />
           {/*지점정보 검색*/}
           <Route path="/StoreSearchPopup" component={ StoreSearchPopup } />
+          {/*내 공고리스트*/}
+          <Route path='/hiringList' component={ HiringList } />
+
           <Redirect to="/login" />
         </Switch>
       </Suspense>

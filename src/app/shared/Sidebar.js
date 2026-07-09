@@ -104,7 +104,30 @@ class Sidebar extends Component {
               </Dropdown>
             </div>
           </li>
-      
+          <li className={ this.isPathActive('/login') ? 'nav-item active' : 'nav-item' }>
+            <Link className="nav-link" to='/login'>
+              <i className="mdi mdi-television menu-icon"></i>
+              <span className="menu-title"><Trans>로그인</Trans></span>
+            </Link>
+          </li>
+          {/*<li className={ this.isPathActive('/MypageHome') ? 'nav-item active' : 'nav-item' }>*/}
+          {/*  <Link className="nav-link" to='/logout'>*/}
+          {/*    <i className="mdi mdi-television menu-icon"></i>*/}
+          {/*    <span className="menu-title"><Trans>로그아웃</Trans></span>*/}
+          {/*  </Link>*/}
+          {/*</li>*/}
+            <li className={ this.isPathActive('/MypageHome') ? 'nav-item active' : 'nav-item' }>
+                <Link className="nav-link" to='/MypageHome'>
+                    <i className="mdi mdi-television menu-icon"></i>
+                    <span className="menu-title"><Trans>마이 페이지</Trans></span>
+                </Link>
+            </li>
+            <li className={ this.isPathActive('/hiringList') ? 'nav-item active' : 'nav-item' }>
+                <Link className="nav-link" to='/hiringList'>
+                    <i className="mdi mdi-television menu-icon"></i>
+                        <span className="menu-title"><Trans>공고 리스트</Trans></span>
+                </Link>
+            </li>
           <li className={ this.isPathActive('/dashboard') ? 'nav-item active' : 'nav-item' }>
             <Link className="nav-link" to="/dashboard">
               <i className="mdi mdi-television menu-icon"></i>

@@ -5,20 +5,31 @@ import bsCustomFileInput from 'bs-custom-file-input';
 import { ProgressBar } from 'react-bootstrap';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
-//import API_BASE_URL from '../../config/apiConfig';
+import ApplyList from "./ApplyList";
+import {insertApply, postHiring} from "../../api/hiringBoardApi";
 
-
-console.log("API URL:", process.env.REACT_APP_API_URL);
-// export const  = () => {
 function HiringDetail(){
     const { id } = useParams(); // alt+enter
 //    const navigate = useNavigate();
 
     const [hiring,setHiring] = useState({});
 
-        // 게시글 불러오기 
-        useEffect(() => {
-            axios.get(`${process.env.REACT_APP_API_URL}/hiring/${id}`)
+        // // 게시글 불러오기
+        // useEffect(() => {
+        //     axios.get(`${process.env.REACT_APP_API_URL}/hiring/${id}`)
+        //         .then(response => {
+        //             console.log('게시글 가져오기 성공:', response.data);
+        //             setHiring(response.data);
+        //         })
+        //         .catch(error => {
+        //             console.error('게시글 가져오기 실패:', error);
+        //             alert("게시글을 불러오는 데 실패했습니다.");
+        //         });
+        // }, [id]);
+
+        // 게시글 불러오기
+    const getHiringDetail = () => {
+        axios.get(`${process.env.REACT_APP_API_URL}/hiring/${id}`)
                 .then(response => {
                     console.log('게시글 가져오기 성공:', response.data);
                     setHiring(response.data);
@@ -27,25 +38,30 @@ function HiringDetail(){
                     console.error('게시글 가져오기 실패:', error);
                     alert("게시글을 불러오는 데 실패했습니다.");
                 });
-        }, [id]);
+    };
 
         // 지원자목록 불러오기
-        // 1. 초기값 수정: 리스트(배열)를 받아야 하므로 []로 초기화하세요.
         const [applyList, setApplyList] = useState([]);
+        // 지원여부상태
+        const [isApplied, setIsApplied] = useState(false);
 
-        useEffect(() => {
-            // 2. URL의 id는 현재 페이지의 파라미터(id)를 그대로 쓰되,
-            //    백엔드 컨트롤러 주소와 일치시키면 됩니다.
+        const getApplicantList = () => {
             axios.get(`${process.env.REACT_APP_API_URL}/apply/list/${id}`)
-                .then(response => {
-                    console.log('지원자목록 가져오기 성공!:', response.data);
+                    .then(response => {
+                        console.log('지원자목록 가져오기 성공!:', response.data);
+                        setApplyList(response.data);
 
-                    setApplyList(response.data);
-                })
-                .catch(error => {
-                    console.error('지원자목록 가져오기 실패:', error);
-                    alert("지원자목록을 불러오는 데 실패했습니다.");
-                });
+                        const applyY = response.data.some(apply => apply.rgstId === loginUserId);
+                        setIsApplied(applyY);
+                    })
+                    .catch(error => {
+                        console.error('지원자목록 가져오기 실패:', error);
+                        alert("지원자목록을 불러오는 데 실패했습니다.");
+                    });
+        }
+        useEffect(() => {
+            getHiringDetail();
+            getApplicantList();
         }, [id]); // id가 바뀔 때마다 다시 실행
 
 
@@ -107,8 +123,43 @@ function HiringDetail(){
 
       return result || "1개월 미만";
     };
-    console.log("현재 렌더링 중인 hiring 상태:", hiring);
-  // JSX 반환
+
+    const loginUserId = localStorage.getItem("userId");
+    const isOwner = String(loginUserId) === String(hiring.rgstId);
+
+    const goToApply = async () => {
+        // 지원여부 확인
+        if(isApplied){
+            alert("이미 지원한 공고입니다.");
+           return false;
+        }
+
+        if(window.confirm("지원하시겠습니까?")){
+            // 데이터 세팅
+            const userId = localStorage.getItem("userId");
+            const applyData ={
+                // storeInfo: {
+                //     storeId: store // 아이거필요할거같은데....그럼컬럼추가해야됨...ㅡㅡ...
+                // },
+
+                hiringNo : Number(hiring.hiringNo),
+                rgstId: userId,
+                applySucYn : 'N'
+            }
+
+            try{
+                await insertApply(applyData);
+
+                // if (onSaveSuccess) onSaveSuccess();
+                getHiringDetail();
+                getApplicantList();
+            }catch(e){
+                alert("지원 중 오류가 발생했습니다.");
+                console.error(e);
+            }
+        }
+    }
+
   return (
 
     <div>
@@ -116,8 +167,6 @@ function HiringDetail(){
         <h3 className="page-title">공고 상세보기</h3>
         <nav aria-label="breadcrumb">
           <ol className="breadcrumb">
-            {/*<li className="breadcrumb-item"><a href="#!" onClick={event => event.preventDefault()}>Tables</a></li>
-            <li className="breadcrumb-item active" aria-current="page">Basic tables</li>*/}
           </ol>
         </nav>
       </div>
@@ -129,78 +178,41 @@ function HiringDetail(){
             <form className="forms-sample">
               {/* 1. 점포명 (Form.Control 사용, readOnly) */}
               <Form.Group className="mb-3">
-                {/*<Form.Label htmlFor="inputStoreName" value={hiring?.hiringTitle}>{hiring?.hiringTitle}</Form.Label>*/}
-                {/* type="selectBox" 대신 type="text"를 사용하고, id를 수정했습니다. */}
-
                 {/* 지점 데이터가 존재하고, storeNm이 있을때만 표시 */}
                 <Form.Control type="text" id="inputStoreName" value={hiring.storeInfo?.storeNm??''} readOnly />
               </Form.Group>
-
               {/* 2. 제목 (Form.Control 사용, readOnly) */}
               <Form.Group className="mb-3">
                 <Form.Label htmlFor="inputTitle">제목</Form.Label>
-                {/* type="email" 대신 type="text"를 사용하는 것이 적절합니다. */}
                 <Form.Control type="text" id="inputTitle" value={hiring.hiringTitle || ''} readOnly />
               </Form.Group>
-
-
-
               {/* 3. 내용 (Form.Control as="textarea" 사용, readOnly) */}
               <Form.Group className="mb-3">
                 <Form.Label htmlFor="textareaResume">내용</Form.Label>
-                {/* <textarea> 대신 Form.Control as="textarea"와 readOnly 사용 */}
                 <Form.Control as="textarea" id="textareaResume" rows={4} value={hiring.hiringText || ''} readOnly />
               </Form.Group>
-
-
-<p style={{fontWeight:'bold', fontSize:'30'}}>지원자 목록({applyList.length}명)</p>
-              <div className="">
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th style={{fontWeight:'bold', fontSize:'25'}}><input type="checkbox" /></th>
-                      <th>번호</th>
-                      <th>이름</th>
-                      <th>지점명</th>
-                      <th>경력</th>
-                      <th>상태</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {applyList && applyList.length > 0 ? (
-                      applyList.map((apply, index) => (
-                        <tr key={apply.applyNo || index}>
-                          <td><input type="checkbox" checked={selectedApplyNos.includes(apply.applyNo)} onChange={() => handleCheck(apply.applyNo)}/></td>
-                          <td>{index + 1}</td>
-                          <td>{apply.userInfo?.userNm || ''}</td>
-                          <td>{apply.userInfo?.crrHstrList?.length > 0
-                                          ? apply.userInfo.crrHstrList[0].storeInfo?.storeNm
-                                          : ''}</td>
-                          <td>{apply.userInfo?.crrHstrList?.length > 0
-                                    ? `총 ${calculateTotalExperience(apply.userInfo.crrHstrList)}`
-                                    : ''}</td>
-                          <td>{apply.applySucYn == 'Y'?'확정':'미확정'}</td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="4" className="text-center">지원자가 없습니다.</td>
-                      </tr>
+                {!isOwner && (
+                    <div style={{textAlign:'center'}}>
+                    <button type="button" className="btn btn-primary mr-2"
+                            onClick={goToApply}
+                            disabled={hiring.hiringSts === '02' || isApplied}
+                            style={{ marginTop: '20px'}}>지원하기</button>
+                    </div>
+                )
+                }
+                <div>
+                    {/* 로그인 유저와 공고 작성자 아이디가 일치하면 지원자목록 컴포넌트 보이기*/}
+                    {isOwner && (
+                        <ApplyList hiringNo={id} hiring={hiring} />
                     )}
-                  </tbody>
-                </table>
-              </div>
-                <div className="text-center">
-                <button type="button" className="btn btn-primary mr-2"
-                    onClick={fn_confirm}
-                    disabled={hiring.hiringSts === '02'}
-                    align='center' style={{ marginTop: '20px' }}>확정</button>
                 </div>
             </form>
+
           </div>
         </div>
       </div>
     </div>
+
   );
 }
 

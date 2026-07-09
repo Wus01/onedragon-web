@@ -5,11 +5,12 @@ import styled from '@emotion/styled';
 import '../../assets/css/modal.css';
 import dayjs from 'dayjs';
 import { postHiring } from '../../api/hiringBoardApi';
+import {useHistory} from "react-router-dom";
 
 
 const CustModal = (props) => {
   // 열기, 닫기, 모달 헤더 텍스트를 부모로부터 받아옴
-  const { open, close, header} = props;
+  const { open, close, header, onSaveSuccess} = props;
   const [selectedStore, setSelectedStore] = useState("토픽 선택");
 
   const handleSelect = (e) => {
@@ -99,8 +100,12 @@ const CustModal = (props) => {
     setHiringText(text);
   })
 
+  const history = useHistory();
+
   // 공고 저장
-  const saveHiring = () => {
+  // const saveHiring = () => {
+    const saveHiring = async () => {
+
     console.log("지점 -- ", store);
     console.log("업종 -- ",serviceTp);
     console.log("시작일자 -- ", startDate);
@@ -111,28 +116,36 @@ const CustModal = (props) => {
     console.log("긴급성 -- ",urgencyYn);
 
 
-    const userId = "tester1"
+    const userId = localStorage.getItem("userId"); // "tester1"
     const hiringData ={
       storeInfo: {
         storeId: store // 현재 선택된 가게의 ID
       },
       userId: userId,
-      hiringSts: urgencyYn==true ? "Y":"N",
+      hiringSts: '01', // 01 : 미확정, 02 : 확정
       serviceType: serviceTp,
       workStartDate: startDate,
       workEndDate: endDate,
-      negotiableYn: negotiYn == true ? "Y":"N",
+      negotiableYn: negotiYn === true ? "Y":"N",
       hiringTitle: title,
       hiringText: text,
       payPerHour: 8,
       rgstId: userId
     }
-
     try{
-      postHiring(hiringData);
+      await postHiring(hiringData);
+
+      alert("공고가 성공적으로 등록되었습니다.");
+
+      if (onSaveSuccess) onSaveSuccess();
+
       close();
 
+      // 공고리스트로 이동
+      // history.push('/hiringList');
+
     }catch(e){
+      alert("등록에 실패하였습니다.");
       console.error(e);
     }
     
@@ -148,7 +161,7 @@ const CustModal = (props) => {
       setStore(list[0].value);
     }
   }, [list]); // list가 변경될 때마다 체크
-  
+
   return (
     // 모달이 열릴때 openModal 클래스가 생성된다.
     <div className={open ? 'openModal modal' : 'modal'}>
