@@ -179,8 +179,20 @@ function HiringDetail(){
               {/* 1. 점포명 (Form.Control 사용, readOnly) */}
               <Form.Group className="mb-3">
                 {/* 지점 데이터가 존재하고, storeNm이 있을때만 표시 */}
-                <Form.Control type="text" id="inputStoreName" value={hiring.storeInfo?.storeNm??''} readOnly />
+                <Form.Control type="text" id="inputStoreName" value={hiring.storeNm??''} readOnly />
               </Form.Group>
+                <h4 className="card-title">작성자</h4>
+                <Form.Group className="mb-3">
+                    <Form.Control type="text" id="inputWriterName" value={hiring.rgstId??''} readOnly />
+                </Form.Group>
+                <h4 className="card-title">확정여부</h4>
+                <Form.Group className="mb-3">
+                    <Form.Control type="text" id="inputWriterName" value={hiring.hiringStsNm??''} readOnly />
+                </Form.Group>
+                <h4 className="card-title">작성일</h4>
+                <Form.Group className="mb-3">
+                    <Form.Control type="text" id="inputWriterName" value={String(hiring.rgstDate).length > 18 ? hiring.rgstDate.substring(0,19):hiring.rgstDate} readOnly />
+                </Form.Group>
               {/* 2. 제목 (Form.Control 사용, readOnly) */}
               <Form.Group className="mb-3">
                 <Form.Label htmlFor="inputTitle">제목</Form.Label>
@@ -191,12 +203,18 @@ function HiringDetail(){
                 <Form.Label htmlFor="textareaResume">내용</Form.Label>
                 <Form.Control as="textarea" id="textareaResume" rows={4} value={hiring.hiringText || ''} readOnly />
               </Form.Group>
+                <Link to={`/hiringList`}>
+                    <div style={{ textAlign:'center'}}><button type="button" className="btn btn-primary mr-2" style={{ marginTop: '20px'}}>목록</button></div>
+                </Link>
+
                 {!isOwner && (
                     <div style={{textAlign:'center'}}>
                     <button type="button" className="btn btn-primary mr-2"
                             onClick={goToApply}
                             disabled={hiring.hiringSts === '02' || isApplied}
-                            style={{ marginTop: '20px'}}>지원하기</button>
+                            style={{ marginTop: '20px'}}>지원하기
+                    </button>
+
                     </div>
                 )
                 }

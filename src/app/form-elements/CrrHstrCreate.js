@@ -64,7 +64,8 @@ export const CrrHstrCreate = () => {
         if (pathStoreId) {
             setIsLoading(true);
             setStoreName("");
-            axios.get(`${API_BASE_URL}/crrHstr/${storageUserId}/${pathStoreId}`)
+            // axios.get(`${API_BASE_URL}/crrHstr/${storageUserId}/${pathStoreId}`) // 고정 url 피하기 위함
+            axios.get(`${process.env.REACT_APP_API_URL}/crrHstr/${storageUserId}/${pathStoreId}`)
                 .then(res => {
                     const result = res.data.data;
                     if (result) {

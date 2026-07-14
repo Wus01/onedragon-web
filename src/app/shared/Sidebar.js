@@ -7,6 +7,14 @@ import { Trans } from 'react-i18next';
 class Sidebar extends Component {
   state = {};
 
+  handleLogout = () => {
+    if(window.confirm("로그아웃 하시겠습니까?")){
+      localStorage.removeItem("userId");
+      alert("로그아웃 되었습니다.");
+      window.location.href='/';
+    }
+  }
+
   toggleMenuState(menuState) {
     if (this.state[menuState]) {
       this.setState({[menuState] : false});
@@ -49,8 +57,12 @@ class Sidebar extends Component {
       }
     }));
  
-  } 
+  }
+
   render () {
+
+    const isLoggedIn = !!localStorage.getItem("userId");
+
     return (
       <nav className="sidebar sidebar-offcanvas" id="sidebar">
         <div className="text-center sidebar-brand-wrapper d-flex align-items-center">
@@ -104,18 +116,21 @@ class Sidebar extends Component {
               </Dropdown>
             </div>
           </li>
-          <li className={ this.isPathActive('/login') ? 'nav-item active' : 'nav-item' }>
-            <Link className="nav-link" to='/login'>
+          {isLoggedIn ? (
+          <li className= 'nav-item active'  onClick={this.handleLogout}>
+            <Link className="nav-link">
               <i className="mdi mdi-television menu-icon"></i>
-              <span className="menu-title"><Trans>로그인</Trans></span>
+              <span className="menu-title"><Trans>로그아웃</Trans></span>
             </Link>
           </li>
-          {/*<li className={ this.isPathActive('/MypageHome') ? 'nav-item active' : 'nav-item' }>*/}
-          {/*  <Link className="nav-link" to='/logout'>*/}
-          {/*    <i className="mdi mdi-television menu-icon"></i>*/}
-          {/*    <span className="menu-title"><Trans>로그아웃</Trans></span>*/}
-          {/*  </Link>*/}
-          {/*</li>*/}
+          ) : (
+              <li className={ this.isPathActive('/login') ? 'nav-item active' : 'nav-item' }>
+                <Link className="nav-link" to='/login'>
+                  <i className="mdi mdi-television menu-icon"></i>
+                  <span className="menu-title"><Trans>로그인</Trans></span>
+                </Link>
+              </li>
+          )}
             <li className={ this.isPathActive('/MypageHome') ? 'nav-item active' : 'nav-item' }>
                 <Link className="nav-link" to='/MypageHome'>
                     <i className="mdi mdi-television menu-icon"></i>
@@ -128,6 +143,12 @@ class Sidebar extends Component {
                         <span className="menu-title"><Trans>공고 리스트</Trans></span>
                 </Link>
             </li>
+          <li className={ this.isPathActive('/CrrHstrCreate') ? 'nav-item active' : 'nav-item' }>
+            <Link className="nav-link" to='/CrrHstrCreate'>
+              <i className="mdi mdi-television menu-icon"></i>
+              <span className="menu-title"><Trans>마이페이지/경력등록</Trans></span>
+            </Link>
+          </li>
           <li className={ this.isPathActive('/dashboard') ? 'nav-item active' : 'nav-item' }>
             <Link className="nav-link" to="/dashboard">
               <i className="mdi mdi-television menu-icon"></i>
@@ -253,6 +274,13 @@ class Sidebar extends Component {
         }
       });
     });
+
+    // const userId = localStorage.getItem("userId");
+    // if(userId){
+    //   this.setState({isLoggedIn:true});
+    // }else{
+    //   this.setState({isLoggedIn:false});
+    // }
   }
 
 }

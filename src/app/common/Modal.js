@@ -133,22 +133,19 @@ const CustModal = (props) => {
       rgstId: userId
     }
     try{
-      await postHiring(hiringData);
+      const response = await postHiring(hiringData);
 
-      alert("공고가 성공적으로 등록되었습니다.");
-
-      if (onSaveSuccess) onSaveSuccess();
-
-      close();
-
-      // 공고리스트로 이동
-      // history.push('/hiringList');
-
+      if(response && (response.status === 200 || response.status === 201)){
+        alert("공고가 성공적으로 등록되었습니다.");
+        if (onSaveSuccess) onSaveSuccess();
+        close();
+      }else{
+        throw new Error("서버 응답 이상");
+      }
     }catch(e){
       alert("등록에 실패하였습니다.");
       console.error(e);
     }
-    
   }
 
   // 점포 등록 개수에 따라 달라지게 !!

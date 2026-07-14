@@ -15,11 +15,7 @@ export const getHiringList = async (currnetPage, postsPerPage) => {
 
 // 공고 데이터 insert.
 export const postHiring = (data) => {
-    axios.post(`${process.env.REACT_APP_API_URL}/hiring/add`,data).then(res => {
-        console.log(res.data);
-    }).catch(err => {
-        console.error(err);
-    })
+    return axios.post(`${process.env.REACT_APP_API_URL}/hiring/add`, data);
 }
 
 // 지원하기
