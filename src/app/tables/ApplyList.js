@@ -85,8 +85,9 @@ function ApplyList({hiringNo, hiring}){
             const response = axios.post(`${process.env.REACT_APP_API_URL}/hiring/confirm`
                 , { applyNos: selectedApplyNos
                     , hiringNo: hiringNo
-                    , userId : localStorage.getItem("userId") } //세션userId값(현재는 로컬스토리지값)
-            ).then(response => {
+                    , userId : localStorage.getItem("userId")
+                    , applySts : '04' //확정
+            }).then(response => {
                 alert("성공적으로 확정되었습니다.");
                 window.location.reload();
             })

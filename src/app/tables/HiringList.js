@@ -105,10 +105,18 @@ function HiringList(){
   return (
       <div>
           <div className="page-header">
+              <div className="d-flex justify-content-between align-items-center mb-3">
               <h3 className="page-title">공고 리스트</h3>
+              {isMobile ? (
+                <div style={{textAlign:'right'}}>
+                  <button type="button" className="btn btn-primary" onClick={() => setIsOpen(true)} style={{marginTop:'20px'}}>
+                      작성하기
+                  </button>
+                </div>
+              ): ('')}
+              </div>
               <nav aria-label="breadcrumb"></nav>
           </div>
-
           {/* 💡 삼항 연산자 시작 */}
           {isMobile ? (
               /* ================= [모바일 모드: 카드 형태로 주욱 나열] ================= */
@@ -198,15 +206,16 @@ function HiringList(){
                       </div>
                   </div>
 
-                  <CustModal
-                      open={isOpen}
-                      close={closeModalHandler}
-                      onSaveSuccess={fetchHirings}
-                      header="공고작성"
-                  />
+
               </>
           )}
           {/* 💡 삼항 연산자 깔끔하게 종료! */}
+          <CustModal
+              open={isOpen}
+              close={closeModalHandler}
+              onSaveSuccess={fetchHirings}
+              header="공고작성"
+          />
       </div>
   );
     };

@@ -75,30 +75,6 @@ function HiringDetail(){
           : [...prev, applyNo]                  // 없으면 추가
       );
     };
-    const fn_confirm = () => {
-      if (selectedApplyNos.length === 0) {
-        alert("확정할 지원자를 선택해주세요.");
-        return;
-      }
-
-      if (window.confirm("확정하시겠습니까?")) {
-              const hiringNo = Number(hiring.hiringNo);
-              console.log("백엔드로 보낼 applyNos:", selectedApplyNos);
-//            컨트롤러단(백엔드) 호출
-              const response = axios.post(`${process.env.REACT_APP_API_URL}/hiring/confirm`
-              , { applyNos: selectedApplyNos
-                , hiringNo: hiringNo
-                , userId : 'tester' }//세션userId값
-                ).then(response => {
-                     alert("성공적으로 확정되었습니다.");
-                     window.location.reload();
-                 })
-                 .catch(error => {
-                     console.error("에러 발생:", error);
-                    alert("확정처리 중 오류에 실패하였습니다.");
-                 });
-          }
-    };
 
     const calculateTotalExperience = (crrHstrList) => {
       if (!crrHstrList || crrHstrList.length === 0) return "신입";
@@ -144,7 +120,8 @@ function HiringDetail(){
 
                 hiringNo : Number(hiring.hiringNo),
                 rgstId: userId,
-                applySucYn : 'N'
+                applySucYn : 'N',
+                applySts : '01' //지원완료
             }
 
             try{
@@ -198,6 +175,14 @@ function HiringDetail(){
                 <Form.Label htmlFor="inputTitle">제목</Form.Label>
                 <Form.Control type="text" id="inputTitle" value={hiring.hiringTitle || ''} readOnly />
               </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label htmlFor="inputTitle">근무시작일시</Form.Label>
+                    <Form.Control type="text" id="inputTitle" value={hiring.workStartDate || ''} readOnly />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label htmlFor="inputTitle">근무마감일시</Form.Label>
+                    <Form.Control type="text" id="inputTitle" value={hiring.workEndDate || ''} readOnly />
+                </Form.Group>
               {/* 3. 내용 (Form.Control as="textarea" 사용, readOnly) */}
               <Form.Group className="mb-3">
                 <Form.Label htmlFor="textareaResume">내용</Form.Label>

@@ -35,14 +35,17 @@ const formatDate = (date) => {
 };
 
 export const CrrHstrCreate = () => {
-    const { storeId: pathStoreId } = useParams();
+    const { crrHstrNo: pathCrrHstrNo } = useParams();
+    const pathStoreId = "1";
     const history = useHistory();
     const storageUserId = localStorage.getItem('userId');
-    const isEditMode = Boolean(storageUserId && pathStoreId);
+    // const isEditMode = Boolean(storageUserId && pathStoreId);
+    const isEditMode = Boolean(storageUserId && pathCrrHstrNo);
     const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8080/api";
 
     // 상태 관리
     const [storeId, setStoreId] = useState(pathStoreId || "");
+    const [crrHstrNo, setCrrHstrNo]= useState(pathCrrHstrNo || "");
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [storeName, setStoreName] = useState("");
@@ -61,18 +64,20 @@ export const CrrHstrCreate = () => {
             return;
         }
 
-        if (pathStoreId) {
+        if (pathCrrHstrNo) {
             setIsLoading(true);
             setStoreName("");
             // axios.get(`${API_BASE_URL}/crrHstr/${storageUserId}/${pathStoreId}`) // 고정 url 피하기 위함
-            axios.get(`${process.env.REACT_APP_API_URL}/crrHstr/${storageUserId}/${pathStoreId}`)
+            axios.get(`${process.env.REACT_APP_API_URL}/crrHstr/select/${pathCrrHstrNo}`)
                 .then(res => {
-                    const result = res.data.data;
+                    const result = res.data;
+                    console.log("경력상세조회:",result);
                     if (result) {
                         setStoreId(result.storeId);
+                        setCrrHstrNo(result.crrHstrNo);
                         setStartDate(safeDate(result.crrStrtDate));
                         setEndDate(safeDate(result.crrEndDate));
-                        setStoreName(result.storeName);
+                        setStoreName(result.storeInfo.storeNm);
                         setStatus(result.status);
                         setAuthYn(result.authYn);
                     }
@@ -89,7 +94,7 @@ export const CrrHstrCreate = () => {
             setEndDate(null);
             setStatus("");
         }
-    }, [pathStoreId, storageUserId, history, API_BASE_URL]);
+    }, [pathCrrHstrNo, storageUserId, history, API_BASE_URL]);
 
     // [2] 팝업창 연동
     useEffect(() => {
@@ -122,7 +127,8 @@ export const CrrHstrCreate = () => {
         crrEndDate: formatDate(endDate),
         status: status || "01",
         authYn: authYn,
-        delYn: false
+        delYn: false,
+        crrHstrNo : crrHstrNo
     });
 
     const handleSave = () => {
@@ -130,32 +136,45 @@ export const CrrHstrCreate = () => {
         axios.post(`${API_BASE_URL}/crrHstr`, getPayload())
             .then(res => {
                 alert("등록 완료!");
-                history.push(`/CrrHstrCreate/${res.data.data.storeId}`);
+                history.push(`/MypageHome`);
+
             })
             .catch(err => alert("등록 실패"));
     };
 
     const handleUpdate = () => {
         if (!window.confirm("수정하시겠습니까?")) return;
-        axios.put(`${API_BASE_URL}/crrHstr/${storageUserId}/${pathStoreId}`, getPayload())
+        axios.put(`${API_BASE_URL}/crrHstr/update/${crrHstrNo}`, getPayload())
             .then((res) => {
                 alert("수정 완료!");
-                const result = res.data.data;
-                if (String(pathStoreId) !== String(result.storeId)) {
-                    window.location.href = `/CrrHstrCreate/${result.storeId}`;
-                } else {
-                    setStoreName(result.storeName);
+                if(res.data){
+                    const result = res.data;
+                    // if (String(pathCrrHstrNo) !== String(result.crrHstrNo)) {
+                    //     window.location.href = `/crrHstrCreate/${result.crrHstrNo}`;
+                    // } else {
+                    setStoreName(result.storeInfo.storeNm);
                     setStatus(result.status);
                     setStartDate(safeDate(result.crrStrtDate));
                     setEndDate(safeDate(result.crrEndDate));
+
+                    history.push(`/MypageHome`)
+                    // }
                 }
+
             })
-            .catch(err => alert("수정 중 오류가 발생했습니다."));
+            .catch(err => {
+                    if(err.response){
+                        alert("수정 중 오류가 발생했습니다.");
+                    }else{
+                        console.error("서버 에러 내용: ", err);
+                    }
+                }
+            );
     };
 
     const handleDelete = () => {
         if (!window.confirm("정말 이 기록을 삭제하시겠습니까?")) return;
-        axios.delete(`${API_BASE_URL}/crrHstr/${storageUserId}/${pathStoreId}`, { data: getPayload() })
+        axios.delete(`${API_BASE_URL}/crrHstr/delete/${crrHstrNo}`, { data: getPayload() })
             .then(() => {
                 alert("삭제되었습니다.");
                 history.push("/MypageHome");

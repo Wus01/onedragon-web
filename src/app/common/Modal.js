@@ -98,7 +98,27 @@ const CustModal = (props) => {
     setNegotiYn(isChecked);
     setHiringTitle(title);
     setHiringText(text);
-  })
+
+    // 모달 띄울 때 부모화면 스크롤 방지
+    if(open){
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.style.overflow = 'hidden';
+
+    return () => {
+      // 3. 모달 닫힐 때 원래 스타일 복원 및 스크롤 위치 복구
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.overflow = '';
+      window.scrollTo(0, scrollY);
+    };
+    };
+  }, [open]);
 
   const history = useHistory();
 
@@ -163,7 +183,17 @@ const CustModal = (props) => {
     // 모달이 열릴때 openModal 클래스가 생성된다.
     <div className={open ? 'openModal modal' : 'modal'}>
       {open ? (
-        <section>
+        <section style={{
+          marginTop: '60px',
+          maxHeight: '80vh',        /* ⭐️ 모달 전체 높이가 화면 높이의 85%를 넘지 않게 고정 */
+          maxWidth: '500px',        /* 모바일/PC 모두 적절한 최대 너비 */
+          width: '90%',             /* 모바일에서는 화면 너비의 90% 차치 */
+          display: 'flex',
+          flexDirection: 'column',
+          borderRadius: '12px',
+          overflow: 'hidden'
+
+        }}>
           <header>
             {header}
             <button className="close" onClick={close}>
@@ -171,7 +201,11 @@ const CustModal = (props) => {
             </button>
           </header>
           {/* <main>{props.children}</main> */}
-          <main>
+          <main style={{
+            flex: 1,
+            overflowY: 'auto',      /* ⭐️ 내용이 길면 main 안에서만 스크롤! */
+            padding: '15px'
+          }}>
             <div>
               <label style={{margin:15}}>지점</label>
               <select style={{marginLeft:30}} name="지점" onChange={handleSelect}
@@ -210,28 +244,71 @@ const CustModal = (props) => {
                 카페
               </label>
             </div>
-            <div>
-              <label style={{margin:15}}>근무 일자</label>
-              <CustomDatePicker 
-                selectedDate={selectedStartDate} 
-                onChange={(date) => handleStartDateChange(date)} 
-                placeholder="시작일자"
-              />
-              <div style={{marginLeft:92}}>
-                <CustomDatePicker 
-                  selectedDate={selectedEndDate} 
-                  onChange={(date) => handleEndDateChange(date)} 
-                  placeholder="종료일자"
-                />
+            <div style={{ padding: '10px 15px' }}>
+              <label style={{ marginBottom: '8px', display: 'block' }}>
+                근무 일자
+              </label>
+
+              {/* flex-wrap: wrap 속성을 활용해 넓으면 가로 배치, 좁으면(모바일) 자동으로 위아래 배치! */}
+              <div style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '10px',
+                alignItems: 'center'
+              }}>
+                <div style={{ flex: '1 1 200px' }}>
+                  <CustomDatePicker
+                      selectedDate={selectedStartDate}
+                      onChange={(date) => handleStartDateChange(date)}
+                      placeholder="시작일자 및 시간"
+                  />
+                </div>
+
+                <div style={{ flex: '1 1 200px' }}>
+                  <CustomDatePicker
+                      selectedDate={selectedEndDate}
+                      onChange={(date) => handleEndDateChange(date)}
+                      placeholder="종료일자 및 시간"
+                  />
+                </div>
               </div>
-              
-              <div style={{margin:15}}>
-                <label>
-                  <input style={{marginLeft:75}} type='checkbox' checked={isChecked} onChange={handleNegotiChange} />
+
+              {/* 협의가능 체크박스 */}
+              <div style={{ marginTop: '10px' }}>
+                <label style={{ cursor: 'pointer', fontSize: '14px' }}>
+                  <input
+                      type='checkbox'
+                      checked={isChecked}
+                      onChange={handleNegotiChange}
+                      style={{ marginRight: '6px' }}
+                  />
                   협의가능
                 </label>
-              </div>              
+              </div>
             </div>
+            {/*<div>*/}
+            {/*  <label style={{margin:15}}>근무 일자</label>*/}
+            {/*  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}></div>*/}
+            {/*  <CustomDatePicker */}
+            {/*    selectedDate={selectedStartDate} */}
+            {/*    onChange={(date) => handleStartDateChange(date)} */}
+            {/*    placeholder="시작일자"*/}
+            {/*  />*/}
+            {/*  <div style={{marginLeft:92}}>*/}
+            {/*    <CustomDatePicker */}
+            {/*      selectedDate={selectedEndDate} */}
+            {/*      onChange={(date) => handleEndDateChange(date)} */}
+            {/*      placeholder="종료일자"*/}
+            {/*    />*/}
+            {/*  </div>*/}
+            {/*  */}
+            {/*  <div style={{margin:15}}>*/}
+            {/*    <label>*/}
+            {/*      <input style={{marginLeft:75}} type='checkbox' checked={isChecked} onChange={handleNegotiChange} />*/}
+            {/*      협의가능*/}
+            {/*    </label>*/}
+            {/*  </div>              */}
+            {/*</div>*/}
             <div>
               <label style={{margin:15}}>긴급성</label>
               <label style={{margin:15}}>
