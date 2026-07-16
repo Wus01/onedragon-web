@@ -37,7 +37,7 @@ const ApplicationCard2 = ({ myApplyList }) => (
                 </span>
             </div>
             <h4 className="card-title fs-6 mb-1 text-truncate" title={myApplyList.storeNm}>{myApplyList.storeNm}</h4>
-            <p className="card-text text-muted small">지원일: {myApplyList.applyDate.substring(0, 19)}</p>
+            <p className="card-text text-muted small">지원일: {myApplyList?.applyDate.substring(0, 19)}</p>
             <div className="mt-2 text-end">
                 <Link to={`/hiring/${myApplyList.hiringNo}`}>
                     <button className="btn btn-link btn-sm p-0 text-decoration-none">상세보기</button>
@@ -147,10 +147,7 @@ const MyPageHome = () => {
         try {
             const res = await axios.get(`${process.env.REACT_APP_API_URL}/mypage/myApplyList`,
                 {params:{
-                            userId: userId},
-                        headers: {
-                            'Authorization': `Bearer ${userId}`
-                        }
+                            userId: userId}
                 });
             setMyApplyList(res.data);
         } catch (err) {
