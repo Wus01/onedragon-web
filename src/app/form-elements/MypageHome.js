@@ -146,7 +146,12 @@ const MyPageHome = () => {
         }
         try {
             const res = await axios.get(`${process.env.REACT_APP_API_URL}/mypage/myApplyList`,
-                {params:{userId: userId}});
+                {params:{
+                            userId: userId},
+                        headers: {
+                            'Authorization': `Bearer ${userId}`
+                        }
+                });
             setMyApplyList(res.data);
         } catch (err) {
             console.error("내가 지원한 목록 로드 실패:", err);
