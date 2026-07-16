@@ -11,7 +11,7 @@ import {useHistory} from "react-router-dom";
 const CustModal = (props) => {
   // 열기, 닫기, 모달 헤더 텍스트를 부모로부터 받아옴
   const { open, close, header, onSaveSuccess} = props;
-  const [selectedStore, setSelectedStore] = useState("토픽 선택");
+  const [selectedStore, setSelectedStore] = useState("");
 
   const handleSelect = (e) => {
     setSelectedStore(e.target.value);
@@ -126,7 +126,7 @@ const CustModal = (props) => {
   // const saveHiring = () => {
     const saveHiring = async () => {
 
-    console.log("지점 -- ", store);
+    console.log("지점 -- ", selectedStore);
     console.log("업종 -- ",serviceTp);
     console.log("시작일자 -- ", startDate);
     console.log("종료일자 -- ", endDate);
@@ -136,10 +136,10 @@ const CustModal = (props) => {
     console.log("긴급성 -- ",urgencyYn);
 
 
-    const userId = localStorage.getItem("userId"); // "tester1"
+    const userId = localStorage.getItem("userId");
     const hiringData ={
       storeInfo: {
-        storeId: store // 현재 선택된 가게의 ID
+        storeId: selectedStore // 현재 선택된 가게의 ID
       },
       userId: userId,
       hiringSts: '01', // 01 : 미확정, 02 : 확정
@@ -158,6 +158,7 @@ const CustModal = (props) => {
       if(response && (response.status === 200 || response.status === 201)){
         alert("공고가 성공적으로 등록되었습니다.");
         if (onSaveSuccess) onSaveSuccess();
+        resetForm();
         close();
       }else{
         throw new Error("서버 응답 이상");
@@ -179,6 +180,16 @@ const CustModal = (props) => {
     }
   }, [list]); // list가 변경될 때마다 체크
 
+  // 작성 후 초기화
+  const resetForm = () => {
+    setSelectedStore("");
+    setNegotiYn(true);
+    setTitle("");
+    setText("");
+    setSelectedStartDate("");
+    setSelectedEndDate("");
+
+  };
   return (
     // 모달이 열릴때 openModal 클래스가 생성된다.
     <div className={open ? 'openModal modal' : 'modal'}>
@@ -209,16 +220,18 @@ const CustModal = (props) => {
             <div>
               <label style={{margin:15}}>지점</label>
               <select style={{marginLeft:30}} name="지점" onChange={handleSelect}
-                value={list.length === 1 ? list[0].value : undefined} 
+                // value={list.length === 1 ? list[0].value : (selectedStore|| "")}
+                      value={selectedStore||""}
               >
                 {/* 1개보다 많을 때만 "선택" 옵션을 보여줌 */}
-                {list.length > 1 && <option value="" disabled selected>선택</option>}
+                {/*{list.length > 1 && <option value="" disabled>선택</option>}*/}
+                {selectedStore === "" && <option value="" disabled>선택</option>}
                 
                 {list.map((item) => (
                   <option key={item.value} value={item.value}>
                     {item.name}
                   </option>
-                ))}                
+                ))}
               </select>
             </div>
             <div>
