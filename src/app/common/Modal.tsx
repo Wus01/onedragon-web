@@ -3,17 +3,22 @@ import CustomDatePicker from './Datepicker';
 import { ko } from 'date-fns/locale';
 import styled from '@emotion/styled';
 import '../../assets/css/modal.css';
-import dayjs from 'dayjs';
+import dayjs, {Dayjs} from 'dayjs';
 import { postHiring } from '../../api/hiringBoardApi';
 import {useHistory} from "react-router-dom";
 
-
-const CustModal = (props) => {
+interface CustModalProps {
+  open: boolean;
+  close: ()=> void;
+  header: string;
+  onSaveSuccess?: ()=> void;
+}
+const CustModal = (props: CustModalProps) => {
   // 열기, 닫기, 모달 헤더 텍스트를 부모로부터 받아옴
   const { open, close, header, onSaveSuccess} = props;
   const [selectedStore, setSelectedStore] = useState("");
 
-  const handleSelect = (e) => {
+  const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedStore(e.target.value);
   };
 
@@ -30,19 +35,18 @@ const CustModal = (props) => {
   const [text, setText] = useState("")
   
   // 1. State 선언 (타입 지정 부분 삭제)
-  const [selectedStartDate, setSelectedStartDate] = useState(null);
-  const [startDate, setStartDate] = useState(undefined);
+  const [selectedStartDate, setSelectedStartDate] = useState<Date | Dayjs | null>(null);
+  const [startDate, setStartDate] = useState<string | undefined>(undefined);
 
-  const [selectedEndDate, setSelectedEndDate] = useState(null);
-  const [endDate, setEndDate] = useState(undefined);
+  const [selectedEndDate, setSelectedEndDate] = useState<Date | Dayjs | null>(null);
+  const [endDate, setEndDate] = useState<string | undefined>(undefined);
 
   const [dateBtn, setDateBtn] = useState('전체');
   const [isDateDisabled, setIsDateDisabled] = useState(false);
 
-  const [appointmentDate, setAppointmentDate] = useState(null);
 
   // 2. 시작 날짜 변경 핸들러
-  const handleStartDateChange = (date) => {
+  const handleStartDateChange = (date: Date | Dayjs | null) => {
     setDateBtn('');
     if (date) {
       setSelectedStartDate(date);
@@ -51,7 +55,7 @@ const CustModal = (props) => {
   };
 
   // 3. 종료 날짜 변경 핸들러
-  const handleEndDateChange = (date) => {
+  const handleEndDateChange = (date: Date | Dayjs | null) => {
     setDateBtn('');
     if (date) {
       setSelectedEndDate(date);
@@ -60,7 +64,7 @@ const CustModal = (props) => {
   };
 
   // 업무 변경
-  const handleWorkChange = (e) => {
+  const handleWorkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setServiceTp(value);
     // console.log("선택된 업무 = ",value);
@@ -68,26 +72,26 @@ const CustModal = (props) => {
   }
 
   // 협의가능 변경
-  const handleNegotiChange = (e) => {
+  const handleNegotiChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // console.log("event === ",e.target.checked)
     setIsChecked(e.target.checked);
 
   }
 
   // 긴급성 변경
-  const handleUrgencyYnChange = (e) => {
+  const handleUrgencyYnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setUrgencyYn(value);
   }
 
   // 제목 변경
-  const handleTitleChange = (e) => {
+  const handleTitleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     setTitle(value);
   }
 
   // 내용 변경
-  const handleTextChange = (e) => {
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     setText(value);
   }
@@ -123,7 +127,6 @@ const CustModal = (props) => {
   const history = useHistory();
 
   // 공고 저장
-  // const saveHiring = () => {
     const saveHiring = async () => {
 
     console.log("지점 -- ", selectedStore);
@@ -139,14 +142,14 @@ const CustModal = (props) => {
     const userId = localStorage.getItem("userId");
     const hiringData ={
       storeInfo: {
-        storeId: selectedStore // 현재 선택된 가게의 ID
+        storeId: Number(selectedStore) // 현재 선택된 가게의 ID
       },
       userId: userId,
       hiringSts: '01', // 01 : 미확정, 02 : 확정
       serviceType: serviceTp,
-      workStartDate: startDate,
-      workEndDate: endDate,
-      negotiableYn: negotiYn === true ? "Y":"N",
+      workStartDate: startDate || "",
+      workEndDate: endDate || "",
+      negotiableYn: negotiYn === true ? "Y" as const : "N" as const ,
       hiringTitle: title,
       hiringText: text,
       payPerHour: 8,
@@ -186,8 +189,8 @@ const CustModal = (props) => {
     setNegotiYn(true);
     setTitle("");
     setText("");
-    setSelectedStartDate("");
-    setSelectedEndDate("");
+    setSelectedStartDate(null);
+    setSelectedEndDate(null);
 
   };
   return (
@@ -223,10 +226,7 @@ const CustModal = (props) => {
                 // value={list.length === 1 ? list[0].value : (selectedStore|| "")}
                       value={selectedStore||""}
               >
-                {/* 1개보다 많을 때만 "선택" 옵션을 보여줌 */}
-                {/*{list.length > 1 && <option value="" disabled>선택</option>}*/}
                 {selectedStore === "" && <option value="" disabled>선택</option>}
-                
                 {list.map((item) => (
                   <option key={item.value} value={item.value}>
                     {item.name}
@@ -350,7 +350,6 @@ const CustModal = (props) => {
                 제목
                 <textarea 
                   style={{marginLeft:45, width:250, height:30, verticalAlign: 'top'}}
-                  type='text'
                   value={title}
                   onChange={handleTitleChange}
                   placeholder='지점 + 업무 + 주/야간 + 긴급성'
@@ -362,8 +361,6 @@ const CustModal = (props) => {
                 내용
                 <textarea
                   style={{marginLeft:45, width:250, height:150, verticalAlign: 'top'}}
-                  multiple={true}
-                  type='text'
                   value={text}
                   onChange={handleTextChange}
                   placeholder='업무 내용 및 원하는 인재상??'

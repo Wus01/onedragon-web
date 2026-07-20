@@ -28,11 +28,6 @@ function HiringList(){
         },[]);
 
     // 공고 리스트 호출
-    // const fetchHirings = () => {
-    //     axios.get(`${process.env.REACT_APP_API_URL}/hiring/getHirings`)
-    //         .then(res => setHiring(res.data))
-    //         .catch(err => console.error(err));
-    // };
     const fetchHirings = useCallback((page, append = false) => {
         const validPage = isNaN(page) || !page ? 1 : page;
 
