@@ -1,57 +1,84 @@
 import React, { useEffect, useState } from 'react';
-import { Form } from 'react-bootstrap';
-import bsCustomFileInput from 'bs-custom-file-input';
-// ProgressBar는 코드에서 사용되지 않아 제거 가능하지만, 원본에 따라 남겨둡니다.
-import { ProgressBar } from 'react-bootstrap';
-import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
+import {useParams} from "react-router-dom";
+import axios from "axios";
 
-// export const  = () => {
-function ApplyList({hiringNo, hiring}){
-//  // 클래스 컴포넌트의 componentDidMount 역할을 useEffect로 대체
-//  useEffect(() => {
-//    // bsCustomFileInput 초기화는 필요한 경우에만 유지합니다.
-//    // 현재 코드에서는 파일 입력(file input)이 없지만, 만약 사용한다면 필요합니다.
-//    bsCustomFileInput.init();
-//  }, []); // 빈 배열은 컴포넌트가 마운트될 때 한 번만 실행됨을 의미합니다.
-//
+interface ApplicantsProps {
+    hiring:{
+        hiringNo: number;
+        hiringSts: string;
+    };
+    hiringNo : number;
+}
 
+interface ApplicantsData {
+    hiringNo: number;
+    applyNos: number[];
+    rgstId: string;
+    applySucYn : 'Y' | 'N';
+    applySts : string;
+    applyNo: number;
+    userInfo? : {
+        userNm: string;
+        crrHstrList?: CrrHstr[];
+    };
+}
 
+interface CrrHstr {
+    crrStrtDate?: string | Date;
+    crrEndDate?: string | Date | null;
+    storeInfo?: {
+        storeNm: string;
+    };
+}
 
-    const { id } = useParams(); // alt+enter
-//    const navigate = useNavigate();
+const ApplyList: React.FC<ApplicantsProps> = ({hiringNo, hiring})=>{
 
-        let [applierList, setApplierList] = useState([]);
+    const { id } = useParams();
+    // const [applierList, setApplierList] = useState([]);
 
-        // 게시글 가져오기 성공 후 상태 업데이트
-        useEffect(() => {
-            axios.get(`${process.env.REACT_APP_API_URL}/apply/list/${id}`)
-                .then(response => {
-                    console.log('지원자 목록 가져오기 성공:', response.data);
+    const getApplicantList = async () =>{
+        try {
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/apply/list/${hiringNo}`);
+            console.log("ApplyList.tsx...: 지원자목록 조회 성공: ", response.data);
+            setApplyList(response.data); // 백엔드 스펙에 맞게 세팅 (예: response.data.list 등)
+        } catch (error) {
+            console.error("지원자 목록 조회 실패:", error);
+        }
+    }
+    // 게시글 가져오기 성공 후 상태 업데이트
+    useEffect(() => {
+        console.log("hirignNO::"+hiringNo);
+        if(hiringNo){
+            getApplicantList();
+        }
+        // axios.get(`${process.env.REACT_APP_API_URL}/apply/list/${id}`)
+        //     .then(response => {
+        //         console.log('지원자 목록 가져오기 성공:', response.data);
+        //
+        //         // 🌟 이 부분을 수정합니다. (반복문 제거)
+        //         // response.data가 이미 배열이므로, 배열 전체를 상태로 설정합니다.
+        //         setApplierList(response.data);
+        //
+        //     })
+        //     .catch(error => {
+        //         console.error('지원자 목록 가져오기 실패:', error);
+        //         alert("게시글을 불러오는 데 실패했습니다.");
+        //     });
+    }, [hiringNo]);
 
-                    // 🌟 이 부분을 수정합니다. (반복문 제거)
-                    // response.data가 이미 배열이므로, 배열 전체를 상태로 설정합니다.
-                    setApplierList(response.data);
-
-                })
-                .catch(error => {
-                    console.error('지원자 목록 가져오기 실패:', error);
-                    alert("게시글을 불러오는 데 실패했습니다.");
-                });
-        }, [id]);
 
 
 
     // 지원자목록 불러오기
     // 1. 초기값 수정: 리스트(배열)를 받아야 하므로 []로 초기화하세요.
-    const [applyList, setApplyList] = useState([]);
+    const [applyList, setApplyList] = useState<ApplicantsData[]>([]);
 
     useEffect(() => {
         // 2. URL의 id는 현재 페이지의 파라미터(id)를 그대로 쓰되,
         //    백엔드 컨트롤러 주소와 일치시키면 됩니다.
         axios.get(`${process.env.REACT_APP_API_URL}/apply/list/${id}`)
             .then(response => {
-                console.log('지원자목록 가져오기 성공!:', response.data);
+                console.log('ApplyList.tsx : 지원자목록 가져오기 성공!:', response.data);
 
                 setApplyList(response.data);
             })
@@ -59,14 +86,14 @@ function ApplyList({hiringNo, hiring}){
                 console.error('지원자목록 가져오기 실패:', error);
                 alert("지원자목록을 불러오는 데 실패했습니다.");
             });
-    }, [id]); // id가 바뀔 때마다 다시 실행
+    }, [id]);
 
 
     // 컴포넌트 내부 상단
-    const [selectedApplyNos, setSelectedApplyNos] = useState([]);
-    const handleCheck = (applyNo) => {
+    const [selectedApplyNos, setSelectedApplyNos] = useState<number[]>([]);
+    const handleCheck = (applyNo:number) => {
 
-        setSelectedApplyNos((prev) =>
+        setSelectedApplyNos((prev:number[]) =>
             prev.includes(applyNo)
                 ? prev.filter((id) => id !== applyNo) // 이미 있으면 제거
                 : [...prev, applyNo]                  // 없으면 추가
@@ -98,7 +125,9 @@ function ApplyList({hiringNo, hiring}){
         }
     };
 
-    const calculateTotalExperience = (crrHstrList) => {
+
+
+    const calculateTotalExperience = (crrHstrList:CrrHstr[]) => {
         if (!crrHstrList || crrHstrList.length === 0) return "신입";
 
         let totalDays = 0;
@@ -107,7 +136,7 @@ function ApplyList({hiringNo, hiring}){
             const start = new Date(hstr.crrStrtDate);
             const end = hstr.crrEndDate ? new Date(hstr.crrEndDate) : new Date(); // 종료일 없으면 오늘 기준
 
-            const diffTime = Math.abs(end - start);
+            const diffTime = Math.abs(end.getTime() - start.getTime());
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // 밀리초를 일 단위로 변환
             totalDays += diffDays;
         });
@@ -155,7 +184,7 @@ function ApplyList({hiringNo, hiring}){
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className="text-center">지원자가 없습니다.</td>
+                    <td colSpan={6} className="text-center">지원자가 없습니다.</td>
                   </tr>
                 )}
               </tbody>
@@ -164,7 +193,7 @@ function ApplyList({hiringNo, hiring}){
             <div className="text-center">
             <button type="button" className="btn btn-primary mr-2"
                 onClick={fn_confirm}
-                disabled={hiring.hiringSts === '02'}
+                disabled={applyList.length === 0 || hiring.hiringSts === '02'}
                 style={{ marginTop: '20px', textAlign:'center' }}>확정</button>
             </div>
           {/*</div>*/}

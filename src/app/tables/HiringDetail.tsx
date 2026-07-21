@@ -1,33 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import { Form } from 'react-bootstrap';
-import bsCustomFileInput from 'bs-custom-file-input';
-// ProgressBar는 코드에서 사용되지 않아 제거 가능하지만, 원본에 따라 남겨둡니다.
-import { ProgressBar } from 'react-bootstrap';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import ApplyList from "./ApplyList";
-import {insertApply, postHiring} from "../../api/hiringBoardApi";
+import {insertApply} from "../../api/hiringBoardApi";
+
+interface ApplyData {
+    hiringNo: number;
+    rgstId: string;
+    applySucYn : 'Y' | 'N';
+    applySts : string;
+}
+
+interface Hiring {
+    hiringNo: number;
+    storeNm: string;
+    rgstId: string;
+    hiringStsNm: string;
+    rgstDate: string;
+    hiringTitle: string;
+    workStartDate: string;
+    workEndDate: string;
+    hiringText : string;
+    hiringSts: string;
+}
 
 function HiringDetail(){
-    const { id } = useParams(); // alt+enter
-//    const navigate = useNavigate();
+    const { id } = useParams();
+    const [hiring,setHiring] = useState<Hiring>({} as Hiring);
 
-    const [hiring,setHiring] = useState({});
-
-        // // 게시글 불러오기
-        // useEffect(() => {
-        //     axios.get(`${process.env.REACT_APP_API_URL}/hiring/${id}`)
-        //         .then(response => {
-        //             console.log('게시글 가져오기 성공:', response.data);
-        //             setHiring(response.data);
-        //         })
-        //         .catch(error => {
-        //             console.error('게시글 가져오기 실패:', error);
-        //             alert("게시글을 불러오는 데 실패했습니다.");
-        //         });
-        // }, [id]);
-
-        // 게시글 불러오기
+    // 게시글 불러오기
     const getHiringDetail = () => {
         axios.get(`${process.env.REACT_APP_API_URL}/hiring/${id}`)
                 .then(response => {
@@ -41,67 +43,44 @@ function HiringDetail(){
     };
 
         // 지원자목록 불러오기
-        const [applyList, setApplyList] = useState([]);
+        // const [applyList, setApplyList] = useState([]);
         // 지원여부상태
         const [isApplied, setIsApplied] = useState(false);
 
-        const getApplicantList = () => {
-            axios.get(`${process.env.REACT_APP_API_URL}/apply/list/${id}`)
-                    .then(response => {
-                        console.log('지원자목록 가져오기 성공!:', response.data);
-                        setApplyList(response.data);
-
-                        const applyY = response.data.some(apply => apply.rgstId === loginUserId);
-                        setIsApplied(applyY);
-                    })
-                    .catch(error => {
-                        console.error('지원자목록 가져오기 실패:', error);
-                        alert("지원자목록을 불러오는 데 실패했습니다.");
-                    });
-        }
+        // const getApplicantList = () => {
+        //     axios.get(`${process.env.REACT_APP_API_URL}/apply/list/${id}`)
+        //             .then(response => {
+        //                 console.log('지원자목록 가져오기 성공!:', response.data);
+        //                 setApplyList(response.data);
+        //
+        //                 const applyY = response.data.some(apply => apply.rgstId === loginUserId);
+        //                 setIsApplied(applyY);
+        //             })
+        //             .catch(error => {
+        //                 console.error('지원자목록 가져오기 실패:', error);
+        //                 alert("지원자목록을 불러오는 데 실패했습니다.");
+        //             });
+        // }
         useEffect(() => {
             getHiringDetail();
-            getApplicantList();
+            // getApplicantList();
         }, [id]); // id가 바뀔 때마다 다시 실행
 
 
     // 컴포넌트 내부 상단
-    const [selectedApplyNos, setSelectedApplyNos] = useState([]);
-    const handleCheck = (applyNo) => {
-
-      setSelectedApplyNos((prev) =>
-        prev.includes(applyNo)
-          ? prev.filter((id) => id !== applyNo) // 이미 있으면 제거
-          : [...prev, applyNo]                  // 없으면 추가
-      );
-    };
-
-    const calculateTotalExperience = (crrHstrList) => {
-      if (!crrHstrList || crrHstrList.length === 0) return "신입";
-
-      let totalDays = 0;
-
-      crrHstrList.forEach((hstr) => {
-        const start = new Date(hstr.crrStrtDate);
-        const end = hstr.crrEndDate ? new Date(hstr.crrEndDate) : new Date(); // 종료일 없으면 오늘 기준
-
-        const diffTime = Math.abs(end - start);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // 밀리초를 일 단위로 변환
-        totalDays += diffDays;
-      });
-
-      const years = Math.floor(totalDays / 365);
-      const months = Math.floor((totalDays % 365) / 30);
-
-      let result = "";
-      if (years > 0) result += `${years}년 `;
-      if (months > 0) result += `${months}개월`;
-
-      return result || "1개월 미만";
-    };
+    // const [selectedApplyNos, setSelectedApplyNos] = useState([]);
+    // const handleCheck = (applyNo) => {
+    //
+    //   setSelectedApplyNos((prev) =>
+    //     prev.includes(applyNo)
+    //       ? prev.filter((id) => id !== applyNo) // 이미 있으면 제거
+    //       : [...prev, applyNo]                  // 없으면 추가
+    //   );
+    // };
 
     const loginUserId = localStorage.getItem("userId");
     const isOwner = String(loginUserId) === String(hiring.rgstId);
+
 
     const goToApply = async () => {
         // 지원여부 확인
@@ -113,11 +92,7 @@ function HiringDetail(){
         if(window.confirm("지원하시겠습니까?")){
             // 데이터 세팅
             const userId = localStorage.getItem("userId");
-            const applyData ={
-                // storeInfo: {
-                //     storeId: store // 아이거필요할거같은데....그럼컬럼추가해야됨...ㅡㅡ...
-                // },
-
+            const applyData: ApplyData ={
                 hiringNo : Number(hiring.hiringNo),
                 rgstId: userId,
                 applySucYn : 'N',
@@ -129,7 +104,7 @@ function HiringDetail(){
 
                 // if (onSaveSuccess) onSaveSuccess();
                 getHiringDetail();
-                getApplicantList();
+                // getApplicantList();
             }catch(e){
                 alert("지원 중 오류가 발생했습니다.");
                 console.error(e);
@@ -188,9 +163,11 @@ function HiringDetail(){
                 <Form.Label htmlFor="textareaResume">내용</Form.Label>
                 <Form.Control as="textarea" id="textareaResume" rows={4} value={hiring.hiringText || ''} readOnly />
               </Form.Group>
-                <Link to={`/hiringList`}>
-                    <div style={{ textAlign:'center'}}><button type="button" className="btn btn-primary mr-2" style={{ marginTop: '20px'}}>목록</button></div>
-                </Link>
+                <div style={{ textAlign:'center'}}>
+                    <Link to={`/hiringList`}>
+                        <button type="button" className="btn btn-primary mr-2" style={{ marginTop: '20px'}}>목록</button>
+                    </Link>
+                </div>
 
                 {!isOwner && (
                     <div style={{textAlign:'center'}}>

@@ -3,6 +3,7 @@ import { Link, useHistory } from 'react-router-dom';
 import { Form } from 'react-bootstrap';
 import axios from 'axios';
 import TestImage from "../../assets/images/temp.jpg";
+import {useAuth} from "../shared/AuthContext";
 
 const Login = () => {
     const history = useHistory();
@@ -11,8 +12,9 @@ const Login = () => {
     const [userPwd, setUserPwd] = useState("");
 
     const baseUrl = process.env.REACT_APP_API_URL;
+    const { login } = useAuth();
 
-    const onLogin = async (e) => {
+    const onLogin = async (e: React.SyntheticEvent) => {
         e.preventDefault();
 
         if (!userId || !userPwd) {
@@ -30,14 +32,20 @@ const Login = () => {
 
             // 서버에서 JWT 발급한다고 가정
             if (res.data.token) {
-                localStorage.setItem("token", res.data.token);
-                localStorage.setItem('userId', res.data.userId);
+                login(userId, res.data.token);
+            //     localStorage.setItem("token", res.data.token);
+            //     localStorage.setItem('userId', res.data.userId);
+            //
+            //     // 💡 헤더 등 다른 컴포넌트에게 "로그인 상태 바뀌었어!"라고 이벤트 알림
+            //     window.dispatchEvent(new Event("loginStateChange"));
+                alert("로그인 성공!");
+                history.push("/MypageHome");
+                // window.location.href = "/MypageHome"; // 260708 메뉴 안보여서 새로고침 후 이동으로 수정
             }
 
-            alert("로그인 성공!");
-//            history.push("/MypageHome");
-            window.location.href = "/MypageHome"; // 260708 메뉴 안보여서 새로고침 후 이동으로 수정
-        } catch (err) {
+
+
+        } catch (err: any) {
 
             let errorMessage = "로그인에 실패했습니다.";
 
@@ -107,9 +115,12 @@ const Login = () => {
                                 </div>
 
                                 <div className="my-2 d-flex justify-content-between align-items-center">
-                                    <a href="/register" className="auth-link text-black">회원가입</a>
-                                    <a href="/findIdPw?type=id" className="auth-link text-black">아이디 찾기</a>
-                                    <a href="/findIdPw?type=pw" className="auth-link text-black">비밀번호 찾기</a>
+                                    {/*<a href="/src/app/user-pages/Register" className="auth-link text-black">회원가입</a>*/}
+                                    {/*<a href="/findIdPw?type=id" className="auth-link text-black">아이디 찾기</a>*/}
+                                    {/*<a href="/findIdPw?type=pw" className="auth-link text-black">비밀번호 찾기</a>*/}
+                                    <Link to="/register" className="auth-link text-black">회원가입</Link>
+                                    <Link to="/findIdPw?type=id" className="auth-link text-black">아이디 찾기</Link>
+                                    <Link to="findIdPw?type=pw" className="auth-link text-black">비밀번호 찾기</Link>
                                 </div>
                             </Form>
                         </div>

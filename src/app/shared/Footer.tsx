@@ -1,8 +1,6 @@
-import React, { Component } from 'react';
-// import { Trans } from 'react-i18next';
+import React from 'react';
 
-class Footer extends Component {
-  render () {
+const Footer  = () => {
     return (
       <footer className="footer">
         <div className="container-fluid">
@@ -13,7 +11,6 @@ class Footer extends Component {
         </div>
       </footer>
     );
-  }
-}
+};
 
 export default Footer;

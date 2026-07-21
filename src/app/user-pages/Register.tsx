@@ -18,12 +18,12 @@ function Register() {
     const [showTerms, setShowTerms] = useState(false);
 
     // 약관 읽기 버튼 핸들러
-    const toggleTerms = (e) => {
+    const toggleTerms = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
         e.preventDefault();
         setShowTerms(!showTerms);
     };
 
-    const registerCheck = async (e) => {
+    const registerCheck = async (e: React.SyntheticEvent) => {
         e.preventDefault();
 
         if (!userNm || !userId || !userEmail || !userPwd || !confirm || !userPhoneNm) {
@@ -62,7 +62,7 @@ function Register() {
             let body;
             try {
                 body = raw ? JSON.parse(raw) : null;
-            } catch (e) {
+            } catch (jsonErr) {
                 if (process.env.NODE_ENV === "development") {
                     console.groupCollapsed("[SIGNUP] 응답");
                     console.log("status:", res.status, res.statusText);

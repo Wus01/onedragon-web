@@ -1,35 +1,54 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {Form, Pagination} from 'react-bootstrap';
-import bsCustomFileInput from 'bs-custom-file-input';
-// ProgressBar는 코드에서 사용되지 않아 제거 가능하지만, 원본에 따라 남겨둡니다.
-import { ProgressBar } from 'react-bootstrap';
+import {Pagination} from 'react-bootstrap';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import CustModal from "../common/Modal";
-import {postHiring} from "../../api/hiringBoardApi";
+
 import { Button } from 'react-bootstrap';
 
-
-// export const  = () => {
 function HiringList(){
     const { id } = useParams();
 
-    const [isOpen, setIsOpen] = useState(false);
-    const [isClose, setIsClose] = useState(false);
-    const [header, setHeader] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPage] = useState(0);
-    const [isMobile, setIsMobile] = useState(false);
+    const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [isClose, setIsClose] = useState<boolean>(false);
+    const [header, setHeader] = useState<string>('');
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [totalPages, setTotalPage] = useState<number>(0);
+    const [isMobile, setIsMobile] = useState<boolean>(false);
 
     const itemsPerPage = 10;
-    const [hiring,setHiring] = useState({
-            hiringTitle:"",
-            hiringText:""
-        },[]);
+
+    interface HiringInfo {
+        hiringTitle: string;
+        hiringText: string;
+        hiringNo: number;
+        storeNm: string;
+        rgstId: string;
+        hiringStsNm: string;
+        rgstDate: string;
+    }
+    const [hiring,setHiring] = useState<HiringResponse>({
+            // hiringTitle:"",
+            // hiringText:"",
+            // hiringNo: 0,
+            // storeNm: "",
+            // rgstId: "",
+            // hiringStsNm: "",
+            // rgstDate: ""
+            content:[]
+        });
+
+    interface HiringResponse{
+        content: HiringInfo[];
+        totalPages?: number;
+        totalElements?: number;
+        size?: number;
+        number?: number;
+    }
 
     // 공고 리스트 호출
-    const fetchHirings = useCallback((page, append = false) => {
-        const validPage = isNaN(page) || !page ? 1 : page;
+    const fetchHirings = useCallback((page: number, append:boolean =false) => {
+        const validPage = isNaN(Number(page)) || !page ? 1 : Number(page);
 
         axios.get(`${process.env.REACT_APP_API_URL}/hiring/getHirings`, {
             params: {
@@ -60,7 +79,7 @@ function HiringList(){
     }, []);
 
     useEffect(()=>{
-        fetchHirings();
+        fetchHirings(1);
 
         const checkSize = () => {
             setIsMobile(window.innerWidth < 768); // 768px 미만이면 모바일로 판단
@@ -70,19 +89,19 @@ function HiringList(){
         window.addEventListener('resize', checkSize); //창 크기 바뀔 때마다 감지
 
         return ()=> window.removeEventListener('resize', checkSize); //청소
-    }, []);
+    }, [fetchHirings]);
 
     useEffect(()=>{
         if(isMobile){
             // 모바일 모드일 때 : 처음에 리스트가 텅 비어있을 때만 첫 페이지를 조회해서 아래로 쌓아둔다.
-            if(hiring.length === 0){
+            if(hiring.content?.length || 0 === 0){
                 fetchHirings(1, false);
             }
         }else{
             // PC 모드일 때: 페이지 번호(currentPage)가 바뀔 때마다 기존 데이터를 지우고 새로 갈아끼운다.
             fetchHirings(currentPage, false);
         }
-    }, [currentPage, isMobile, fetchHirings, hiring.length]);
+    }, [currentPage, isMobile, fetchHirings, hiring.content?.length]);
 
 
     const closeModalHandler = () => {
@@ -157,7 +176,7 @@ function HiringList(){
                                       <tbody>
                                       {hiring && hiring.content && hiring.content.length > 0 ? (
                                           hiring.content.map((item, index) => (
-                                              <tr key={item.id || index} style={{textAlign: 'center'}}>
+                                              <tr key={item.hiringNo || index} style={{textAlign: 'center'}}>
                                                   <td>{item.hiringNo}</td>
                                                   <td>{item.storeNm}</td>
                                                   <td>
@@ -172,7 +191,7 @@ function HiringList(){
                                           ))
                                       ) : (
                                           <tr>
-                                              <td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>등록된 공고가 없습니다.</td>
+                                              <td colSpan={6} style={{ textAlign: 'center', padding: '20px' }}>등록된 공고가 없습니다.</td>
                                           </tr>
                                       )}
                                       </tbody>
@@ -208,7 +227,7 @@ function HiringList(){
           <CustModal
               open={isOpen}
               close={closeModalHandler}
-              onSaveSuccess={fetchHirings}
+              onSaveSuccess={()=> fetchHirings(1, false)}
               header="공고작성"
           />
       </div>

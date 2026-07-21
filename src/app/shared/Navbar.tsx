@@ -1,20 +1,39 @@
 import React, { Component } from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { Trans } from 'react-i18next';
+import logoMini from "../../assets/images/logo-mini.svg";
+import face10 from "../../assets/images/faces/face10.jpg";
+import face12 from "../../assets/images/faces/face12.jpg";
+import face1 from "../../assets/images/faces/face1.jpg";
+import face8 from  "../../assets/images/faces/face8.jpg";
 
-class Navbar extends Component {
-  toggleOffcanvas() {
-    document.querySelector('.sidebar-offcanvas').classList.toggle('active');
-  }
-  toggleRightSidebar() {
-    document.querySelector('.right-sidebar').classList.toggle('open');
-  }
-  render () {  
+// class Navbar extends Component {
+  // toggleOffcanvas() {
+  //   document.querySelector('.sidebar-offcanvas').classList.toggle('active');
+  // }
+  // toggleRightSidebar() {
+  //   document.querySelector('.right-sidebar').classList.toggle('open');
+  // }
+
+const Navbar = () => {
+  const toggleOffcanvas = (): void => {
+    document.querySelector('.sidebar-offcanvas')?.classList.toggle('active');
+  };
+
+  const toggleRightSidebar = (): void => {
+    document.querySelector('.right-sidebar')?.classList.toggle('open');
+  };
+
+  const handlePreventDefault = (evt: React.MouseEvent<any>): void=>{
+    evt.preventDefault();
+  };
+
+  // render () {
     return (
       <nav className="navbar col-lg-12 col-12 p-lg-0 fixed-top d-flex flex-row">
         <div className="navbar-menu-wrapper d-flex align-items-center justify-content-between">
-        <a className="navbar-brand brand-logo-mini align-self-center d-lg-none" href="!#" onClick={evt =>evt.preventDefault()}><img src={require("../../assets/images/logo-mini.svg")} alt="logo" /></a>
-          <button className="navbar-toggler navbar-toggler align-self-center" type="button" onClick={ () => document.body.classList.toggle('sidebar-icon-only') }>
+        <a className="navbar-brand brand-logo-mini align-self-center d-lg-none" href="#" onClick={handlePreventDefault}><img src={logoMini} alt="logo" /></a>
+          <button className="navbar-toggler navbar-toggler align-self-center" type="button" onClick={ () => document.body?.classList.toggle('sidebar-icon-only') }>
             <i className="mdi mdi-menu"></i>
           </button>
           <ul className="navbar-nav navbar-nav-left header-links align-self-center">
@@ -30,25 +49,25 @@ class Navbar extends Component {
                   <span className="profile-text font-weight-medium d-none d-md-block">English</span>
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="navbar-dropdown preview-list">
-                  <Dropdown.Item className="dropdown-item  d-flex align-items-center" href="!#" onClick={evt =>evt.preventDefault()}>
+                  <Dropdown.Item className="dropdown-item  d-flex align-items-center" href="#" onClick={handlePreventDefault}>
                     <div className="flag-icon-holder">
                       <i className="flag-icon flag-icon-us"></i>
                     </div>English
                   </Dropdown.Item>
                   <div className="dropdown-divider"></div>
-                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center" href="!#" onClick={evt =>evt.preventDefault()}>
+                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center" href="#" onClick={handlePreventDefault}>
                     <div className="flag-icon-holder">
                       <i className="flag-icon flag-icon-fr"></i>
                     </div>French
                   </Dropdown.Item>
                   <div className="dropdown-divider"></div>
-                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center" href="!#" onClick={evt =>evt.preventDefault()}>
+                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center" href="#" onClick={handlePreventDefault}>
                     <div className="flag-icon-holder">
                       <i className="flag-icon flag-icon-ae"></i>
                     </div>Arabic
                   </Dropdown.Item>
                   <div className="dropdown-divider"></div>
-                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center" href="!#" onClick={evt =>evt.preventDefault()}>
+                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center" href="#" onClick={handlePreventDefault}>
                     <div className="flag-icon-holder">
                       <i className="flag-icon flag-icon-ru"></i>
                     </div>Russian
@@ -70,12 +89,12 @@ class Navbar extends Component {
                   <span className="count bg-success">4</span>
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="navbar-dropdown preview-list">
-                  <Dropdown.Item className="dropdown-item py-3 d-flex align-items-center" href="!#" onClick={evt =>evt.preventDefault()}>
+                  <Dropdown.Item className="dropdown-item py-3 d-flex align-items-center" href="#" onClick={handlePreventDefault}>
                     <p className="mb-0 font-weight-medium float-left"><Trans>You have</Trans> 4 <Trans>new notifications</Trans> </p>
                     <span className="badge badge-pill badge-primary float-right">View all</span>
                   </Dropdown.Item>
                   <div className="dropdown-divider"></div>
-                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center" href="!#" onClick={evt =>evt.preventDefault()}>
+                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center" href="#" onClick={handlePreventDefault}>
                     <div className="preview-thumbnail">
                       <i className="mdi mdi-alert m-auto text-primary"></i>
                     </div>
@@ -85,7 +104,7 @@ class Navbar extends Component {
                     </div>
                   </Dropdown.Item>
                   <div className="dropdown-divider"></div>
-                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center" href="!#" onClick={evt =>evt.preventDefault()}>
+                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center" href="#" onClick={handlePreventDefault}>
                     <div className="preview-thumbnail">
                       <i className="mdi mdi-settings m-auto text-primary"></i>
                     </div>
@@ -95,7 +114,7 @@ class Navbar extends Component {
                     </div>
                   </Dropdown.Item>
                   <div className="dropdown-divider"></div>
-                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center" href="!#" onClick={evt =>evt.preventDefault()}>
+                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center" href="#" onClick={handlePreventDefault}>
                     <div className="preview-thumbnail">
                       <i className="mdi mdi-airballoon m-auto text-primary"></i>
                     </div>
@@ -114,32 +133,32 @@ class Navbar extends Component {
                   <span className="count">7</span>
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="navbar-dropdown preview-list">
-                  <Dropdown.Item className="dropdown-item  d-flex align-items-center" href="!#" onClick={evt =>evt.preventDefault()}>
+                  <Dropdown.Item className="dropdown-item  d-flex align-items-center" href="#" onClick={handlePreventDefault}>
                     <p className="mb-0 font-weight-medium float-left"><Trans>You have</Trans> 7 <Trans>unread mails</Trans> </p>
                     <span className="badge badge-pill badge-primary">View all</span>
                   </Dropdown.Item>
                   <div className="dropdown-divider"></div>
-                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center" href="!#" onClick={evt =>evt.preventDefault()}>
+                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center" href="#" onClick={handlePreventDefault}>
                     <div className="preview-thumbnail">
-                      <img src={require("../../assets/images/faces/face10.jpg")} alt="profile" className="img-sm profile-pic" /> </div>
+                      <img src={face10} alt="profile" className="img-sm profile-pic" /> </div>
                     <div className="preview-item-content flex-grow py-2">
                       <p className="preview-subject ellipsis font-weight-medium text-dark"><Trans>Marian Garner</Trans> </p>
                       <p className="font-weight-light small-text"> <Trans>The meeting is cancelled</Trans> </p>
                     </div>
                   </Dropdown.Item>
                   <div className="dropdown-divider"></div>
-                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center" href="!#" onClick={evt =>evt.preventDefault()}>
+                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center" href="#" onClick={handlePreventDefault}>
                     <div className="preview-thumbnail">
-                      <img src={require("../../assets/images/faces/face12.jpg")} alt="profile" className="img-sm profile-pic" /> </div>
+                      <img src={face12} alt="profile" className="img-sm profile-pic" /> </div>
                     <div className="preview-item-content flex-grow py-2">
                       <p className="preview-subject ellipsis font-weight-medium text-dark"><Trans>David Grey</Trans> </p>
                       <p className="font-weight-light small-text"> <Trans>The meeting is cancelled</Trans></p>
                     </div>
                   </Dropdown.Item>
                   <div className="dropdown-divider"></div>
-                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center" href="!#" onClick={evt =>evt.preventDefault()}>
+                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center" href="#" onClick={handlePreventDefault}>
                     <div className="preview-thumbnail">
-                      <img src={require("../../assets/images/faces/face1.jpg")} alt="profile" className="img-sm profile-pic" /> </div>
+                      <img src={face1} alt="profile" className="img-sm profile-pic" /> </div>
                     <div className="preview-item-content flex-grow py-2">
                       <p className="preview-subject ellipsis font-weight-medium text-dark"><Trans>Travis Jenkins</Trans> </p>
                       <p className="font-weight-light small-text"> <Trans>The meeting is cancelled</Trans> </p>
@@ -153,10 +172,10 @@ class Navbar extends Component {
             <li className="nav-item  nav-profile border-0">
               <Dropdown>
                 <Dropdown.Toggle className="nav-link count-indicator bg-transparent">
-                  <img className="img-xs rounded-circle" src={require("../../assets/images/faces/face8.jpg")} alt="Profile" />
+                  <img className="img-xs rounded-circle" src={face8} alt="Profile" />
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="preview-list navbar-dropdown pb-3">
-                  <Dropdown.Item className="dropdown-item p-0 preview-item d-flex align-items-center border-bottom" href="!#" onClick={evt =>evt.preventDefault()}>
+                  <Dropdown.Item className="dropdown-item p-0 preview-item d-flex align-items-center border-bottom" href="#" onClick={handlePreventDefault}>
                     <div className="d-flex">
                       <div className="py-3 px-4 d-flex align-items-center justify-content-center">
                         <i className="mdi mdi-bookmark-plus-outline mr-0"></i>
@@ -169,29 +188,29 @@ class Navbar extends Component {
                       </div>
                     </div>
                   </Dropdown.Item>
-                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center border-0 mt-2" onClick={evt =>evt.preventDefault()}>
+                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center border-0 mt-2" onClick={evt=>evt.preventDefault()}>
                     <Trans>Manage Accounts</Trans>
                   </Dropdown.Item>
-                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center border-0" onClick={evt =>evt.preventDefault()}>
+                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center border-0" onClick={handlePreventDefault}>
                     <Trans>Change Password</Trans>
                   </Dropdown.Item>
-                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center border-0" onClick={evt =>evt.preventDefault()}>
+                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center border-0" onClick={handlePreventDefault}>
                     <Trans>Check Inbox</Trans>
                   </Dropdown.Item>
-                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center border-0" onClick={evt =>evt.preventDefault()}>
+                  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center border-0" onClick={handlePreventDefault}>
                     <Trans>Sign Out</Trans>
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
             </li>
           </ul>
-          <button className="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" onClick={this.toggleOffcanvas}>
+          <button className="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" onClick={toggleOffcanvas}>
             <span className="mdi mdi-menu"></span>
           </button>
         </div>
       </nav>
     );
-  }
+  // }
 }
 
 export default Navbar;

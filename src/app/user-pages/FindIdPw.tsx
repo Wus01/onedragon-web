@@ -24,7 +24,7 @@ const FindIdPw = () => {
         }
     }, [location]); // URL이 바뀔 때마다 감지
 
-    const onSubmit = async (e) => {
+    const onSubmit = async (e: React.SyntheticEvent) => {
         e.preventDefault();
 
         try {

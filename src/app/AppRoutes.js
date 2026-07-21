@@ -2,9 +2,9 @@ import React, { Component,Suspense, lazy } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 
 import Spinner from '../app/shared/Spinner';
-import Sidebar from '../app/shared/Sidebar';
+import Sidebar from './shared/Sidebar';
 import HiringList from './tables/HiringList';
-
+// import Register1 from './user-pages/Register';
 
 const HiringDetail = lazy(() => import('./tables/HiringDetail'));
 const Dashboard = lazy(() => import('./dashboard/Dashboard'));
@@ -39,18 +39,19 @@ const MypageHome = lazy(() => import('./form-elements/MypageHome'));
 
 
 const ApplyList = lazy(() => import('./tables/ApplyList'));
-const isLoggedIn = !!localStorage.getItem("user_id");
+
 
 
 class AppRoutes extends Component {
 
   render () {
+    const isLoggedIn = !!localStorage.getItem("user_id");
     return (
       <Suspense fallback={<Spinner/>}>
       {/* 로그인 상태일 때만 메뉴바를 렌더링 */}
       {isLoggedIn && <Sidebar />}
         <Switch>
-          <Route exact path="/dashboard" component={ Dashboard } />
+          <Route path="/dashboard" component={ Dashboard } />
 
           <Route path="/basic-ui/buttons" component={ Buttons } />
           <Route path="/basic-ui/dropdowns" component={ Dropdowns } />
@@ -83,7 +84,9 @@ class AppRoutes extends Component {
           {/*내 공고리스트*/}
           <Route path='/hiringList' component={ HiringList } />
 
-          <Redirect to="/login" />
+          <Route exact path="/">
+            <Redirect to="/login" />
+          </Route>
         </Switch>
       </Suspense>
     );

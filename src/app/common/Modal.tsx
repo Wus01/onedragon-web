@@ -11,7 +11,7 @@ interface CustModalProps {
   open: boolean;
   close: ()=> void;
   header: string;
-  onSaveSuccess?: ()=> void;
+  onSaveSuccess?: () => void;
 }
 const CustModal = (props: CustModalProps) => {
   // 열기, 닫기, 모달 헤더 텍스트를 부모로부터 받아옴
