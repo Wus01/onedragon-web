@@ -1,14 +1,45 @@
+import '../../App.css';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useParams, useHistory } from 'react-router-dom';
-import { InputGroup, Form, Button } from 'react-bootstrap';
+import {InputGroup, Form, Button, Modal} from 'react-bootstrap';
+import StoreSearchPopup from "./StoreSearchPopup";
 
 axios.defaults.withCredentials = true;
 
+declare global {
+    interface Window {
+        receiveStoreInfo?: (id: number, name: string) => void;
+    }
+}
+
+export interface CrrHstrDtl {
+    storeId: number;
+    crrHstrNo: number;
+    crrStrtDate: string;
+    crrEndDate: string;
+    storeInfo: {
+        storeNm: string;
+    };
+    status: string;
+    authYn: boolean;
+}
+
+export interface CrrHstrPayLoad {
+    userId: string;
+    storeId: number | null;
+    crrHstrNo: number | null;
+    crrStrtDate: string;
+    crrEndDate: string;
+    status: string;
+    authYn: boolean;
+    delYn: boolean;
+}
+
 /** * 날짜 포맷 및 변환 유틸리티 */
-const safeDate = (str) => {
+const safeDate = (str: string | number | null | undefined):Date | null => {
     if (!str) return null;
     if (typeof str === 'string' && /^\d{8}$/.test(str)) {
         const yyyy = str.substring(0, 4);
@@ -22,7 +53,7 @@ const safeDate = (str) => {
     return isNaN(d.getTime()) ? null : d;
 };
 
-const formatDate = (date) => {
+const formatDate = (date: Date | null | undefined): string | null => {
     if (!date) return null;
     try {
         const year = date.getFullYear();
@@ -36,7 +67,7 @@ const formatDate = (date) => {
 
 export const CrrHstrCreate = () => {
     const { crrHstrNo: pathCrrHstrNo } = useParams();
-    const pathStoreId = "1";
+    // const pathStoreId = "1";
     const history = useHistory();
     const storageUserId = localStorage.getItem('userId');
     // const isEditMode = Boolean(storageUserId && pathStoreId);
@@ -44,10 +75,12 @@ export const CrrHstrCreate = () => {
     const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8080/api";
 
     // 상태 관리
-    const [storeId, setStoreId] = useState(pathStoreId || "");
-    const [crrHstrNo, setCrrHstrNo]= useState(pathCrrHstrNo || "");
-    const [startDate, setStartDate] = useState(null);
-    const [endDate, setEndDate] = useState(null);
+    const [storeId, setStoreId] = useState<number|null>(null);
+    const [crrHstrNo, setCrrHstrNo]= useState<number| null>(
+        pathCrrHstrNo ? Number(pathCrrHstrNo): null
+    );
+    const [startDate, setStartDate] = useState<Date | null>(null);
+    const [endDate, setEndDate] = useState<Date | null>(null);
     const [storeName, setStoreName] = useState("");
     const [status, setStatus] = useState("");
     const [authYn, setAuthYn] = useState(false);
@@ -68,7 +101,7 @@ export const CrrHstrCreate = () => {
             setIsLoading(true);
             setStoreName("");
             // axios.get(`${API_BASE_URL}/crrHstr/${storageUserId}/${pathStoreId}`) // 고정 url 피하기 위함
-            axios.get(`${process.env.REACT_APP_API_URL}/crrHstr/select/${pathCrrHstrNo}`)
+            axios.get<CrrHstrDtl>(`${process.env.REACT_APP_API_URL}/crrHstr/select/${pathCrrHstrNo}`)
                 .then(res => {
                     const result = res.data;
                     console.log("경력상세조회:",result);
@@ -88,7 +121,7 @@ export const CrrHstrCreate = () => {
                 })
                 .finally(() => setIsLoading(false));
         } else {
-            setStoreId("");
+            setStoreId(null);
             setStoreName("");
             setStartDate(null);
             setEndDate(null);
@@ -98,37 +131,51 @@ export const CrrHstrCreate = () => {
 
     // [2] 팝업창 연동
     useEffect(() => {
-        window.receiveStoreInfo = (id, name) => {
+        window.receiveStoreInfo = (id:number, name:string) => {
             setStoreId(id);
             setStoreName(name);
         };
-        return () => delete window.receiveStoreInfo;
+        return () => {delete window.receiveStoreInfo};
     }, []);
 
+    // const openStoreSearch = () => {
+    //     const width = 850;
+    //     const height = 800;
+    //
+    //     // 💡 모니터의 전체 가로/세로 길이를 가져와 중앙 좌표 계산
+    //     const left = window.screenX + (window.outerWidth - width) / 2;
+    //     const top = window.screenY + (window.outerHeight - height) / 2;
+    //
+    //     window.open(
+    //         '/storeSearchPopup',
+    //         'StoreSearch',
+    //         `width=${width},height=${height},left=${left},top=${top},scrollbars=yes`
+    //     );
+    // };
+
+    const [showModal, setShowModal] = useState(false);
+
     const openStoreSearch = () => {
-        const width = 850;
-        const height = 800;
-
-        // 💡 모니터의 전체 가로/세로 길이를 가져와 중앙 좌표 계산
-        const left = window.screenX + (window.outerWidth - width) / 2;
-        const top = window.screenY + (window.outerHeight - height) / 2;
-
-        window.open(
-            '/StoreSearchPopup',
-            'StoreSearch',
-            `width=${width},height=${height},left=${left},top=${top},scrollbars=yes`
-        );
+        setShowModal(true);
     };
 
-    const getPayload = () => ({
+    // 💡 팝업에서 지점을 선택했을 때 실행될 함수
+    const handleSelectStore = (id: number, nm: string) => {
+        setStoreId(id);
+        setStoreName(nm);
+
+        setShowModal(false);
+    };
+
+    const getPayload = ():CrrHstrPayLoad => ({
         userId: storageUserId,
-        storeId: parseInt(storeId),
+        storeId,
         crrStrtDate: formatDate(startDate),
         crrEndDate: formatDate(endDate),
         status: status || "01",
-        authYn: authYn,
+        authYn,
         delYn: false,
-        crrHstrNo : crrHstrNo
+        crrHstrNo
     });
 
     const handleSave = () => {
@@ -136,7 +183,7 @@ export const CrrHstrCreate = () => {
         axios.post(`${API_BASE_URL}/crrHstr`, getPayload())
             .then(res => {
                 alert("등록 완료!");
-                history.push(`/MypageHome`);
+                history.push(`/mypageHome`);
 
             })
             .catch(err => alert("등록 실패"));
@@ -144,7 +191,7 @@ export const CrrHstrCreate = () => {
 
     const handleUpdate = () => {
         if (!window.confirm("수정하시겠습니까?")) return;
-        axios.put(`${API_BASE_URL}/crrHstr/update/${crrHstrNo}`, getPayload())
+        axios.put<CrrHstrDtl>(`${API_BASE_URL}/crrHstr/update/${crrHstrNo}`, getPayload())
             .then((res) => {
                 alert("수정 완료!");
                 if(res.data){
@@ -157,10 +204,9 @@ export const CrrHstrCreate = () => {
                     setStartDate(safeDate(result.crrStrtDate));
                     setEndDate(safeDate(result.crrEndDate));
 
-                    history.push(`/MypageHome`)
+                    history.push(`/mypageHome`)
                     // }
                 }
-
             })
             .catch(err => {
                     if(err.response){
@@ -177,7 +223,7 @@ export const CrrHstrCreate = () => {
         axios.delete(`${API_BASE_URL}/crrHstr/delete/${crrHstrNo}`, { data: getPayload() })
             .then(() => {
                 alert("삭제되었습니다.");
-                history.push("/MypageHome");
+                history.push("/mypageHome");
             })
             .catch(() => alert("삭제 실패"));
     };
@@ -185,6 +231,7 @@ export const CrrHstrCreate = () => {
     if (isLoading) return <div className="p-5 text-center">데이터 로딩 중...</div>;
 
     return (
+        <>
         <div className="p-4 bg-light min-vh-100">
             <div className="card shadow-sm border-0 rounded-4 p-4 mx-auto" style={{ maxWidth: '700px' }}>
                 <h3 className="fw-bold mb-4 text-primary border-bottom pb-3">
@@ -223,6 +270,7 @@ export const CrrHstrCreate = () => {
                                     🔍
                                 </InputGroup.Text>
                             </InputGroup>
+
                             <input type="hidden" value={storeId} />
                         </div>
                     </Form.Group>
@@ -232,7 +280,7 @@ export const CrrHstrCreate = () => {
                         <div className="col-sm-9 d-flex gap-2 align-items-center">
                             <DatePicker
                                 selected={startDate}
-                                onChange={(date) => setStartDate(date)}
+                                onChange={(date: Date|null) => setStartDate(date)}
                                 className="form-control"
                                 dateFormat="yyyy-MM-dd"
                                 placeholderText="시작일"
@@ -241,7 +289,7 @@ export const CrrHstrCreate = () => {
                             <span>~</span>
                             <DatePicker
                                 selected={endDate}
-                                onChange={(date) => setEndDate(date)} // 💡 오타 수정: setStartDate -> setEndDate
+                                onChange={(date: Date|null) => setEndDate(date)} // 💡 오타 수정: setStartDate -> setEndDate
                                 className="form-control"
                                 dateFormat="yyyy-MM-dd"
                                 placeholderText="종료일"
@@ -281,11 +329,35 @@ export const CrrHstrCreate = () => {
                         ) : (
                             <Button variant="success" onClick={handleSave}>등록 후 확인</Button>
                         )}
-                        <Button variant="light" onClick={() => history.push("/MypageHome")}>목록으로</Button>
+                        <Button variant="light" onClick={() => history.push("/mypageHome")}>목록으로</Button>
                     </div>
                 </Form>
+
             </div>
         </div>
+
+
+            <Modal
+                show={showModal}
+                onHide={() => setShowModal(false)}
+                centered  // 화면 정중앙에 배치
+                dialogClassName="custom-modal-size"
+                scrollable
+                style={{zIndex:1060}}
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title className="fw-bold">🏢 지점 검색</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {/* 팝업 컴포넌트를 렌더링하고, 선택 시 실행할 함수를 props로 넘겨줍니다! */}
+                    <StoreSearchPopup onSelectStore={handleSelectStore} />
+                </Modal.Body>
+            </Modal>
+
+
+
+        </>
+
     );
 };
 

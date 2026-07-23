@@ -186,8 +186,8 @@ const Sidebar: React.FC = () => {
                 </Link>
               </li>
           )}
-            <li className={ isPathActive('/MypageHome') ? 'nav-item active' : 'nav-item' }>
-                <Link className="nav-link" to='/MypageHome'>
+            <li className={ isPathActive('/mypageHome') ? 'nav-item active' : 'nav-item' }>
+                <Link className="nav-link" to='/mypageHome'>
                     <i className="mdi mdi-television menu-icon"></i>
                     <span className="menu-title"><Trans>마이 페이지</Trans></span>
                 </Link>

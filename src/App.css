@@ -36,3 +36,12 @@
     transform: rotate(360deg);
   }
 }
+
+/* 💡 모바일 화면(너비 768px 이하)일 때만 적용되는 설정 */
+@media (max-width: 768px) {
+  .modal-dialog.custom-modal-size {
+    margin: 1.5rem auto !important; /* 상하좌우 여백을 줘서 화면에 꽉 차지 않게 숨통을 틔워줍니다 */
+    max-width: 90% !important;      /* 화면 너비의 90%까지만 차지하도록 제한 */
+    max-height: 60% !important;
+  }
+}

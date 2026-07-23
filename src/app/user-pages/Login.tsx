@@ -39,7 +39,7 @@ const Login = () => {
             //     // 💡 헤더 등 다른 컴포넌트에게 "로그인 상태 바뀌었어!"라고 이벤트 알림
             //     window.dispatchEvent(new Event("loginStateChange"));
                 alert("로그인 성공!");
-                history.push("/MypageHome");
+                history.push("/mypageHome");
                 // window.location.href = "/MypageHome"; // 260708 메뉴 안보여서 새로고침 후 이동으로 수정
             }
 

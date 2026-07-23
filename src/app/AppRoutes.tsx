@@ -70,9 +70,9 @@ const AppRoutes: React.FC = () => {
           {/*재직이력 등록용*/}
           <Route path='/crrHstrCreate' component={ CrrHstrCreate } />
           {/*마이페이지*/}
-          <Route path='/MypageHome' component={ MypageHome } />
+          <Route path='/mypageHome' component={ MypageHome } />
           {/*지점정보 검색*/}
-          <Route path="/StoreSearchPopup" component={ StoreSearchPopup } />
+          <Route path="/storeSearchPopup" component={ StoreSearchPopup } />
           {/*내 공고리스트*/}
           <Route path='/hiringList' component={ HiringList } />
 

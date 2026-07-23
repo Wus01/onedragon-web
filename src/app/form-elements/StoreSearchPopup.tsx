@@ -1,11 +1,30 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, {useState, useEffect, useCallback, JSX} from 'react';
 import axios from 'axios';
 import { Table, InputGroup, Form, Button, Pagination } from 'react-bootstrap';
 
-const StoreSearchPopup = () => {
+export interface Props {
+    onSelectStore: (id: number, nm: string) => void;
+}
+
+export interface StoreInfo {
+    storeId: number;
+    userId: string;
+    storeNm: string;
+    storeAddr: string;
+}
+
+export interface StoreReponse {
+    data: {
+        items: StoreInfo[];
+        totalCount: number;
+    }
+}
+
+// const StoreSearchPopup = () => {
+const StoreSearchPopup = ({onSelectStore}:Props) => {
     const [searchType, setSearchType] = useState("nm");
     const [keyword, setKeyword] = useState("");
-    const [stores, setStores] = useState([]);
+    const [stores, setStores] = useState<StoreInfo[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalCount, setTotalCount] = useState(0);
 
@@ -13,39 +32,61 @@ const StoreSearchPopup = () => {
     const pageGroupSize = 5;
     // const API_BASE_URL = "http://localhost:8080/api/store";
 
-    const fetchStores = useCallback(() => {
-        axios.get(`${process.env.REACT_APP_API_URL}/store/search`, {
-            params: {
-                page: currentPage,
-                size: itemsPerPage,
-                type: searchType,
-                keyword: keyword
-            }
-        })
-            .then(res => {
-                const responseData = res.data.data;
-                if (responseData) {
-                    setStores(responseData.items || []);
-                    setTotalCount(responseData.totalCount || 0);
+    // const fetchStores = useCallback(() => {
+    //     axios.get(`${process.env.REACT_APP_API_URL}/store/search`, {
+    //         params: {
+    //             page: currentPage,
+    //             size: itemsPerPage,
+    //             type: searchType,
+    //             keyword: keyword
+    //         }
+    //     })
+    //         .then(res => {
+    //             const responseData = res.data.data;
+    //             if (responseData) {
+    //                 setStores(responseData.items || []);
+    //                 setTotalCount(responseData.totalCount || 0);
+    //             }
+    //         })
+    //         .catch(err => console.error("데이터 로드 실패:", err));
+    // }, [currentPage, keyword, searchType]);
+
+    const fetchStores = useCallback(async () => {
+        try {
+            const res = await axios.get<StoreReponse>(`${process.env.REACT_APP_API_URL}/store/search`, {
+                params: {
+                    page: currentPage,
+                    size: itemsPerPage,
+                    type: searchType,
+                    keyword: keyword
                 }
-            })
-            .catch(err => console.error("데이터 로드 실패:", err));
-    }, [currentPage, keyword, searchType]);
+            });
+            const responseData = res.data.data;
+            if (responseData) {
+                setStores(responseData.items || []);
+                setTotalCount(responseData.totalCount || 0);
+            }
+        } catch(err){
+            console.error("데이터 로드 실패:", err);
+        }
+    }, [currentPage, itemsPerPage, searchType, keyword]);
 
     useEffect(() => {
-        fetchStores();
+        void fetchStores();
     }, [currentPage]);
 
     const handleSearch = () => {
         setCurrentPage(1);
-        fetchStores();
+        void fetchStores();
     };
 
-    const selectStore = (id, nm) => {
-        if (window.opener && !window.opener.closed) {
-            window.opener.receiveStoreInfo(id, nm);
-            window.close();
-        }
+    const selectStore = (id:number, nm:string) => {
+        // if (window.opener && !window.opener.closed) {
+        //     (window.opener as any).receiveStoreInfo(id, nm);
+        //     window.close();
+        // }
+
+        onSelectStore(id, nm);
     };
 
     // 페이지네이션 계산
@@ -55,7 +96,7 @@ const StoreSearchPopup = () => {
     const endPage = Math.min(startPage + pageGroupSize - 1, totalPages);
 
     const renderPaginationItems = () => {
-        const items = [];
+        const items: JSX.Element[] = [];
         for (let i = startPage; i <= endPage; i++) {
             items.push(
                 <Pagination.Item key={i} active={i === currentPage} onClick={() => setCurrentPage(i)}>
@@ -111,7 +152,7 @@ const StoreSearchPopup = () => {
                         </tr>
                     ))
                 ) : (
-                    <tr><td colSpan="3" className="py-5 text-center text-muted">검색 결과가 없습니다.</td></tr>
+                    <tr><td colSpan={3} className="py-5 text-center text-muted">검색 결과가 없습니다.</td></tr>
                 )}
                 </tbody>
             </Table>
@@ -120,7 +161,9 @@ const StoreSearchPopup = () => {
                 <div className="d-flex justify-content-center mt-3">
                     <Pagination size="sm">
                         <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
-                        <Pagination.Prev onClick={() => setCurrentPage(Math.max(startPage - 1, 1))} disabled={startPage === 1} />
+                        <Pagination.Prev onClick={() => {
+                            setCurrentPage(Math.max(startPage - 1, 1));
+                        }} disabled={startPage === 1} />
                         {renderPaginationItems()}
                         <Pagination.Next onClick={() => setCurrentPage(Math.min(endPage + 1, totalPages))} disabled={endPage === totalPages} />
                         <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />

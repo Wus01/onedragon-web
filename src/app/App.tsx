@@ -26,7 +26,7 @@ const App: React.FC = () => {
     '/error-pages/error-500',
     '/general-pages/landing-page',
     '/findIdPw',
-    '/StoreSearchPopup'
+    '/storeSearchPopup'
   ];
 
   // 2. 현재 경로가 풀페이지 경로인지 체크 (동적 파라미터 :id 고려)
@@ -40,7 +40,6 @@ const App: React.FC = () => {
 
   // 3. 기존 onRouteChanged() 로직을 useEffect로 대체 (경로 변경 시 실행)
   useEffect(() => {
-    console.log("ROUTE CHANGED");
     const body = document.querySelector('body');
 
     // RTL 및 언어 설정
