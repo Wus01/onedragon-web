@@ -32,20 +32,12 @@ const CrrHstrCreate = lazy(() => import('./form-elements/CrrHstrCreate'));
 const StoreSearchPopup = lazy(() => import('./form-elements/StoreSearchPopup'));
 const StoreInfoList = lazy(() => import('./storeInfo/StoreInfoList'));
 const MypageHome = lazy(() => import('./form-elements/MypageHome'));
-
-
-
-
-
-
 const ApplyList = lazy(() => import('./tables/ApplyList'));
 
 
-
-class AppRoutes extends Component {
-
-  render () {
+const AppRoutes: React.FC = () => {
     const isLoggedIn = !!localStorage.getItem("user_id");
+
     return (
       <Suspense fallback={<Spinner/>}>
       {/* 로그인 상태일 때만 메뉴바를 렌더링 */}
@@ -90,7 +82,6 @@ class AppRoutes extends Component {
         </Switch>
       </Suspense>
     );
-  }
 }
 
 export default AppRoutes;

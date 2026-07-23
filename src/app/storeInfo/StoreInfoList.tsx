@@ -3,13 +3,18 @@ import rawData from '../../json/Ansan-si_GS25_list.json';
 import axios from "axios";
 import { postStoreList } from '../../api/storeApi';
 
+export interface StoreData {
+    storeAddr : string;
+    storeNm : string;
+}
+
 function ShopListFromFile() {
   // 2. 불러온 데이터에서 'results' 배열 GET
-  const results = rawData.results;
+  const results = rawData.results || [];
 
   // shopData 변수에 JSON 파일의 내용(JavaScript 객체)이 저장됨
   // 3. 'address'와 'shopName'만 추출
-  const shopData = results.map(item => ({
+  const shopData: StoreData[] = results.map(item => ({
     storeAddr: item.address,
     storeNm: item.shopName,
   }));
@@ -28,7 +33,7 @@ function ShopListFromFile() {
     <div>
       <div style={{display: 'flex', margin:10}}>
         <h3>💾 JSON 파일에서 로드된 정보</h3>
-        <button type="sumit" className="btn btn-primary" style={{margin:10}} onClick={onClickSubmit}>데이터 저장</button>
+        <button type="submit" className="btn btn-primary" style={{margin:10}} onClick={onClickSubmit}>데이터 저장</button>
       </div>
       
       {shopData.length > 0 && (

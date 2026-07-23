@@ -1,32 +1,105 @@
+
 import React, {useState, useEffect, useRef, useCallback} from 'react';
-import { FaUserCircle, FaChevronRight, FaChevronLeft } from 'react-icons/fa';
 import axios from "axios";
 import {Link, useHistory} from "react-router-dom";
+
+interface MyCrrHstrListCardProps {
+    crrHstrItem: CrrHstrItem;
+}
+
+interface ApplyItem {
+    applyDate: string;
+    applySts: string;
+    applySucYn: 'Y'|'N';
+    storeNm: string;
+    hiringNo: number;
+    applyStsNm: string;
+    hiringStsNm: string;
+}
+
+interface ApplicationCardProps {
+    myApplyList: ApplyItem;
+}
+
+interface HiringItem {
+    storeNm: string;
+    hiringNo: number;
+    hiringStsNm: string;
+    workStartDate: string;
+    workEndDate: string;
+}
+
+interface MyHiringListProps {
+    myHiringList: HiringItem;
+}
+
+interface Profile {
+    name: string;
+    email: string;
+    // count: number;
+}
+
+interface CrrHstrItem {
+    crrHstrNo: number;
+    crrStrtDate: string;
+    crrEndDate: string;
+    storeId?: number;
+    storeNm: string;
+    status?: string;
+    applyDate?: string; // crrStartDate임
+    delYn?: boolean;
+    storeInfo: StoreInfo;
+}
+
+interface StoreInfo {
+    storeId?: number;
+    storeNm?: string;
+    storeAddr?: string;
+}
+
+interface MyPageApiResponse {
+    success: boolean;
+    data: {
+        userInfo: {
+            userNm: string;
+            userEmail: string;
+            crrHstrList: CrrHstrItem[];
+
+
+        }
+    }
+}
 
 const STATUS_LABEL = {
     '01': '지원완료', '02': '서류검토중', '03': '면접제의',
     '04': '최종합격', '05': '불합격', '09': '지원취소'
 };
 
-const MyCrrList = ({ application }) => (
-    // {application.crrHstrList.delYn === true ?  }
-    <div className="card shadow-sm p-3 border-0 rounded-3 application-card" style={{ minWidth: '250px' }}>
+
+
+function MyCrrHstrListCard({ crrHstrItem }: MyCrrHstrListCardProps) {
+    // {application.CrrHstrItemList.delYn === true ?  }
+    return (
+    <div className="card shadow-sm p-3 border-0 rounded-3 application-card" style={{minWidth: '250px'}}>
         {/* 추후 인증 상태로 표시 ㄱㄱ*/}
         {/*<span className="badge bg-primary rounded-pill mb-3" style={{ width: 'fit-content' }}>*/}
         {/*    {STATUS_LABEL[application.status] || '지원완료'}*/}
         {/*</span>*/}
-        <h4 className="card-title fs-6 mb-1 text-truncate" title={application.storeInfo.storeNm}>{application.storeInfo.storeNm}</h4>
-        <p className="card-text text-muted small">{application.crrStrtDate}~{application.crrEndDate}</p>
+        <h4 className="card-title fs-6 mb-1 text-truncate" title={crrHstrItem.storeInfo.storeNm}>{crrHstrItem.storeInfo.storeNm}</h4>
+        {/*<h4 className="card-title fs-6 mb-1 text-truncate" title={crrHstrItem.storeNm}>{crrHstrItem.storeNm}</h4>*/}
+        <p className="card-text text-muted small">{crrHstrItem.crrStrtDate}~{crrHstrItem.crrEndDate}</p>
         <div className="mt-2 text-end">
-            <Link to={`/crrHstrCreate/${application.crrHstrNo}`}>
-            <button className="btn btn-link btn-sm p-0 text-decoration-none">상세보기</button>
+            <Link to={`/CrrHstrCreate/${crrHstrItem.crrHstrNo}`}>
+                <button className="btn btn-link btn-sm p-0 text-decoration-none">상세보기</button>
             </Link>
         </div>
     </div>
-);
+    );
+}
 
 
-const ApplicationCard2 = ({ myApplyList }) => (
+function ApplicationCard({ myApplyList }:ApplicationCardProps){
+    return (
         <div className="card shadow-sm p-3 border-0 rounded-3 application-card" style={{minWidth: '250px'}}>
             <div className="d-flex gap-2 mb-3">
                 <span className="badge bg-primary rounded-pill mb-3" style={{width: 'fit-content'}}>
@@ -44,9 +117,11 @@ const ApplicationCard2 = ({ myApplyList }) => (
                 </Link>
             </div>
         </div>
-);
+    );
+}
 
-const MyHiringList = ({ myHiringList }) => (
+function MyHiringList({ myHiringList }:MyHiringListProps){
+    return (
     <div className="card shadow-sm p-3 border-0 rounded-3 application-card" style={{minWidth: '250px'}}>
         <div className="d-flex gap-2 mb-3">
                 <span className="badge bg-primary rounded-pill mb-3" style={{width: 'fit-content'}}>
@@ -62,23 +137,24 @@ const MyHiringList = ({ myHiringList }) => (
             </Link>
         </div>
     </div>
-);
-
-const MyPageHome = () => {
-    const [profile, setProfile] = useState(null);
-    const [applications, setApplications] = useState([]);
+    );
+}
+export const MyPageHome = () => {
+    const [profile, setProfile] = useState<Profile | null>(null);
+    // const [applications, setApplications] = useState([]);
+    const [crrHstrList, setCrrHstrList] = useState<CrrHstrItem[] | null>(null);
     const [loading, setLoading] = useState(false);
-    const scrollRef = useRef(null);
+    const scrollRef = useRef<HTMLDivElement | null>(null);
 
     // 드래그 상태 관리를 위한 변수
     const [isDrag, setIsDrag] = useState(false);
     const [startX, setStartX] = useState(0);
     const [scrollLeft, setScrollLeft] = useState(0);
 
-    const API_BASE_URL = process.env.REACT_APP_API_URL;
+    const API_BASE_URL = process.env.REACT_APP_API_URL || '';
 
     // 1. 드래그 시작 (마우스 누름)
-    const onDragStart = (e) => {
+    const onDragStart = (e: React.MouseEvent<HTMLDivElement>) => {
         e.preventDefault();
         setIsDrag(true);
         // e.currentTarget으로 현재 이벤트가 발생한 div 요소를 바로 가져옵니다!
@@ -86,7 +162,7 @@ const MyPageHome = () => {
     };
 
     // 2. 드래그 진행 중 (마우스 이동)
-        const onDragMove = (e) => {
+        const onDragMove = (e:React.MouseEvent<HTMLDivElement>) => {
             if (!isDrag) return;
             // e.currentTarget의 scrollLeft를 마우스 이동량에 맞춰 변경
             e.currentTarget.scrollLeft = startX - e.pageX;
@@ -97,12 +173,12 @@ const MyPageHome = () => {
             setIsDrag(false);
         };
 
-    const crrScrollRef = useRef(null);
-    const applyScrollRef = useRef(null);
-    const hiringScrollRef = useRef(null);
+    const crrScrollRef = useRef<HTMLDivElement|null>(null);
+    const applyScrollRef = useRef<HTMLDivElement|null>(null);
+    const hiringScrollRef = useRef<HTMLDivElement|null>(null);
 
     // 기존 버튼 클릭 이동 함수
-    const handleScroll = (ref, direction) => {
+    const handleScroll = (ref:React.RefObject<HTMLDivElement>, direction:'left' | 'right') => {
         if(ref.current){
             const scrollAmount = 600;
             ref.current.scrollBy({
@@ -119,23 +195,26 @@ const MyPageHome = () => {
         const userId = localStorage.getItem('userId') || 'abc123';
         setLoading(true);
         fetch(`${API_BASE_URL}/mypage/${userId}`)
-            .then(res => res.json())
+            .then(res => res.json() as Promise<MyPageApiResponse>)
             .then(json => {
                 if (json.success) {
                     setProfile({
                         name: json.data.userInfo.userNm,
                         email: json.data.userInfo.userEmail,
-                        count: json.data.applications.length
+                        // count: json.data.applications.length
                     });
                     // setApplications(json.data.applications);
-                    setApplications(json.data.userInfo.crrHstrList);
+                    setCrrHstrList(json.data.userInfo.crrHstrList);
                 }
+            })
+            .catch((error) => {
+                console.error('마이페이지 정보 조회 실패:', error);
             })
             .finally(() => setLoading(false));
     }, [API_BASE_URL]);
 
     // 지원 목록 조회
-    const [myApplyList, setMyApplyList] = useState([]);
+    const [myApplyList, setMyApplyList] = useState<ApplyItem[]>([]);
 
     const selectMyApplyList = useCallback(async ()=>{
         const userId = localStorage.getItem('userId');
@@ -145,9 +224,9 @@ const MyPageHome = () => {
             return;
         }
         try {
-            const res = await axios.get(`${process.env.REACT_APP_API_URL}/mypage/myApplyList`,
-                {params:{
-                            userId: userId}
+            const res = await axios.get<ApplyItem[]>(`${process.env.REACT_APP_API_URL}/mypage/myApplyList`,
+                {
+                    params:{userId: userId}
                 });
             setMyApplyList(res.data);
         } catch (err) {
@@ -156,7 +235,7 @@ const MyPageHome = () => {
     }, []);
 
     // 내 공고 목록 조회
-    const [myHiringList, setMyHiringList] = useState([]);
+    const [myHiringList, setMyHiringList] = useState<HiringItem[]>([]);
 
     const selectMyHiringList = useCallback(async ()=>{
         const userId = localStorage.getItem('userId');
@@ -166,7 +245,7 @@ const MyPageHome = () => {
             return;
         }
         try {
-            const res = await axios.get(`${process.env.REACT_APP_API_URL}/mypage/myHiringList`,
+            const res = await axios.get<HiringItem[]>(`${process.env.REACT_APP_API_URL}/mypage/myHiringList`,
                 {params:{userId: userId}});
             setMyHiringList(res.data);
             console.log("내 공고리스트: ",res.data);
@@ -177,7 +256,7 @@ const MyPageHome = () => {
 
     const history = useHistory();
 
-    function goToCreateCrr(){
+    function goToCreateCrr(): void {
         history.push('/crrHstrCreate');
     }
 
@@ -209,7 +288,10 @@ const MyPageHome = () => {
 
                 <div className="card shadow-sm mb-5 p-4 border-0 rounded-3" style={{ maxWidth: '1000px' }}>
                     <div className="d-flex align-items-center gap-3">
-                        <FaUserCircle size={60} className="text-primary opacity-75" />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="currentColor" className="bi bi-person-circle text-primary opacity-75" viewBox="0 0 16 16">
+                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                            <path fillRule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 1 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                        </svg>
                         <div>
                             <h2 className="fs-5 fw-bold mb-0">{profile?.name}님 <span className="ms-2 badge bg-info bg-opacity-10 text-primary fw-normal" style={{ fontSize: '12px' }}>개인회원</span></h2>
                             <p className="text-muted small mb-0">{profile?.email}</p>
@@ -221,7 +303,11 @@ const MyPageHome = () => {
 
                 <div className="position-relative d-flex align-items-center" style={{ maxWidth: '1100px' }}>
                     <button onClick={() => handleScroll(crrScrollRef,'left')} className="btn-move-arrow me-2">
-                        <FaChevronLeft size={22} />
+                        <button onClick={() => handleScroll(crrScrollRef, 'left')} className="btn-move-arrow me-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-left" viewBox="0 0 16 16">
+                                <path fillRule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                            </svg>
+                        </button>
                     </button>
 
                     {/* 드래그 이벤트 연결 */}
@@ -233,22 +319,26 @@ const MyPageHome = () => {
                         onMouseUp={onDragEnd}
                         onMouseLeave={onDragEnd}
                     >
-                        {applications
+                        {(crrHstrList || [])
                             // ⭐️ app 자체가 경력 객체이므로 바로 .delYn으로 체크합니다!
-                            .filter(app => app?.delYn === false)
-                            .map((app, index, filteredArray) => (
+                            .filter(item => item?.delYn !== true)
+                            .map((item, index, filteredArray) => (
 
-                            <div key={index} className="d-flex align-items-center scroll-item">
-                                <MyCrrList application={app} />
+                            <div key={item.crrHstrNo} className="d-flex align-items-center scroll-item">
+                                <MyCrrHstrListCard crrHstrItem={item} />
                                 {index < filteredArray.length - 1 && (
-                                    <FaChevronRight className="ms-3 text-muted opacity-50" style={{ fontSize: '14px' }} />
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right" viewBox="0 0 16 16">
+                                        <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                                    </svg>
                                 )}
                             </div>
                         ))}
                     </div>
 
                     <button onClick={() => handleScroll(crrScrollRef,'right')} className="btn-move-arrow ms-2">
-                        <FaChevronRight size={22} />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right" viewBox="0 0 16 16">
+                            <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                        </svg>
                     </button>
                 </div>
 
@@ -256,7 +346,11 @@ const MyPageHome = () => {
                 <h3 className="fs-6 fw-bold text-secondary mb-3">내 지원 목록</h3>
                 <div className="position-relative d-flex align-items-center" style={{ maxWidth: '1100px' }}>
                     <button onClick={() => handleScroll(applyScrollRef,'left')} className="btn-move-arrow me-2">
-                        <FaChevronLeft size={22} />
+                        <button onClick={() => handleScroll(crrScrollRef, 'left')} className="btn-move-arrow me-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-left" viewBox="0 0 16 16">
+                                <path fillRule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                            </svg>
+                        </button>
                     </button>
 
                     {/* 드래그 이벤트 연결 */}
@@ -268,27 +362,32 @@ const MyPageHome = () => {
                         onMouseUp={onDragEnd}
                         onMouseLeave={onDragEnd}
                     >
-                        {myApplyList.map((item, index) => (
+                        {myApplyList.map((item: ApplyItem, index: number) => (
                             <div key={index} className="d-flex align-items-center scroll-item">
-                                <ApplicationCard2 myApplyList={item} >
+                                <ApplicationCard myApplyList={item}/>
                                 {index < myApplyList.length - 1 && (
-                                    <FaChevronRight className="ms-3 text-muted opacity-50" style={{ fontSize: '14px' }} />
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right" viewBox="0 0 16 16">
+                                        <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                                    </svg>
                                 )}
-                                </ApplicationCard2>
                             </div>
                         ))}
                     </div>
 
                     <button onClick={() => handleScroll(applyScrollRef,'right')} className="btn-move-arrow ms-2">
-                        <FaChevronRight size={22} />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right" viewBox="0 0 16 16">
+                            <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                        </svg>
                     </button>
                 </div>
 
                 {/* 내 공고 목록 */}
                 <h3 className="fs-6 fw-bold text-secondary mb-3">내 공고 목록</h3>
                 <div className="position-relative d-flex align-items-center" style={{ maxWidth: '1100px' }}>
-                    <button onClick={() => handleScroll(hiringScrollRef,'left')} className="btn-move-arrow me-2">
-                        <FaChevronLeft size={22} />
+                    <button onClick={() => handleScroll(crrScrollRef, 'left')} className="btn-move-arrow me-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-left" viewBox="0 0 16 16">
+                            <path fillRule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                        </svg>
                     </button>
 
                     {/* 드래그 이벤트 연결 */}
@@ -302,17 +401,20 @@ const MyPageHome = () => {
                     >
                         {myHiringList.map((item, index) => (
                             <div key={index} className="d-flex align-items-center scroll-item">
-                                <MyHiringList myHiringList={item} >
-                                    {index < myHiringList.length - 1 && (
-                                        <FaChevronRight className="ms-3 text-muted opacity-50" style={{ fontSize: '14px' }} />
-                                    )}
-                                </MyHiringList>
+                                <MyHiringList myHiringList={item}/>
+                                {index < myHiringList.length - 1 && (
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right" viewBox="0 0 16 16">
+                                        <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                                    </svg>
+                                )}
                             </div>
                         ))}
                     </div>
 
                     <button onClick={() => handleScroll(hiringScrollRef,'right')} className="btn-move-arrow ms-2">
-                        <FaChevronRight size={22} />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right" viewBox="0 0 16 16">
+                            <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                        </svg>
                     </button>
                 </div>
 

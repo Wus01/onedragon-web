@@ -11,10 +11,10 @@ const StoreSearchPopup = () => {
 
     const itemsPerPage = 10;
     const pageGroupSize = 5;
-    const API_BASE_URL = "http://localhost:8080/api/store";
+    // const API_BASE_URL = "http://localhost:8080/api/store";
 
     const fetchStores = useCallback(() => {
-        axios.get(`${API_BASE_URL}/search`, {
+        axios.get(`${process.env.REACT_APP_API_URL}/search`, {
             params: {
                 page: currentPage,
                 size: itemsPerPage,
