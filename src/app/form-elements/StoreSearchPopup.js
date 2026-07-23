@@ -14,7 +14,7 @@ const StoreSearchPopup = () => {
     // const API_BASE_URL = "http://localhost:8080/api/store";
 
     const fetchStores = useCallback(() => {
-        axios.get(`${process.env.REACT_APP_API_URL}/search`, {
+        axios.get(`${process.env.REACT_APP_API_URL}/store/search`, {
             params: {
                 page: currentPage,
                 size: itemsPerPage,
