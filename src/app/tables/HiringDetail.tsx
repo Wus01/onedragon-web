@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Form } from 'react-bootstrap';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
 import ApplyList from "./ApplyList";
-import {insertApply} from "../../api/hiringBoardApi";
+import { getHiringDetailAPI, insertApply} from "../../api/hiringBoardApi";
 
 interface ApplyData {
     hiringNo: number;
@@ -30,57 +28,31 @@ function HiringDetail(){
     const [hiring,setHiring] = useState<Hiring>({} as Hiring);
 
     // 게시글 불러오기
-    const getHiringDetail = () => {
-        axios.get(`${process.env.REACT_APP_API_URL}/hiring/${id}`)
-                .then(response => {
-                    console.log('게시글 가져오기 성공:', response.data);
-                    setHiring(response.data);
-                })
-                .catch(error => {
-                    console.error('게시글 가져오기 실패:', error);
-                    alert("게시글을 불러오는 데 실패했습니다.");
-                });
+    const getHiringDetail= async () => {
+        // axios.get(`${process.env.REACT_APP_API_URL}/hiring/${id}`)
+        try {
+            const data = await getHiringDetailAPI(id);
+
+                // .then(response => {
+                    console.log('게시글 가져오기 성공:', data);
+                    setHiring(data);
+                // })
+        } catch (error){
+            console.error('게시글 가져오기 실패:', error);
+            alert("게시글을 불러오는 데 실패했습니다.");
+        };
     };
 
-        // 지원자목록 불러오기
-        // const [applyList, setApplyList] = useState([]);
         // 지원여부상태
         const [isApplied, setIsApplied] = useState(false);
 
-        // const getApplicantList = () => {
-        //     axios.get(`${process.env.REACT_APP_API_URL}/apply/list/${id}`)
-        //             .then(response => {
-        //                 console.log('지원자목록 가져오기 성공!:', response.data);
-        //                 setApplyList(response.data);
-        //
-        //                 const applyY = response.data.some(apply => apply.rgstId === loginUserId);
-        //                 setIsApplied(applyY);
-        //             })
-        //             .catch(error => {
-        //                 console.error('지원자목록 가져오기 실패:', error);
-        //                 alert("지원자목록을 불러오는 데 실패했습니다.");
-        //             });
-        // }
         useEffect(() => {
             getHiringDetail();
             // getApplicantList();
         }, [id]); // id가 바뀔 때마다 다시 실행
 
-
-    // 컴포넌트 내부 상단
-    // const [selectedApplyNos, setSelectedApplyNos] = useState([]);
-    // const handleCheck = (applyNo) => {
-    //
-    //   setSelectedApplyNos((prev) =>
-    //     prev.includes(applyNo)
-    //       ? prev.filter((id) => id !== applyNo) // 이미 있으면 제거
-    //       : [...prev, applyNo]                  // 없으면 추가
-    //   );
-    // };
-
     const loginUserId = localStorage.getItem("userId");
     const isOwner = String(loginUserId) === String(hiring.rgstId);
-
 
     const goToApply = async () => {
         // 지원여부 확인
@@ -102,9 +74,7 @@ function HiringDetail(){
             try{
                 await insertApply(applyData);
 
-                // if (onSaveSuccess) onSaveSuccess();
                 getHiringDetail();
-                // getApplicantList();
             }catch(e){
                 alert("지원 중 오류가 발생했습니다.");
                 console.error(e);
@@ -112,87 +82,95 @@ function HiringDetail(){
         }
     }
 
-  return (
+    return (
+        <div>
+            {/* 💡 1. 거슬리던 "공고 상세보기" page-header 영역을 아예 삭제했습니다. */}
 
-    <div>
-      <div className="page-header">
-        <h3 className="page-title">공고 상세보기</h3>
-        <nav aria-label="breadcrumb">
-          <ol className="breadcrumb">
-          </ol>
-        </nav>
-      </div>
+            <div className="auth-form-light text-left py-2 py-md-4 px-0 px-md-4">
+                <div className="card shadow-sm border-0">
+                    <div className="card-body p-2 p-md-4">
 
-      <div className="auth-form-light text-left py-5 px-4 px-sm-5">
-        <div className="card">
-          <div className="card-body">
-            <h4 className="card-title">지점명</h4>
-            <form className="forms-sample">
-              {/* 1. 점포명 (Form.Control 사용, readOnly) */}
-              <Form.Group className="mb-3">
-                {/* 지점 데이터가 존재하고, storeNm이 있을때만 표시 */}
-                <Form.Control type="text" id="inputStoreName" value={hiring.storeNm??''} readOnly />
-              </Form.Group>
-                <h4 className="card-title">작성자</h4>
-                <Form.Group className="mb-3">
-                    <Form.Control type="text" id="inputWriterName" value={hiring.rgstId??''} readOnly />
-                </Form.Group>
-                <h4 className="card-title">확정여부</h4>
-                <Form.Group className="mb-3">
-                    <Form.Control type="text" id="inputWriterName" value={hiring.hiringStsNm??''} readOnly />
-                </Form.Group>
-                <h4 className="card-title">작성일</h4>
-                <Form.Group className="mb-3">
-                    <Form.Control type="text" id="inputWriterName" value={String(hiring.rgstDate).length > 18 ? hiring.rgstDate.substring(0,19):hiring.rgstDate} readOnly />
-                </Form.Group>
-              {/* 2. 제목 (Form.Control 사용, readOnly) */}
-              <Form.Group className="mb-3">
-                <Form.Label htmlFor="inputTitle">제목</Form.Label>
-                <Form.Control type="text" id="inputTitle" value={hiring.hiringTitle || ''} readOnly />
-              </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label htmlFor="inputTitle">근무시작일시</Form.Label>
-                    <Form.Control type="text" id="inputTitle" value={hiring.workStartDate || ''} readOnly />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label htmlFor="inputTitle">근무마감일시</Form.Label>
-                    <Form.Control type="text" id="inputTitle" value={hiring.workEndDate || ''} readOnly />
-                </Form.Group>
-              {/* 3. 내용 (Form.Control as="textarea" 사용, readOnly) */}
-              <Form.Group className="mb-3">
-                <Form.Label htmlFor="textareaResume">내용</Form.Label>
-                <Form.Control as="textarea" id="textareaResume" rows={4} value={hiring.hiringText || ''} readOnly />
-              </Form.Group>
-                <div style={{ textAlign:'center'}}>
-                    <Link to={`/hiringList`}>
-                        <button type="button" className="btn btn-primary mr-2" style={{ marginTop: '20px'}}>목록</button>
-                    </Link>
-                </div>
+                        {/* 💡 2. 여백 다이어트: mb(마진)를 없애고 py-2(위아래 패딩)만 주어서 선을 기준으로 위아래 간격을 아주 타이트하게 맞췄습니다. */}
 
-                {!isOwner && (
-                    <div style={{textAlign:'center'}}>
-                    <button type="button" className="btn btn-primary mr-2"
-                            onClick={goToApply}
-                            disabled={hiring.hiringSts === '02' || isApplied}
-                            style={{ marginTop: '20px'}}>지원하기
-                    </button>
+                        {/* 1. 지점명 & 작성자 */}
+                        <div className="row mx-0 border-bottom py-2 py-md-3 align-items-center">
+                            <div className="col-4 col-md-2 fw-bold text-muted px-0 px-md-2" style={{ fontSize: '0.9rem' }}>지점명</div>
+                            <div className="col-8 col-md-4 px-0 px-md-2" style={{ fontSize: '0.9rem' }}>{hiring.storeNm ?? '-'}</div>
+
+                            <div className="col-4 col-md-2 fw-bold text-muted mt-1 mt-md-0 px-0 px-md-2" style={{ fontSize: '0.9rem' }}>작성자</div>
+                            <div className="col-8 col-md-4 mt-1 mt-md-0 px-0 px-md-2" style={{ fontSize: '0.9rem' }}>{hiring.rgstId ?? '-'}</div>
+                        </div>
+
+                        {/* 2. 확정여부 & 작성일 */}
+                        <div className="row mx-0 border-bottom py-2 py-md-3 align-items-center">
+                            <div className="col-4 col-md-2 fw-bold text-muted px-0 px-md-2" style={{ fontSize: '0.9rem' }}>확정여부</div>
+                            <div className="col-8 col-md-4 px-0 px-md-2" style={{ fontSize: '0.9rem' }}>{hiring.hiringStsNm ?? '-'}</div>
+
+                            <div className="col-4 col-md-2 fw-bold text-muted mt-1 mt-md-0 px-0 px-md-2" style={{ fontSize: '0.9rem' }}>작성일</div>
+                            <div className="col-8 col-md-4 mt-1 mt-md-0 px-0 px-md-2" style={{ fontSize: '0.9rem' }}>
+                                {String(hiring.rgstDate).length > 18 ? hiring.rgstDate.substring(0, 19) : hiring.rgstDate}
+                            </div>
+                        </div>
+
+                        {/* 3. 제목 */}
+                        <div className="row mx-0 border-bottom py-2 py-md-3 align-items-center">
+                            <div className="col-4 col-md-2 fw-bold text-muted px-0 px-md-2" style={{ fontSize: '0.9rem' }}>제목</div>
+                            <div className="col-8 col-md-10 px-0 px-md-2" style={{ fontSize: '0.9rem' }}>{hiring.hiringTitle || '-'}</div>
+                        </div>
+
+                        {/* 4. 근무 시작일시 & 마감일시 */}
+                        <div className="row mx-0 border-bottom py-2 py-md-3 align-items-center">
+                            <div className="col-4 col-md-2 fw-bold text-muted px-0 px-md-2" style={{ fontSize: '0.9rem' }}>근무시작</div>
+                            <div className="col-8 col-md-4 px-0 px-md-2" style={{ fontSize: '0.9rem' }}>{hiring.workStartDate || '-'}</div>
+
+                            <div className="col-4 col-md-2 fw-bold text-muted mt-1 mt-md-0 px-0 px-md-2" style={{ fontSize: '0.9rem' }}>근무마감</div>
+                            <div className="col-8 col-md-4 mt-1 mt-md-0 px-0 px-md-2" style={{ fontSize: '0.9rem' }}>{hiring.workEndDate || '-'}</div>
+                        </div>
+
+                        {/* 5. 내용 */}
+                        <div className="row mx-0 pt-2 pt-md-3">
+                            <div className="col-12 fw-bold text-muted mb-1 px-0 px-md-2" style={{ fontSize: '0.9rem' }}>내용</div>
+                            <div className="col-12 px-0 px-md-2">
+                                <div
+                                    className="p-2 p-md-3 bg-light rounded"
+                                    style={{ minHeight: '100px', whiteSpace: 'pre-line', fontSize: '0.9rem' }}
+                                >
+                                    {hiring.hiringText || '등록된 내용이 없습니다.'}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 버튼 영역 */}
+                        <div className="d-flex justify-content-center gap-2 gap-md-3 mt-3 mt-md-4 pt-3 pt-md-4 border-top">
+                            <Link to={`/hiringList`}>
+                                <button type="button" className="btn btn-secondary px-3 px-md-4" style={{marginRight:'5px'}}>목록</button>
+                            </Link>
+
+                            {!isOwner && (
+                                <button
+                                    type="button"
+                                    className="btn btn-primary px-3 px-md-4"
+                                    onClick={goToApply}
+                                    disabled={hiring.hiringSts === '02' || isApplied}
+                                >
+                                    지원하기
+                                </button>
+                            )}
+                        </div>
+
+                        {/* 지원자 목록 */}
+                        <div>
+                            {isOwner && (
+                                <div className="mt-4 mt-md-5">
+                                    <ApplyList hiringNo={id} hiring={hiring} />
+                                </div>
+                            )}
+                        </div>
 
                     </div>
-                )
-                }
-                <div>
-                    {/* 로그인 유저와 공고 작성자 아이디가 일치하면 지원자목록 컴포넌트 보이기*/}
-                    {isOwner && (
-                        <ApplyList hiringNo={id} hiring={hiring} />
-                    )}
                 </div>
-            </form>
-
-          </div>
+            </div>
         </div>
-      </div>
-    </div>
-
   );
 }
 

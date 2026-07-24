@@ -78,7 +78,6 @@ const STATUS_LABEL = {
 
 
 function MyCrrHstrListCard({ crrHstrItem }: MyCrrHstrListCardProps) {
-    // {application.CrrHstrItemList.delYn === true ?  }
     return (
     <div className="card shadow-sm p-3 border-0 rounded-3 application-card" style={{minWidth: '250px'}}>
         {/* 추후 인증 상태로 표시 ㄱㄱ*/}
@@ -287,35 +286,41 @@ export const MyPageHome = () => {
 
     return (
         <div className="container-fluid p-0 m-0 bg-light min-vh-100">
-            <div className="p-4" style={{ marginLeft: '10px' }}>
-                <h1 className="fs-4 fw-bold mb-4">마이페이지</h1>
+            <div className="p-3 p-md-4 pb-5">
 
-                <div className="card shadow-sm mb-5 p-4 border-0 rounded-3" style={{ maxWidth: '1000px' }}>
-                    <div className="d-flex align-items-center gap-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="currentColor" className="bi bi-person-circle text-primary opacity-75" viewBox="0 0 16 16">
+                {/* 💡 1. 마이페이지 타이틀 폰트 축소 & 하단 구분선 추가 */}
+                <div className="border-bottom border-2 pb-2 mb-3 mb-md-4">
+                    <h1 className="fw-bold mb-0" style={{ fontSize: '1.1rem' }}>마이페이지</h1>
+                </div>
+
+                {/* 프로필 카드 (유지) */}
+                <div className="card shadow-sm mb-4 mb-md-5 p-3 p-md-4 border-0 rounded-3" style={{ maxWidth: '1000px' }}>
+                    <div className="d-flex align-items-center gap-2 gap-md-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" className="bi bi-person-circle text-primary opacity-75" viewBox="0 0 16 16">
                             <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
                             <path fillRule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 1 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
                         </svg>
                         <div>
-                            <h2 className="fs-5 fw-bold mb-0">{profile?.name}님 <span className="ms-2 badge bg-info bg-opacity-10 text-primary fw-normal" style={{ fontSize: '12px' }}>개인회원</span></h2>
-                            <p className="text-muted small mb-0">{profile?.email}</p>
+                            <h2 className="fw-bold mb-1" style={{ fontSize: '1rem' }}>
+                                {profile?.name}님
+                                <span className="ms-2 badge bg-info bg-opacity-10 text-primary fw-normal" style={{ fontSize: '11px' }}>개인회원</span>
+                            </h2>
+                            <p className="text-muted small mb-0" style={{ fontSize: '0.85rem' }}>{profile?.email}</p>
                         </div>
                     </div>
                 </div>
 
-                <div className="d-flex align-items-center gap-3 mb-3">
-                    <h3 className="fs-6 fw-bold text-dark mb-0">내 경력</h3>
-                    <button onClick={goToCreateCrr} className="btn btn-outline-primary btn-sm" style={{marginLeft:"10px"}}>등록하기</button>
+                {/* 💡 2. 내 경력 타이틀 영역 폰트 축소 & 하단 구분선 */}
+                <div className="d-flex align-items-center gap-2 border-bottom pb-2 mb-3">
+                    <h3 className="fw-bold text-dark mb-0" style={{ fontSize: '0.95rem' }}>내 경력</h3>
+                    <button onClick={goToCreateCrr} className="btn btn-outline-primary btn-sm ms-2" style={{ fontSize: '0.75rem', padding: '0.15rem 0.4rem', marginLeft:'10px'}}>등록하기</button>
                 </div>
+
                 <div className="position-relative d-flex align-items-center" style={{ maxWidth: '1100px' }}>
                     <button onClick={() => handleScroll(crrScrollRef, 'left')} className="btn-move-arrow me-2 d-none d-md-flex">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-left" viewBox="0 0 16 16">
-                            <path fillRule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
-                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-left" viewBox="0 0 16 16"><path fillRule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/></svg>
                     </button>
 
-
-                    {/* 드래그 이벤트 연결 */}
                     <div
                         ref={crrScrollRef}
                         className={`d-flex overflow-auto gap-3 pb-3 scroll-container ${isDrag ? 'is-dragging' : ''}`}
@@ -324,44 +329,36 @@ export const MyPageHome = () => {
                         onMouseUp={onDragEnd}
                         onMouseLeave={onDragEnd}
                     >
-
                         {validCrrHstrList.length === 0 ? (
-                            <div className="card shadow-sm p-4 border-0 rounded-3 text-center text-muted" style={{minWidth: '250px', width: '100%'}}>
-                                <p className="mb-0">경력 내역이 없습니다.</p>
+                            <div className="card shadow-sm p-3 p-md-4 border-0 rounded-3 text-center text-muted" style={{minWidth: '250px', width: '100%'}}>
+                                <p className="mb-0 small">경력 내역이 없습니다.</p>
                             </div>
                         ):(
-                            validCrrHstrList
-                            .map((item, index, filteredArray) => (
-
-                            <div key={item.crrHstrNo} className="d-flex align-items-center scroll-item">
-                                <MyCrrHstrListCard crrHstrItem={item} />
-                                {index < filteredArray.length - 1 && (
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right" viewBox="0 0 16 16">
-                                        <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
-                                    </svg>
-                                )}
-                            </div>
-                            )
-                        ))}
+                            validCrrHstrList.map((item, index, filteredArray) => (
+                                    <div key={item.crrHstrNo} className="d-flex align-items-center scroll-item">
+                                        <MyCrrHstrListCard crrHstrItem={item} />
+                                        {index < filteredArray.length - 1 && (
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right text-muted opacity-50" viewBox="0 0 16 16"><path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>
+                                        )}
+                                    </div>
+                                )
+                            ))}
                     </div>
 
                     <button onClick={() => handleScroll(crrScrollRef,'right')} className="btn-move-arrow ms-2 d-none d-md-flex">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right" viewBox="0 0 16 16">
-                            <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
-                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right" viewBox="0 0 16 16"><path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>
                     </button>
                 </div>
 
-                {/* 지원 목록 */}
-                <h3 className="fs-6 fw-bold dark mb-3">내 지원 목록</h3>
+                {/* 💡 3. 내 지원 목록 타이틀 영역 폰트 축소 & 하단 구분선 */}
+                <div className="border-bottom pb-2 mb-3 mt-4 mt-md-5">
+                    <h3 className="fw-bold text-dark mb-0" style={{ fontSize: '0.95rem' }}>내 지원 목록</h3>
+                </div>
                 <div className="position-relative d-flex align-items-center" style={{ maxWidth: '1100px' }}>
                     <button onClick={() => handleScroll(applyScrollRef, 'left')} className="btn-move-arrow me-2 d-none d-md-flex">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-left" viewBox="0 0 16 16">
-                            <path fillRule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
-                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-left" viewBox="0 0 16 16"><path fillRule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/></svg>
                     </button>
 
-                    {/* 드래그 이벤트 연결 */}
                     <div
                         ref={applyScrollRef}
                         className={`d-flex overflow-auto gap-3 pb-3 scroll-container ${isDrag ? 'is-dragging' : ''}`}
@@ -371,40 +368,35 @@ export const MyPageHome = () => {
                         onMouseLeave={onDragEnd}
                     >
                         {myApplyList.length === 0 ? (
-                            <div className="card shadow-sm p-4 border-0 rounded-3 text-center text-muted" style={{minWidth: '250px', width: '100%'}}>
-                                <p className="mb-0">지원 내역이 없습니다.</p>
+                            <div className="card shadow-sm p-3 p-md-4 border-0 rounded-3 text-center text-muted" style={{minWidth: '250px', width: '100%'}}>
+                                <p className="mb-0 small">지원 내역이 없습니다.</p>
                             </div>
                         ):(
                             myApplyList.map((item: ApplyItem, index: number) => (
-                            <div key={index} className="d-flex align-items-center scroll-item">
-                                <ApplicationCard myApplyList={item}/>
-                                {index < myApplyList.length - 1 && (
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right" viewBox="0 0 16 16">
-                                        <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
-                                    </svg>
-                                )}
-                            </div>
-                            )
-                        ))}
+                                    <div key={index} className="d-flex align-items-center scroll-item">
+                                        <ApplicationCard myApplyList={item}/>
+                                        {index < myApplyList.length - 1 && (
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right text-muted opacity-50" viewBox="0 0 16 16"><path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>
+                                        )}
+                                    </div>
+                                )
+                            ))}
                     </div>
 
                     <button onClick={() => handleScroll(applyScrollRef,'right')} className="btn-move-arrow ms-2 d-none d-md-flex">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right" viewBox="0 0 16 16">
-                            <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
-                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right" viewBox="0 0 16 16"><path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>
                     </button>
                 </div>
 
-                {/* 내 공고 목록 */}
-                <h3 className="fs-6 fw-bold text-dark mb-3">내 공고 목록</h3>
+                {/* 💡 4. 내 공고 목록 타이틀 영역 폰트 축소 & 하단 구분선 */}
+                <div className="border-bottom pb-2 mb-3 mt-4 mt-md-5">
+                    <h3 className="fw-bold text-dark mb-0" style={{ fontSize: '0.95rem' }}>내 공고 목록</h3>
+                </div>
                 <div className="position-relative d-flex align-items-center" style={{ maxWidth: '1100px' }}>
                     <button onClick={() => handleScroll(hiringScrollRef, 'left')} className="btn-move-arrow me-2 d-none d-md-flex">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-left" viewBox="0 0 16 16">
-                            <path fillRule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
-                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-left" viewBox="0 0 16 16"><path fillRule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/></svg>
                     </button>
 
-                    {/* 드래그 이벤트 연결 */}
                     <div
                         ref={hiringScrollRef}
                         className={`d-flex overflow-auto gap-3 pb-3 scroll-container ${isDrag ? 'is-dragging' : ''}`}
@@ -414,31 +406,180 @@ export const MyPageHome = () => {
                         onMouseLeave={onDragEnd}
                     >
                         {myHiringList.length === 0? (
-                            <div className="card shadow-sm p-4 border-0 rounded-3 text-center text-muted" style={{minWidth: '250px', width: '100%'}}>
-                                <p className="mb-0">공고 내역이 없습니다.</p>
+                            <div className="card shadow-sm p-3 p-md-4 border-0 rounded-3 text-center text-muted" style={{minWidth: '250px', width: '100%'}}>
+                                <p className="mb-0 small">공고 내역이 없습니다.</p>
                             </div>
-                            ):(
-                                myHiringList.map((item, index) => (
-                                <div key={index} className="d-flex align-items-center scroll-item">
-                                    <MyHiringList myHiringList={item}/>
-                                    {index < myHiringList.length - 1 && (
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right" viewBox="0 0 16 16">
-                                            <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
-                                        </svg>
-                                    )}
-                                </div>
-                            )
-                        ))}
+                        ):(
+                            myHiringList.map((item, index) => (
+                                    <div key={index} className="d-flex align-items-center scroll-item">
+                                        <MyHiringList myHiringList={item}/>
+                                        {index < myHiringList.length - 1 && (
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right text-muted opacity-50" viewBox="0 0 16 16"><path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>
+                                        )}
+                                    </div>
+                                )
+                            ))}
                     </div>
 
                     <button onClick={() => handleScroll(hiringScrollRef,'right')} className="btn-move-arrow ms-2 d-none d-md-flex">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right" viewBox="0 0 16 16">
-                            <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
-                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right" viewBox="0 0 16 16"><path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>
                     </button>
                 </div>
 
             </div>
+
+            {/*<div className="p-4" style={{ marginLeft: '10px' }}>*/}
+            {/*    <h1 className="fs-4 fw-bold mb-4">마이페이지</h1>*/}
+
+            {/*    <div className="card shadow-sm mb-5 p-4 border-0 rounded-3" style={{ maxWidth: '1000px' }}>*/}
+            {/*        <div className="d-flex align-items-center gap-3">*/}
+            {/*            <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="currentColor" className="bi bi-person-circle text-primary opacity-75" viewBox="0 0 16 16">*/}
+            {/*                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>*/}
+            {/*                <path fillRule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 1 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>*/}
+            {/*            </svg>*/}
+            {/*            <div>*/}
+            {/*                <h2 className="fs-5 fw-bold mb-0">{profile?.name}님 <span className="ms-2 badge bg-info bg-opacity-10 text-primary fw-normal" style={{ fontSize: '12px' }}>개인회원</span></h2>*/}
+            {/*                <p className="text-muted small mb-0">{profile?.email}</p>*/}
+            {/*            </div>*/}
+            {/*        </div>*/}
+            {/*    </div>*/}
+
+            {/*    <div className="d-flex align-items-center gap-3 mb-3">*/}
+            {/*        <h3 className="fs-6 fw-bold text-dark mb-0">내 경력</h3>*/}
+            {/*        <button onClick={goToCreateCrr} className="btn btn-outline-primary btn-sm" style={{marginLeft:"10px"}}>등록하기</button>*/}
+            {/*    </div>*/}
+            {/*    <div className="position-relative d-flex align-items-center" style={{ maxWidth: '1100px' }}>*/}
+            {/*        <button onClick={() => handleScroll(crrScrollRef, 'left')} className="btn-move-arrow me-2 d-none d-md-flex">*/}
+            {/*            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-left" viewBox="0 0 16 16">*/}
+            {/*                <path fillRule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>*/}
+            {/*            </svg>*/}
+            {/*        </button>*/}
+
+
+            {/*        /!* 드래그 이벤트 연결 *!/*/}
+            {/*        <div*/}
+            {/*            ref={crrScrollRef}*/}
+            {/*            className={`d-flex overflow-auto gap-3 pb-3 scroll-container ${isDrag ? 'is-dragging' : ''}`}*/}
+            {/*            onMouseDown={onDragStart}*/}
+            {/*            onMouseMove={onDragMove}*/}
+            {/*            onMouseUp={onDragEnd}*/}
+            {/*            onMouseLeave={onDragEnd}*/}
+            {/*        >*/}
+
+            {/*            {validCrrHstrList.length === 0 ? (*/}
+            {/*                <div className="card shadow-sm p-4 border-0 rounded-3 text-center text-muted" style={{minWidth: '250px', width: '100%'}}>*/}
+            {/*                    <p className="mb-0">경력 내역이 없습니다.</p>*/}
+            {/*                </div>*/}
+            {/*            ):(*/}
+            {/*                validCrrHstrList*/}
+            {/*                .map((item, index, filteredArray) => (*/}
+
+            {/*                <div key={item.crrHstrNo} className="d-flex align-items-center scroll-item">*/}
+            {/*                    <MyCrrHstrListCard crrHstrItem={item} />*/}
+            {/*                    {index < filteredArray.length - 1 && (*/}
+            {/*                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right" viewBox="0 0 16 16">*/}
+            {/*                            <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>*/}
+            {/*                        </svg>*/}
+            {/*                    )}*/}
+            {/*                </div>*/}
+            {/*                )*/}
+            {/*            ))}*/}
+            {/*        </div>*/}
+
+            {/*        <button onClick={() => handleScroll(crrScrollRef,'right')} className="btn-move-arrow ms-2 d-none d-md-flex">*/}
+            {/*            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right" viewBox="0 0 16 16">*/}
+            {/*                <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>*/}
+            {/*            </svg>*/}
+            {/*        </button>*/}
+            {/*    </div>*/}
+
+            {/*    /!* 지원 목록 *!/*/}
+            {/*    <h3 className="fs-6 fw-bold dark mb-3">내 지원 목록</h3>*/}
+            {/*    <div className="position-relative d-flex align-items-center" style={{ maxWidth: '1100px' }}>*/}
+            {/*        <button onClick={() => handleScroll(applyScrollRef, 'left')} className="btn-move-arrow me-2 d-none d-md-flex">*/}
+            {/*            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-left" viewBox="0 0 16 16">*/}
+            {/*                <path fillRule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>*/}
+            {/*            </svg>*/}
+            {/*        </button>*/}
+
+            {/*        /!* 드래그 이벤트 연결 *!/*/}
+            {/*        <div*/}
+            {/*            ref={applyScrollRef}*/}
+            {/*            className={`d-flex overflow-auto gap-3 pb-3 scroll-container ${isDrag ? 'is-dragging' : ''}`}*/}
+            {/*            onMouseDown={onDragStart}*/}
+            {/*            onMouseMove={onDragMove}*/}
+            {/*            onMouseUp={onDragEnd}*/}
+            {/*            onMouseLeave={onDragEnd}*/}
+            {/*        >*/}
+            {/*            {myApplyList.length === 0 ? (*/}
+            {/*                <div className="card shadow-sm p-4 border-0 rounded-3 text-center text-muted" style={{minWidth: '250px', width: '100%'}}>*/}
+            {/*                    <p className="mb-0">지원 내역이 없습니다.</p>*/}
+            {/*                </div>*/}
+            {/*            ):(*/}
+            {/*                myApplyList.map((item: ApplyItem, index: number) => (*/}
+            {/*                <div key={index} className="d-flex align-items-center scroll-item">*/}
+            {/*                    <ApplicationCard myApplyList={item}/>*/}
+            {/*                    {index < myApplyList.length - 1 && (*/}
+            {/*                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right" viewBox="0 0 16 16">*/}
+            {/*                            <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>*/}
+            {/*                        </svg>*/}
+            {/*                    )}*/}
+            {/*                </div>*/}
+            {/*                )*/}
+            {/*            ))}*/}
+            {/*        </div>*/}
+
+            {/*        <button onClick={() => handleScroll(applyScrollRef,'right')} className="btn-move-arrow ms-2 d-none d-md-flex">*/}
+            {/*            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right" viewBox="0 0 16 16">*/}
+            {/*                <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>*/}
+            {/*            </svg>*/}
+            {/*        </button>*/}
+            {/*    </div>*/}
+
+            {/*    /!* 내 공고 목록 *!/*/}
+            {/*    <h3 className="fs-6 fw-bold text-dark mb-3">내 공고 목록</h3>*/}
+            {/*    <div className="position-relative d-flex align-items-center" style={{ maxWidth: '1100px' }}>*/}
+            {/*        <button onClick={() => handleScroll(hiringScrollRef, 'left')} className="btn-move-arrow me-2 d-none d-md-flex">*/}
+            {/*            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-left" viewBox="0 0 16 16">*/}
+            {/*                <path fillRule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>*/}
+            {/*            </svg>*/}
+            {/*        </button>*/}
+
+            {/*        /!* 드래그 이벤트 연결 *!/*/}
+            {/*        <div*/}
+            {/*            ref={hiringScrollRef}*/}
+            {/*            className={`d-flex overflow-auto gap-3 pb-3 scroll-container ${isDrag ? 'is-dragging' : ''}`}*/}
+            {/*            onMouseDown={onDragStart}*/}
+            {/*            onMouseMove={onDragMove}*/}
+            {/*            onMouseUp={onDragEnd}*/}
+            {/*            onMouseLeave={onDragEnd}*/}
+            {/*        >*/}
+            {/*            {myHiringList.length === 0? (*/}
+            {/*                <div className="card shadow-sm p-4 border-0 rounded-3 text-center text-muted" style={{minWidth: '250px', width: '100%'}}>*/}
+            {/*                    <p className="mb-0">공고 내역이 없습니다.</p>*/}
+            {/*                </div>*/}
+            {/*                ):(*/}
+            {/*                    myHiringList.map((item, index) => (*/}
+            {/*                    <div key={index} className="d-flex align-items-center scroll-item">*/}
+            {/*                        <MyHiringList myHiringList={item}/>*/}
+            {/*                        {index < myHiringList.length - 1 && (*/}
+            {/*                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right" viewBox="0 0 16 16">*/}
+            {/*                                <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>*/}
+            {/*                            </svg>*/}
+            {/*                        )}*/}
+            {/*                    </div>*/}
+            {/*                )*/}
+            {/*            ))}*/}
+            {/*        </div>*/}
+
+            {/*        <button onClick={() => handleScroll(hiringScrollRef,'right')} className="btn-move-arrow ms-2 d-none d-md-flex">*/}
+            {/*            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right" viewBox="0 0 16 16">*/}
+            {/*                <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>*/}
+            {/*            </svg>*/}
+            {/*        </button>*/}
+            {/*    </div>*/}
+
+            {/*</div>*/}
 
 
 

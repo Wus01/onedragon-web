@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {Pagination} from 'react-bootstrap';
-import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
+import {useParams, Link, useHistory} from 'react-router-dom';
+
 import CustModal from "../common/Modal";
 
 import { Button } from 'react-bootstrap';
+import {getHiringList} from "../../api/hiringBoardApi";
 
 function HiringList(){
     const { id } = useParams();
@@ -15,7 +16,7 @@ function HiringList(){
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [totalPages, setTotalPage] = useState<number>(0);
     const [isMobile, setIsMobile] = useState<boolean>(false);
-
+    const history = useHistory();
     const itemsPerPage = 10;
 
     interface HiringInfo {
@@ -47,19 +48,14 @@ function HiringList(){
     }
 
     // 공고 리스트 호출
-    const fetchHirings = useCallback((page: number, append:boolean =false) => {
+    const fetchHirings = useCallback(async (page: number, append:boolean =false) => {
         const validPage = isNaN(Number(page)) || !page ? 1 : Number(page);
 
-        axios.get(`${process.env.REACT_APP_API_URL}/hiring/getHirings`, {
-            params: {
-                page: validPage - 1,
-                size: itemsPerPage
-            }
-        })
-            .then(res => {
-                const pageData = res.data || {};
+        try{
+                const pageData = await getHiringList(validPage -1, itemsPerPage) || {};
+
                 const newContent = pageData.content || [];
-                const total = res.data.totalPages || 0;
+                const total = pageData.totalPages || 0;
 
                 if (append) {
                     // 모바일 더보기 : 기존 목록 뒤에 새 데이터를 누적
@@ -72,37 +68,34 @@ function HiringList(){
                     setHiring(pageData);
                 }
                 setTotalPage(total);
-            })
-            .catch(err => {
+            } catch (err) {
                 console.error("공고 로드 실패:", err);
-            });
+            }
     }, []);
 
-    useEffect(()=>{
-        fetchHirings(1);
-
+    // 1. 최초 렌더링 및 모바일/PC 화면 감지
+    useEffect(() => {
         const checkSize = () => {
-            setIsMobile(window.innerWidth < 768); // 768px 미만이면 모바일로 판단
+            setIsMobile(window.innerWidth < 768);
         };
 
         checkSize();
-        window.addEventListener('resize', checkSize); //창 크기 바뀔 때마다 감지
+        window.addEventListener('resize', checkSize);
 
-        return ()=> window.removeEventListener('resize', checkSize); //청소
+        // 💡 화면에 처음 들어왔을 때 딱 한 번만 1페이지 데이터를 불러옵니다.
+        fetchHirings(1, false);
+
+        return () => window.removeEventListener('resize', checkSize);
     }, [fetchHirings]);
 
-    useEffect(()=>{
-        if(isMobile){
-            // 모바일 모드일 때 : 처음에 리스트가 텅 비어있을 때만 첫 페이지를 조회해서 아래로 쌓아둔다.
-            if(hiring.content?.length || 0 === 0){
-                fetchHirings(1, false);
-            }
-        }else{
-            // PC 모드일 때: 페이지 번호(currentPage)가 바뀔 때마다 기존 데이터를 지우고 새로 갈아끼운다.
+    // 2. 페이지 번호(currentPage)가 바뀔 때의 동작 (PC 전용)
+    useEffect(() => {
+        // 💡 모바일은 '더보기 버튼(handleLoadMore)'이 직접 데이터를 누적하므로 개입하지 않습니다.
+        // 💡 PC 환경(isMobile === false)일 때만 페이지 번호에 맞춰 데이터를 새로 갈아끼웁니다.
+        if (!isMobile) {
             fetchHirings(currentPage, false);
         }
-    }, [currentPage, isMobile, fetchHirings, hiring.content?.length]);
-
+    }, [currentPage, isMobile, fetchHirings]);
 
     const closeModalHandler = () => {
         setIsOpen(false);
@@ -118,24 +111,43 @@ function HiringList(){
 
   return (
       <div>
-          <div className="page-header">
-              <div className="d-flex justify-content-between align-items-center mb-3">
-              <h3 className="page-title">공고 리스트</h3>
-              {isMobile ? (
-                <div style={{textAlign:'right'}}>
-                  <button type="button" className="btn btn-primary" onClick={() => setIsOpen(true)} style={{marginTop:'20px'}}>
-                      작성하기
-                  </button>
-                </div>
-              ): ('')}
+          <div className="page-header mb-3 mb-md-4 mt-2 mt-md-0 px-2 px-md-0 border-bottom pb-2 pb-md-3">
+              {/* 💡 position-relative를 주고 최소 높이를 잡아주어 내부 요소들이 absolute로 떠 있어도 영역이 무너지지 않게 합니다. */}
+              <div className="d-flex align-items-center w-100 position-relative" style={{ minHeight: '32px' }}>
+
+                  {/* 💡 isMobile이 true면 화면 정중앙에 고정, false면 일반적인 좌측 정렬 */}
+                  <h3
+                      className="page-title fs-5 fs-md-3 fw-bold mb-0"
+                      style={
+                          isMobile
+                              ? { position: 'absolute', left: '50%', transform: 'translateX(-50%)', margin: 0 }
+                              : { textAlign: 'left' }
+                      }
+                  >
+                      공고 리스트
+                  </h3>
+
+                  {/* 💡 모바일일 때만 우측 끝에 작성하기 버튼 배치 */}
+                  {isMobile && (
+                      <button
+                          type="button"
+                          className="btn btn-primary btn-sm px-3"
+                          onClick={() => setIsOpen(true)}
+                          style={{ position: 'absolute', right: '0' }}
+                      >
+                          작성하기
+                      </button>
+                  )}
+
               </div>
-              <nav aria-label="breadcrumb"></nav>
           </div>
+
           {/* 💡 삼항 연산자 시작 */}
           {isMobile ? (
               /* ================= [모바일 모드: 카드 형태로 주욱 나열] ================= */
-              <div className="mobile-list">
-                  {hiring && hiring.content && hiring.content.map((hiringItem, index)=>(
+              <div className="mobile-list-wrapper">
+                  {hiring.content && hiring.content.length > 0 ? (
+                      hiring.content.map((hiringItem, index) => (
                       <div key={hiringItem.hiringNo || index} className="card mb-3 p-3 shadow-sm" style={{borderRadius:'12px'}}>
                           <Link to={`/hiring/${hiringItem.hiringNo}`}>
                           <div className="fw-bold fs-5 mb-1">{hiringItem.hiringTitle}</div>
@@ -144,7 +156,13 @@ function HiringList(){
                           </div>
                           </Link>
                       </div>
-                  ))}
+                  ))
+                  ):(
+                      <div className="text-center py-5 text-muted">
+                          <div className="mb-2 fs-1">📂</div>
+                          <p className="mb-0">등록된 공고가 없습니다.</p>
+                      </div>
+                  )}
                   {/* 현재 페이지가 전체 페이지보다 작을 때만 더보기 버튼 노출 */}
                   {currentPage < totalPages && (
                       <div className="d-grid gap-2 mt-3 mb-5">
@@ -156,7 +174,6 @@ function HiringList(){
               </div>
           ) : (
               /* ================= [PC 모드] ================= */
-              // 💡 두 개의 덩어리(테이블+모달)를 하나의 빈 태그(<></>)로 안전하게 묶어줍니다.
               <>
                   <div className="col-lg-12 grid-margin stretch-card">
                       <div className="card">
