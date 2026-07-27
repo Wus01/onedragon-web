@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import {useParams} from "react-router-dom";
-import axios from "axios";
 import {confirmApplyAPI, getApplyListAPI} from "../../api/applyApi";
 
 interface ApplicantsProps {
@@ -185,51 +183,6 @@ const ApplyList: React.FC<ApplicantsProps> = ({hiringNo, hiring})=>{
                 </button>
             </div>
         </div>
-    // <div>
-    //     <h4 style={{fontWeight:'bold', fontSize:'30', textAlign:'center', marginTop:'30px'}}>지원자 목록({applyList.length}명)</h4>
-    //       <div className="" style={{marginTop:'20px'}}>
-    //         <table className="table">
-    //           <thead>
-    //             <tr style={{textAlign:'center'}}>
-    //               <th style={{fontWeight:'bold', fontSize:'25'}}><input type="checkbox" /></th>
-    //               <th>번호</th>
-    //               <th>이름</th>
-    //               <th>지점명</th>
-    //               <th>경력</th>
-    //               <th>상태</th>
-    //             </tr>
-    //           </thead>
-    //           <tbody>
-    //             {applyList && applyList.length > 0 ? (
-    //               applyList.map((apply, index) => (
-    //                 <tr key={apply.applyNo || index} style={{textAlign:'center'}}>
-    //                   <td><input type="checkbox" checked={selectedApplyNos.includes(apply.applyNo)} onChange={() => handleCheck(apply.applyNo)}/></td>
-    //                   <td>{index + 1}</td>
-    //                   <td>{apply.userInfo?.userNm || ''}</td>
-    //                   <td>{apply.userInfo?.crrHstrList?.length > 0
-    //                                   ? apply.userInfo.crrHstrList[0].storeInfo?.storeNm
-    //                                   : ''}</td>
-    //                   <td>{apply.userInfo?.crrHstrList?.length > 0
-    //                             ? `총 ${calculateTotalExperience(apply.userInfo.crrHstrList)}`
-    //                             : ''}</td>
-    //                   <td>{apply.applySucYn === 'Y'?'확정':'미확정'}</td>
-    //                 </tr>
-    //               ))
-    //             ) : (
-    //               <tr>
-    //                 <td colSpan={6} className="text-center">지원자가 없습니다.</td>
-    //               </tr>
-    //             )}
-    //           </tbody>
-    //         </table>
-    //       </div>
-    //         <div className="text-center">
-    //         <button type="button" className="btn btn-primary mr-2"
-    //             onClick={fn_confirm}
-    //             disabled={applyList.length === 0 || hiring.hiringSts === '02'}
-    //             style={{ marginTop: '20px', textAlign:'center' }}>확정</button>
-    //         </div>
-    // </div>
   );
 }
 

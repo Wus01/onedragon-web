@@ -1,13 +1,13 @@
 import '../../App.css';
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useParams, useHistory } from 'react-router-dom';
 import {InputGroup, Form, Button, Modal} from 'react-bootstrap';
 import StoreSearchPopup from "./StoreSearchPopup";
+import {deleteCrrHstrAPI, getCrrHstrAPI, saveCrrHstrAPI, updateCrrHstrAPI} from "../../api/mypageApi";
 
-axios.defaults.withCredentials = true;
+// axios.defaults.withCredentials = true;
 
 declare global {
     interface Window {
@@ -100,26 +100,30 @@ export const CrrHstrCreate = () => {
         if (pathCrrHstrNo) {
             setIsLoading(true);
             setStoreName("");
-            // axios.get(`${API_BASE_URL}/crrHstr/${storageUserId}/${pathStoreId}`) // 고정 url 피하기 위함
-            axios.get<CrrHstrDtl>(`${process.env.REACT_APP_API_URL}/crrHstr/select/${pathCrrHstrNo}`)
-                .then(res => {
-                    const result = res.data;
-                    console.log("경력상세조회:",result);
-                    if (result) {
-                        setStoreId(result.storeId);
-                        setCrrHstrNo(result.crrHstrNo);
-                        setStartDate(safeDate(result.crrStrtDate));
-                        setEndDate(safeDate(result.crrEndDate));
-                        setStoreName(result.storeInfo.storeNm);
-                        setStatus(result.status);
-                        setAuthYn(result.authYn);
+
+            const fetchGetCrrHStr = async () => {
+                try {
+                    const data = await getCrrHstrAPI(pathCrrHstrNo);
+
+                    console.log("경력상세조회:", data);
+                    if (data) {
+                        setStoreId(data.storeId);
+                        setCrrHstrNo(data.crrHstrNo);
+                        setStartDate(safeDate(data.crrStrtDate));
+                        setEndDate(safeDate(data.crrEndDate));
+                        setStoreName(data.storeInfo.storeNm);
+                        setStatus(data.status);
+                        setAuthYn(data.authYn);
                     }
-                })
-                .catch(err => {
-                    console.error("데이터 로드 실패:", err);
+                } catch(error) {
+                    console.error("데이터 로드 실패:", error);
                     alert("데이터를 불러오는 중 오류가 발생했습니다.");
-                })
-                .finally(() => setIsLoading(false));
+                } finally {
+                    setIsLoading(false);
+                }
+            }
+            fetchGetCrrHStr();
+
         } else {
             setStoreId(null);
             setStoreName("");
@@ -178,54 +182,58 @@ export const CrrHstrCreate = () => {
         crrHstrNo
     });
 
-    const handleSave = () => {
-        if (!storeId) return alert("지점을 선택해주세요.");
-        axios.post(`${API_BASE_URL}/crrHstr`, getPayload())
-            .then(res => {
-                alert("등록 완료!");
-                history.push(`/mypageHome`);
+    const handleSave = async () => {
+        if (!storeId) {
+            alert("지점을 선택해주세요.")
+            return;
+        }
 
-            })
-            .catch(err => alert("등록 실패"));
+        try {
+            const payload = getPayload();
+            await saveCrrHstrAPI(payload);
+
+            alert("등록에 성공하였습니다.");
+            history.push(`/mypageHome`);
+        } catch(error) {
+            console.error("등록 로직 에러:", error);
+            alert("등록에 실패하였습니다.");
+        }
     };
 
-    const handleUpdate = () => {
+    const handleUpdate = async () => {
         if (!window.confirm("수정하시겠습니까?")) return;
-        axios.put<CrrHstrDtl>(`${API_BASE_URL}/crrHstr/update/${crrHstrNo}`, getPayload())
-            .then((res) => {
-                alert("수정 완료!");
-                if(res.data){
-                    const result = res.data;
-                    // if (String(pathCrrHstrNo) !== String(result.crrHstrNo)) {
-                    //     window.location.href = `/crrHstrCreate/${result.crrHstrNo}`;
-                    // } else {
-                    setStoreName(result.storeInfo.storeNm);
-                    setStatus(result.status);
-                    setStartDate(safeDate(result.crrStrtDate));
-                    setEndDate(safeDate(result.crrEndDate));
 
-                    history.push(`/mypageHome`)
-                    // }
-                }
-            })
-            .catch(err => {
-                    if(err.response){
-                        alert("수정 중 오류가 발생했습니다.");
-                    }else{
-                        console.error("서버 에러 내용: ", err);
-                    }
-                }
-            );
+        const payload = getPayload();
+
+        try{
+            const data = await updateCrrHstrAPI(payload, crrHstrNo);
+            alert("수정 완료하였습니다");
+
+            setStoreName(data.storeInfo.storeNm);
+            setStatus(data.status);
+            setStartDate(safeDate(data.crrStrtDate));
+            setEndDate(safeDate(data.crrEndDate));
+
+            history.push(`/mypageHome`);
+        }catch(error){
+            alert("수정 중 오류가 발생했습니다.");
+            console.error("경력 수정 에러 내용: ",error);
+        }
     };
 
-    const handleDelete = () => {
+    const handleDelete = async () => {
         if (!window.confirm("정말 이 기록을 삭제하시겠습니까?")) return;
-        axios.delete(`${API_BASE_URL}/crrHstr/delete/${crrHstrNo}`, { data: getPayload() })
-            .then(() => {
-                alert("삭제되었습니다.");
-                history.push("/mypageHome");
-            })
-            .catch(() => alert("삭제 실패"));
+
+        const payload = getPayload();
+
+        try {
+            const result = await deleteCrrHstrAPI(payload, crrHstrNo);
+            alert("삭제되었습니다.");
+            history.push("/mypageHome");
+        } catch (error) {
+            alert("삭제에 실패하였습니다.");
+            console.error("삭제 실패 에러: ", error);
+        }
     };
 
     if (isLoading) return <div className="p-5 text-center">데이터 로딩 중...</div>;

@@ -1,13 +1,13 @@
 
 import React, {useState, useEffect, useRef, useCallback} from 'react';
-import axios from "axios";
 import {Link, useHistory} from "react-router-dom";
+import {getMypageApplyListAPI, getMyPageHiringListAPI, getMyPageInfoAPI} from "../../api/mypageApi";
 
 interface MyCrrHstrListCardProps {
     crrHstrItem: CrrHstrItem;
 }
 
-interface ApplyItem {
+export interface ApplyItem {
     applyDate: string;
     applySts: string;
     applySucYn: 'Y'|'N';
@@ -21,7 +21,7 @@ interface ApplicationCardProps {
     myApplyList: ApplyItem;
 }
 
-interface HiringItem {
+export interface HiringItem {
     storeNm: string;
     hiringNo: number;
     hiringStsNm: string;
@@ -39,7 +39,7 @@ interface Profile {
     // count: number;
 }
 
-interface CrrHstrItem {
+export interface CrrHstrItem {
     crrHstrNo: number;
     crrStrtDate: string;
     crrEndDate: string;
@@ -51,7 +51,7 @@ interface CrrHstrItem {
     storeInfo: StoreInfo;
 }
 
-interface StoreInfo {
+export interface StoreInfo {
     storeId?: number;
     storeNm?: string;
     storeAddr?: string;
@@ -192,26 +192,46 @@ export const MyPageHome = () => {
         selectMyApplyList(); // 내 지원목록 조회
         selectMyHiringList(); // 내 공고목록 조회
 
-        const userId = localStorage.getItem('userId') || 'abc123';
+        // const userId = localStorage.getItem('userId') || 'abc123';
         setLoading(true);
-        fetch(`${API_BASE_URL}/mypage/${userId}`)
-            .then(res => res.json() as Promise<MyPageApiResponse>)
-            .then(json => {
-                if (json.success) {
+
+        const fetchMyPage = async () => {
+            try {
+                const result = await getMyPageInfoAPI();
+                if(result.success){
                     setProfile({
-                        name: json.data.userInfo.userNm,
-                        email: json.data.userInfo.userEmail,
-                        // count: json.data.applications.length
+                        name: result.data.userInfo.userNm,
+                        email: result.data.userInfo.userEmail
                     });
-                    // setApplications(json.data.applications);
-                    setCrrHstrList(json.data.userInfo.crrHstrList);
+                    setCrrHstrList(result.data.userInfo.crrHstrList);
                 }
-            })
-            .catch((error) => {
-                console.error('마이페이지 정보 조회 실패:', error);
-            })
-            .finally(() => setLoading(false));
-    }, [API_BASE_URL]);
+            } catch (error) {
+                console.error('내 경력목록 가져오기 실패:', error);
+                alert("내 경력목록을 불러오는 데 실패했습니다.");
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchMyPage();
+
+        // fetch(`${API_BASE_URL}/mypage/${userId}`)
+        //     .then(res => res.json() as Promise<MyPageApiResponse>)
+        //     .then(json => {
+        //         if (json.success) {
+        //             setProfile({
+        //                 name: json.data.userInfo.userNm,
+        //                 email: json.data.userInfo.userEmail,
+        //                 // count: json.data.applications.length
+        //             });
+        //             // setApplications(json.data.applications);
+        //             setCrrHstrList(json.data.userInfo.crrHstrList);
+        //         }
+        //     })
+        //     .catch((error) => {
+        //         console.error('마이페이지 정보 조회 실패:', error);
+        //     })
+        //     .finally(() => setLoading(false));
+    }, []);
 
     // 지원 목록 조회
     const [myApplyList, setMyApplyList] = useState<ApplyItem[]>([]);
@@ -219,16 +239,9 @@ export const MyPageHome = () => {
     const selectMyApplyList = useCallback(async ()=>{
         const userId = localStorage.getItem('userId');
 
-        if (!userId) {
-            console.warn("로그인된 사용자 ID가 없습니다.");
-            return;
-        }
         try {
-            const res = await axios.get<ApplyItem[]>(`${process.env.REACT_APP_API_URL}/mypage/myApplyList`,
-                {
-                    params:{userId: userId}
-                });
-            setMyApplyList(res.data);
+            const data = await getMypageApplyListAPI();
+            setMyApplyList(data);
         } catch (err) {
             console.error("내가 지원한 목록 로드 실패:", err);
         }
@@ -245,10 +258,9 @@ export const MyPageHome = () => {
             return;
         }
         try {
-            const res = await axios.get<HiringItem[]>(`${process.env.REACT_APP_API_URL}/mypage/myHiringList`,
-                {params:{userId: userId}});
-            setMyHiringList(res.data);
-            console.log("내 공고리스트: ",res.data);
+            const data = await getMyPageHiringListAPI();
+            setMyHiringList(data);
+            console.log("내 공고리스트: ",data);
         } catch (err) {
             console.error("내 공고리스트 목록 로드 실패:", err);
         }

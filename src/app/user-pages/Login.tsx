@@ -1,26 +1,33 @@
 import React, { useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import { Form } from 'react-bootstrap';
-import axios from 'axios';
 import TestImage from "../../assets/images/temp.jpg";
 import {useAuth} from "../shared/AuthContext";
+import {goLoginApi} from "../../api/loginApi";
 
 const Login = () => {
     const history = useHistory();
 
     const [userId, setUserId] = useState("");
     const [userPwd, setUserPwd] = useState("");
+    const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-    const baseUrl = process.env.REACT_APP_API_URL;
     const { login } = useAuth();
 
     const onLogin = async (e: React.SyntheticEvent) => {
         e.preventDefault();
 
+        if(isLoggingIn){
+            alert("로그인 처리 중입니다. 잠시만 기다려주세요.");
+            return;
+        }
+
         if (!userId || !userPwd) {
             alert("아이디와 비밀번호를 입력해주세요.");
             return;
         }
+
+        setIsLoggingIn(true);
 
         try {
             const payload = {
@@ -28,37 +35,24 @@ const Login = () => {
                 userPwd
             };
 
-            const res = await axios.post(`${baseUrl}/userInfo/login`, payload);
-
+            const res = await goLoginApi(payload);
             // 서버에서 JWT 발급한다고 가정
-            if (res.data.token) {
-                login(userId, res.data.token);
-            //     localStorage.setItem("token", res.data.token);
-            //     localStorage.setItem('userId', res.data.userId);
-            //
-            //     // 💡 헤더 등 다른 컴포넌트에게 "로그인 상태 바뀌었어!"라고 이벤트 알림
-            //     window.dispatchEvent(new Event("loginStateChange"));
+            if (res.token) {
+                login(userId, res.token);
                 alert("로그인 성공!");
                 history.push("/mypageHome");
-                // window.location.href = "/MypageHome"; // 260708 메뉴 안보여서 새로고침 후 이동으로 수정
             }
 
-
-
         } catch (err: any) {
-
+            console.error("로그인 에러: ", err);
             let errorMessage = "로그인에 실패했습니다.";
 
-            // 서버 응답(err.response)이 존재하고, 해당 응답이 4xx(클라이언트 오류)나 5xx(서버 오류)인 경우
             if (err.response) {
                 const status = err.response.status;
 
-                // 401 Unauthorized 또는 400 Bad Request 등 로그인 실패를 나타내는 상태 코드인 경우
-                // (일반적인 Spring Security 실패 상태 코드)
                 if (status === 401 || status === 400 || status === 403) {
                     errorMessage = "아이디 또는 비밀번호를 잘못 입력하셨습니다.";
                 } else if (status >= 500) {
-                    // 5xx 서버 오류인 경우
                     errorMessage = "서버에 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.";
                 }
             } else if (err.request) {
@@ -67,6 +61,8 @@ const Login = () => {
             }
 
             alert(errorMessage);
+        } finally {
+            setIsLoggingIn(false);
         }
     };
 

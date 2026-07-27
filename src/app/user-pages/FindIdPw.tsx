@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import {useHistory, useLocation} from 'react-router-dom';
 import { Form, Nav } from 'react-bootstrap';
-import axios from 'axios';
 import TestImage from "../../assets/images/temp.jpg";
+import {findIdApi, findPWApi} from "../../api/loginApi";
 
 const FindIdPw = () => {
     const [activeTab, setActiveTab] = useState("id");
@@ -11,8 +11,7 @@ const FindIdPw = () => {
     // 입력 필드 상태 관리
     const [userEmail, setUserEmail] = useState("");
     const [userId, setUserId] = useState("");
-
-    const baseUrl = process.env.REACT_APP_API_URL;
+    const history = useHistory();
 
     useEffect(() => {
         // 주소창의 ?type=pw 부분을 분석
@@ -29,18 +28,18 @@ const FindIdPw = () => {
 
         try {
             if (activeTab === "id") {
-                const res = await axios.post(`${baseUrl}/userInfo/findId`, { userEmail });
+                const result = await findIdApi(userEmail);
 
                 // 서버 응답 성공 시 (아이디를 찾았을 때)
-                if (res.data.success) {
+                if (result.success) {
                     // 알림창(팝업)으로 바로 보여주기
-                    alert(`찾으시는 아이디는 [ ${res.data.userId} ] 입니다.`);
+                    alert(`찾으시는 아이디는 [ ${result.userId} ] 입니다.`);
                 }
             } else {
-                const res = await axios.post(`${baseUrl}/userInfo/findPw`, { userEmail, userId });
+                const result = await findPWApi(userEmail, userId);
 
-                if (res.data.success) {
-                    const tempPw = res.data.userPwd;
+                if (result.success) {
+                    const tempPw = result.userPwd;
 
                     // 클립보드 복사 로직
                     navigator.clipboard.writeText(tempPw).then(() => {
@@ -110,8 +109,17 @@ const FindIdPw = () => {
                                         className="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn"
                                         type="submit"
                                     >
-                                        {activeTab === "id" ? "아이디 찾기" : "임시 비밀번호 발송"}
+                                        {activeTab === "id" ? "아이디 찾기" : "임시 비밀번호 발급"}
                                     </button>
+                                    <div className="mt-2">
+                                        <button
+                                            type="button"
+                                            className="btn btn-block btn-outline-secondary btn-lg font-weight-medium auth-form-btn"
+                                            onClick={() => history.push('/login')}
+                                        >
+                                            로그인 화면으로 돌아가기
+                                        </button>
+                                    </div>
                                 </div>
                             </Form>
                         </div>
