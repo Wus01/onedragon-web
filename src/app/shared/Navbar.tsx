@@ -2,21 +2,39 @@ import React, {Component, useEffect, useState} from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { Trans } from 'react-i18next';
 import logoMini from "../../assets/images/logo-mini.svg";
-import face10 from "../../assets/images/faces/face10.jpg";
-import face12 from "../../assets/images/faces/face12.jpg";
-import face1 from "../../assets/images/faces/face1.jpg";
-import face8 from  "../../assets/images/faces/face8.jpg";
 import TestImage from "../../assets/images/temp.jpg";
-
-// class Navbar extends Component {
-  // toggleOffcanvas() {
-  //   document.querySelector('.sidebar-offcanvas').classList.toggle('active');
-  // }
-  // toggleRightSidebar() {
-  //   document.querySelector('.right-sidebar').classList.toggle('open');
-  // }
+import {getNotifications, markAllAsRead} from "../../api/mypageApi";
+import {useHistory} from "react-router-dom";
+import axios from "axios";
 
 const Navbar = () => {
+  const history = useHistory();
+  const [isNotiOpen, setIsNotiOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [showDropDown, setShowDropDown] = useState(false);
+  const [hideBadge, setHideBadge] = useState(false);
+
+  const hasUnread = notifications.some(noti=>noti.readYn === 'N');
+
+  // 종(알림) 아이콘 클릭 시
+  const handleBellClick = async () => {
+    // setIsNotiOpen(true);
+
+      try {
+        // const response = await axios.post(`http://localhost:8080/api/noti/markAllAsRead?userId=${userId}`);
+
+        await markAllAsRead();
+          // 화면에 있는 데이터 상태 모두 readYn='Y'로 변경하여 안읽음 표시 제거
+          // setNotifications(prev=>prev.map(noti=>({...noti, readYn:'Y'})));
+      } catch(error) {
+        console.error("알림 전체 읽음 처리 에러: ", error);
+      }
+
+  }
+  // 알림 단 건 클릭 시
+  const handleNotificationsClick = async () => {
+
+  }
   const toggleOffcanvas = (): void => {
     document.querySelector('.sidebar-offcanvas')?.classList.toggle('active');
   };
@@ -37,7 +55,23 @@ const Navbar = () => {
     if(userId){
       setUserId(userId);
     }
+
+    const fetchNotifications = async () => {
+      try {
+        const data = await getNotifications();
+        setNotifications(data);
+        console.log("알림목록 가져오기 성공: ", data);
+
+        setHideBadge(false);
+
+      }catch(error) {
+        console.error("알림을 불러오는데 실패했습니다.", error);
+      }
+    }
+    fetchNotifications();
   }, []);
+
+  const unreadNotiCnt = notifications.filter(noti => noti.readYn === 'N').length;
 
     return (
       <nav className="navbar col-lg-12 col-12 p-lg-0 fixed-top d-flex flex-row">
@@ -91,100 +125,85 @@ const Navbar = () => {
           {/*    <input type="search" className="form-control" placeholder="Search Here" />*/}
           {/*  </div>*/}
           {/*</form>*/}
-          <ul className="navbar-nav navbar-nav-right">
-          <li className="nav-item  nav-profile border-0 pl-4">
-              {/*<Dropdown>*/}
-              {/*  <Dropdown.Toggle className="nav-link count-indicator p-0 toggle-arrow-hide bg-transparent">*/}
-              {/*    <i className="mdi mdi-bell-outline"></i>*/}
-              {/*    <span className="count bg-success">4</span>*/}
-              {/*  </Dropdown.Toggle>*/}
-              {/*  <Dropdown.Menu className="navbar-dropdown preview-list">*/}
-              {/*    <Dropdown.Item className="dropdown-item py-3 d-flex align-items-center" href="#" onClick={handlePreventDefault}>*/}
-              {/*      <p className="mb-0 font-weight-medium float-left"><Trans>You have</Trans> 4 <Trans>new notifications</Trans> </p>*/}
-              {/*      <span className="badge badge-pill badge-primary float-right">View all</span>*/}
-              {/*    </Dropdown.Item>*/}
-              {/*    <div className="dropdown-divider"></div>*/}
-              {/*    <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center" href="#" onClick={handlePreventDefault}>*/}
-              {/*      <div className="preview-thumbnail">*/}
-              {/*        <i className="mdi mdi-alert m-auto text-primary"></i>*/}
-              {/*      </div>*/}
-              {/*      <div className="preview-item-content py-2">*/}
-              {/*        <h6 className="preview-subject font-weight-normal text-dark mb-1"><Trans>Application Error</Trans></h6>*/}
-              {/*        <p className="font-weight-light small-text mb-0"> <Trans>Just now</Trans> </p>*/}
-              {/*      </div>*/}
-              {/*    </Dropdown.Item>*/}
-              {/*    <div className="dropdown-divider"></div>*/}
-              {/*    <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center" href="#" onClick={handlePreventDefault}>*/}
-              {/*      <div className="preview-thumbnail">*/}
-              {/*        <i className="mdi mdi-settings m-auto text-primary"></i>*/}
-              {/*      </div>*/}
-              {/*      <div className="preview-item-content py-2">*/}
-              {/*        <h6 className="preview-subject font-weight-normal text-dark mb-1"><Trans>Settings</Trans></h6>*/}
-              {/*        <p className="font-weight-light small-text mb-0"> <Trans>Private message</Trans> </p>*/}
-              {/*      </div>*/}
-              {/*    </Dropdown.Item>*/}
-              {/*    <div className="dropdown-divider"></div>*/}
-              {/*    <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center" href="#" onClick={handlePreventDefault}>*/}
-              {/*      <div className="preview-thumbnail">*/}
-              {/*        <i className="mdi mdi-airballoon m-auto text-primary"></i>*/}
-              {/*      </div>*/}
-              {/*      <div className="preview-item-content py-2">*/}
-              {/*        <h6 className="preview-subject font-weight-normal text-dark mb-1"><Trans>New user registration</Trans></h6>*/}
-              {/*        <p className="font-weight-light small-text mb-0"> 2 <Trans>days ago</Trans> </p>*/}
-              {/*      </div>*/}
-              {/*    </Dropdown.Item>*/}
-              {/*  </Dropdown.Menu>*/}
-              {/*</Dropdown>*/}
-            </li>
-            <li className="nav-item  nav-profile border-0">
-              {/*<Dropdown>*/}
-              {/*  <Dropdown.Toggle className="nav-link count-indicator p-0 toggle-arrow-hide bg-transparent">*/}
-              {/*    <i className="mdi mdi-email-outline"></i>*/}
-              {/*    <span className="count">7</span>*/}
-              {/*  </Dropdown.Toggle>*/}
-              {/*  <Dropdown.Menu className="navbar-dropdown preview-list">*/}
-              {/*    <Dropdown.Item className="dropdown-item  d-flex align-items-center" href="#" onClick={handlePreventDefault}>*/}
-              {/*      <p className="mb-0 font-weight-medium float-left"><Trans>You have</Trans> 7 <Trans>unread mails</Trans> </p>*/}
-              {/*      <span className="badge badge-pill badge-primary">View all</span>*/}
-              {/*    </Dropdown.Item>*/}
-              {/*    <div className="dropdown-divider"></div>*/}
-              {/*    <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center" href="#" onClick={handlePreventDefault}>*/}
-              {/*      <div className="preview-thumbnail">*/}
-              {/*        <img src={face10} alt="profile" className="img-sm profile-pic" /> </div>*/}
-              {/*      <div className="preview-item-content flex-grow py-2">*/}
-              {/*        <p className="preview-subject ellipsis font-weight-medium text-dark"><Trans>Marian Garner</Trans> </p>*/}
-              {/*        <p className="font-weight-light small-text"> <Trans>The meeting is cancelled</Trans> </p>*/}
-              {/*      </div>*/}
-              {/*    </Dropdown.Item>*/}
-              {/*    <div className="dropdown-divider"></div>*/}
-              {/*    <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center" href="#" onClick={handlePreventDefault}>*/}
-              {/*      <div className="preview-thumbnail">*/}
-              {/*        <img src={face12} alt="profile" className="img-sm profile-pic" /> </div>*/}
-              {/*      <div className="preview-item-content flex-grow py-2">*/}
-              {/*        <p className="preview-subject ellipsis font-weight-medium text-dark"><Trans>David Grey</Trans> </p>*/}
-              {/*        <p className="font-weight-light small-text"> <Trans>The meeting is cancelled</Trans></p>*/}
-              {/*      </div>*/}
-              {/*    </Dropdown.Item>*/}
-              {/*    <div className="dropdown-divider"></div>*/}
-              {/*    <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center" href="#" onClick={handlePreventDefault}>*/}
-              {/*      <div className="preview-thumbnail">*/}
-              {/*        <img src={face1} alt="profile" className="img-sm profile-pic" /> </div>*/}
-              {/*      <div className="preview-item-content flex-grow py-2">*/}
-              {/*        <p className="preview-subject ellipsis font-weight-medium text-dark"><Trans>Travis Jenkins</Trans> </p>*/}
-              {/*        <p className="font-weight-light small-text"> <Trans>The meeting is cancelled</Trans> </p>*/}
-              {/*      </div>*/}
-              {/*    </Dropdown.Item>*/}
-              {/*  </Dropdown.Menu>*/}
-              {/*</Dropdown>*/}
-            </li>
-            
-            
-            <li className="nav-item  nav-profile border-0">
-              <li className="nav-item font-weight-semibold" style={{marginRight:'5px'}}>{userId} 님 환영해👋</li>
+          <ul className="navbar-nav navbar-nav-right" style={{ width: '100%'}}>
+            <li className="nav-item nav-profile border-0 d-flex align-items-center ml-auto pr-0"
+                style={{ paddingRight: '0', marginRight: '0' }}
+            >
+              <Dropdown onToggle={(isNotiOpen)=>{
+                if(isNotiOpen) {
+                  // 알림 창 열렸을 때
+                  if (hasUnread) {
+                    setHideBadge(true);
+                    handleBellClick();
+                  }
+                } else {
+                  // 알림 창 닫았을 때 : 닫는 순간 readYn = 'N'으로 변경
+                  if(hasUnread) {
+                    setNotifications(prev => prev.map(noti => ({...noti, readYn: 'Y'})));
+                  }
+                }
+              }}>
+              <Dropdown.Toggle className="nav-link count-indicator p-0 toggle-arrow-hide bg-transparent">
+                <i className="mdi mdi-bell-outline text-muted" style={{ fontSize: '1.5rem' }}></i>
+                {/* 안 읽은 알림이 있을 때만 뱃지 표시 */}
+                {(hasUnread && !hideBadge) && <span className="count bg-success">{unreadNotiCnt}</span>}
+              </Dropdown.Toggle>
+
+              <Dropdown.Menu className="navbar-dropdown preview-list">
+                {/* 드롭다운 헤더 */}
+                <Dropdown.Item className="dropdown-item py-3 d-flex align-items-center" href="#" >
+                  <p className="mb-0 font-weight-medium float-left">
+                    📢{unreadNotiCnt > 0 ? `${unreadNotiCnt}개의 새 알림이 있습니다` : "새로운 알림이 없습니다"}
+                  </p>
+                  {/*<span className="badge badge-pill badge-primary float-right">전체 보기</span>*/}
+                </Dropdown.Item>
+                <div className="dropdown-divider"></div>
+                {/* 알림 리스트 맵핑 */}
+                {notifications && notifications.length > 0? (
+                    notifications.map((noti, index) => (
+                        <React.Fragment key={index}>
+                          <Dropdown.Item
+                              className="dropdown-item preview-item d-flex align-items-center"
+                              href={noti.targetUrl}
+                          >
+                            <div className="preview-item-content py-2 d-flex align-items-center w-100">
+                              <i className={`mdi mdi-alert ${noti.readYn === 'N' ? 'text-primary' : 'text-secondary'} mr-2`}
+                                  style={{ fontSize: '1.2rem' }}
+                              ></i>
+                              {/* 2. 알림 메시지 내용 */}
+                              <h6 className={`preview-subject font-weight-normal mb-0 ${noti.readYn === 'N' ? 'text-dark' : 'text-muted'}`}
+                              >{noti.notiContent}
+                              </h6>
+                              {noti.readYn === 'N' && (
+                                  <span className="badge badge-pill badge-danger ml-2" style={{ fontSize: '10px', whiteSpace: 'nowrap' }}>
+                                    New
+                                  </span>
+                              )}
+                            </div>
+                          </Dropdown.Item>
+                          <div className="dropdown-divider"></div>
+                        </React.Fragment>
+                    ))
+                ) : (
+                    <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center" onClick={handlePreventDefault}>
+                      <div className="preview-item-content py-2 text-center w-100">
+                        <p className="font-weight-light small-text mb-0 text-muted">알림 내역이 없습니다.</p>
+                      </div>
+                    </Dropdown.Item>
+                )}
+              </Dropdown.Menu>
+            </Dropdown>
+            {/*</li>*/}
+            {/*<li className="nav-item  nav-profile border-0">*/}
+              {/*<li className="nav-item font-weight-semibold" style={{marginRight:'5px'}}>{userId} 님 환영해👋</li>*/}
+              <div className="font-weight-semibold mr-2">
+                {userId} 님 환영해👋
+              </div>
               <Dropdown>
-                <Dropdown.Toggle className="nav-link count-indicator bg-transparent">
+                {/*<Dropdown.Toggle className="nav-link count-indicator bg-transparent">*/}
                   <img className="img-xs rounded-circle" src={TestImage} alt="Profile" />
-                </Dropdown.Toggle>
+                {/*</Dropdown.Toggle>*/}
+
                 {/*<Dropdown.Menu className="preview-list navbar-dropdown pb-3">*/}
                 {/*  <Dropdown.Item className="dropdown-item p-0 preview-item d-flex align-items-center border-bottom" href="#" onClick={handlePreventDefault}>*/}
                 {/*    <div className="d-flex">*/}

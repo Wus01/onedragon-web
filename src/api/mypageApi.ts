@@ -62,3 +62,23 @@ export const updateUserInfo = async (payload:{})=> {
     const response = await axiosClient.put(`/userInfo/updateUserInfo`,payload);
     return response.data;
 }
+
+export const getNotifications = async() => {
+    const userId = localStorage.getItem("userId");
+    const response = await axiosClient.get(`/noti/getNotifications`, {
+        params:{
+            userId
+        }
+    });
+    return response.data;
+}
+
+export const markAllAsRead = async ()=> {
+    const userId = localStorage.getItem('userId');
+    console.log("가기전에 userID::"+userId);
+    const response = await axiosClient.post(`/noti/markAllAsRead`, null, {
+        params: { userId: userId }
+    });
+
+    return response.data;
+}
