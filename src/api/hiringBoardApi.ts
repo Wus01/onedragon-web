@@ -62,12 +62,19 @@ export const getHiringDetailAPI = async (id:string | number)=>{
 }
 
 // 지원하기
-export const insertApply = (data: ApplyData) => {
-    return axiosClient.post(`${process.env.REACT_APP_API_URL}/apply/insertApply`,data).then(res => {
-        console.log(res.data);
-        alert("지원에 성공하였습니다.");
-    }).catch(err => {
-        console.error(err);
-    })
+export const insertApply = async (data: ApplyData) => {
+    const response = await axiosClient.post(`/apply/insertApply`,data);
+    return response.data;
+}
+
+// 공고 지원여부 체크
+export const checkApply = async(hiringNo: number, userId: string)=> {
+    const response = await axiosClient.get(`/apply/check`, {
+        params: {
+            hiringNo: hiringNo,
+            rgstId: userId
+        }
+    });
+    return response.data;
 }
 

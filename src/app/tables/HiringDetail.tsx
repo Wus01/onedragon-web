@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ApplyList from "./ApplyList";
-import { getHiringDetailAPI, insertApply} from "../../api/hiringBoardApi";
+import {checkApply, getHiringDetailAPI, insertApply} from "../../api/hiringBoardApi";
+import login from "../user-pages/Login";
 
 interface ApplyData {
     hiringNo: number;
@@ -26,33 +27,48 @@ interface Hiring {
 function HiringDetail(){
     const { id } = useParams();
     const [hiring,setHiring] = useState<Hiring>({} as Hiring);
-
+    const [isOwner, setIsOwner] = useState<boolean>(false);
+    // 지원여부상태
+    const [isApplied, setIsApplied] = useState(false);
     // 게시글 불러오기
     const getHiringDetail= async () => {
-        // axios.get(`${process.env.REACT_APP_API_URL}/hiring/${id}`)
         try {
             const data = await getHiringDetailAPI(id);
 
-                // .then(response => {
-                    console.log('게시글 가져오기 성공:', data);
-                    setHiring(data);
-                // })
+            console.log('게시글 가져오기 성공:', data);
+            setHiring(data);
+
+            // 작성자와 로그인유저가 같은지 확인(지원자목록 보여주는 여부를 위함)
+            const loginUserId = localStorage.getItem("userId");
+            const isMyPost = (loginUserId === data.rgstId);
+            setIsOwner(isMyPost);
+            console.log("내 게시물인지 여부: ", isOwner);
+
+            // 로그인유저가 지원한 공고인지 확인
+            if(loginUserId && !isMyPost){
+                checkApplySts(data.hiringNo);
+            }
         } catch (error){
             console.error('게시글 가져오기 실패:', error);
             alert("게시글을 불러오는 데 실패했습니다.");
         };
     };
 
-        // 지원여부상태
-        const [isApplied, setIsApplied] = useState(false);
+    // 사용자가 지원한 공고인지 확인
+    const checkApplySts= async(hiringNo: number)=> {
+        const userId = localStorage.getItem('userId');
+        console.log("지원한 공고인지 체크: hiringNo: ", hiringNo);
+        try{
+            const isApplied = await checkApply(hiringNo, userId);
+            setIsApplied(isApplied);
+        }catch(error){
+            console.error("지원여부확인실패:", error);
+        }
+    }
 
-        useEffect(() => {
-            getHiringDetail();
-            // getApplicantList();
-        }, [id]); // id가 바뀔 때마다 다시 실행
-
-    const loginUserId = localStorage.getItem("userId");
-    const isOwner = String(loginUserId) === String(hiring.rgstId);
+    useEffect(() => {
+        getHiringDetail();
+    }, [id]);
 
     const goToApply = async () => {
         // 지원여부 확인
@@ -61,7 +77,7 @@ function HiringDetail(){
            return false;
         }
 
-        if(window.confirm("지원하시겠습니까?")){
+        if(window.confirm("취소할 수 없습니다. 지원하시겠습니까?")){
             // 데이터 세팅
             const userId = localStorage.getItem("userId");
             const applyData: ApplyData ={
@@ -73,10 +89,15 @@ function HiringDetail(){
 
             try{
                 await insertApply(applyData);
-
+                alert("지원에 성공하였습니다.");
+                // setIsApplied(true);
                 getHiringDetail();
             }catch(e){
-                alert("지원 중 오류가 발생했습니다.");
+                if (e.response.status === 409) {
+                    alert(e.response.data); //"이미 지원하신 공고입니다."
+                } else {
+                    alert("지원 중 오류가 발생했습니다.");
+                }
                 console.error(e);
             }
         }
@@ -153,7 +174,7 @@ function HiringDetail(){
                                     onClick={goToApply}
                                     disabled={hiring.hiringSts === '02' || isApplied}
                                 >
-                                    지원하기
+                                    {isApplied ? "지원완료" : "지원하기"}
                                 </button>
                             )}
                         </div>

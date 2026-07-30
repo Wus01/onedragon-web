@@ -65,7 +65,7 @@ const ApplyList: React.FC<ApplicantsProps> = ({hiringNo, hiring})=>{
             return;
         }
 
-        if (window.confirm("확정하시겠습니까?")) {
+        if (window.confirm("취소할 수 없습니다. 확정하시겠습니까?")) {
             const hiringNo = Number(hiring.hiringNo);
 
             try {

@@ -16,7 +16,7 @@ const ErrorPage = ({ location, history }: ErrorPageProps) => {
     const errorState = location.state || {};
     const statusCode = errorState.statusCode || 404;
     const title = errorState.title || "페이지를 찾을 수 없습니다";
-    const message = errorState.message || "존재하지 않는 주소를 입력하셨거나,\\n요청하신 페이지의 주소가 변경, 삭제되어 찾을 수 없습니다.";
+    const message = errorState.message || "존재하지 않는 주소를 입력하셨거나,\n요청하신 페이지의 주소가 변경, 삭제되어 찾을 수 없습니다.";
 
         
     
@@ -49,7 +49,7 @@ const ErrorPage = ({ location, history }: ErrorPageProps) => {
                 <button
                     className="btn btn-primary px-4 py-2"
                     style={{ fontSize: '0.9rem' }}
-                    onClick={() => history.push('/mypageHome')} // 메인 홈으로 이동
+                    onClick={() => history.push('/login')} // 메인 홈으로 이동
                 >
                     홈으로 가기
 

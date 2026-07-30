@@ -240,10 +240,11 @@ export const CrrHstrCreate = () => {
 
     return (
         <>
-        <div className="p-4 bg-light min-vh-100">
+        <div className="col-lg-12 grid-margin">
+            <div className="card mx-auto shadow-sm border-0 rounded-4" style={{ maxWidth: '700px', width: '100%' }}>
             <div className="card shadow-sm border-0 rounded-4 p-4 mx-auto" style={{ maxWidth: '700px' }}>
                 <h3 className="fw-bold mb-4 text-primary border-bottom pb-3">
-                    {isEditMode ? "🏠 재직 정보 상세/수정" : "➕ 신규 재직 등록"}
+                    {isEditMode ? "🏠 경력 정보 상세/수정" : "➕ 신규 경력 등록"}
                 </h3>
                 <Form>
                     <Form.Group className="row mb-3 align-items-center">
@@ -341,6 +342,7 @@ export const CrrHstrCreate = () => {
                     </div>
                 </Form>
 
+            </div>
             </div>
         </div>
 

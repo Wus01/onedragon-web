@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import { Form } from 'react-bootstrap';
 import TestImage from "../../assets/images/temp.jpg";
@@ -13,6 +13,12 @@ const Login = () => {
     const [isLoggingIn, setIsLoggingIn] = useState(false);
 
     const { login } = useAuth();
+
+    useEffect(() => {
+        // 로컬스트리지 초기화
+        localStorage.removeItem('userId');
+        localStorage.removeItem('token');
+    }, []);
 
     const onLogin = async (e: React.SyntheticEvent) => {
         e.preventDefault();
@@ -52,6 +58,7 @@ const Login = () => {
 
                 if (status === 401 || status === 400 || status === 403) {
                     errorMessage = "아이디 또는 비밀번호를 잘못 입력하셨습니다.";
+
                 } else if (status >= 500) {
                     errorMessage = "서버에 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.";
                 }
@@ -111,9 +118,6 @@ const Login = () => {
                                 </div>
 
                                 <div className="my-2 d-flex justify-content-between align-items-center">
-                                    {/*<a href="/src/app/user-pages/Register" className="auth-link text-black">회원가입</a>*/}
-                                    {/*<a href="/findIdPw?type=id" className="auth-link text-black">아이디 찾기</a>*/}
-                                    {/*<a href="/findIdPw?type=pw" className="auth-link text-black">비밀번호 찾기</a>*/}
                                     <Link to="/register" className="auth-link text-black">회원가입</Link>
                                     <Link to="/findIdPw?type=id" className="auth-link text-black">아이디 찾기</Link>
                                     <Link to="findIdPw?type=pw" className="auth-link text-black">비밀번호 찾기</Link>

@@ -7,6 +7,7 @@ import {Dayjs} from "dayjs";
 interface CustomInputProps {
   value? : string;
   onClick? : (e: React.MouseEvent<HTMLButtonElement>) => void;
+
 }
 
 // 입력창을 커스텀하고 싶을 때 사용하는 내부 컴포넌트
@@ -23,13 +24,15 @@ interface CustomDatePickerProps {
   onChange: (date: Date | null, event: React.SyntheticEvent<any> | undefined) => void; //react-datepicker 전용 onChange 타입
   showTime?: boolean; // 있을 수도 없을 수도 있으니 ? 추가
   placeholder?: string;
+  placement?: string;
 }
 
 const CustomDatePicker = ({ 
   selectedDate, 
   onChange, 
   showTime = true, 
-  placeholder
+  placeholder,
+  placement
 }: CustomDatePickerProps) => {
   return (
     <DatePicker
@@ -44,7 +47,9 @@ const CustomDatePicker = ({
       placeholderText={placeholder}
       // 커스텀 입력창을 쓰고 싶다면 아래 주석을 해제하세요
       // customInput={<CustomInput />} 
-      className="common-datepicker-input"
+      // className="common-datepicker-input"
+      className="form-control"
+      popperPlacement={placement || "bottom-start"}
     />
   );
 };

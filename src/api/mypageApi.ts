@@ -5,15 +5,13 @@ import axios from "axios";
 import {CrrHstrDtl} from "../app/form-elements/CrrHstrCreate";
 import { CrrHstrPayLoad } from "../app/form-elements/CrrHstrCreate";
 
-const userId = localStorage.getItem('userId');
 
-export const getMyPageInfoAPI = async ()=> {
-
+export const getMyPageInfoAPI = async (userId: string)=> {
     const response = await axiosClient.get(`/mypage/${userId}`);
     return response.data;
 }
 
-export const getMypageApplyListAPI = async ()=>{
+export const getMypageApplyListAPI = async (userId: string)=>{
     if (!userId) {
         throw new Error("로그인된 사용자 ID가 없습니다.");
     }
@@ -26,7 +24,7 @@ export const getMypageApplyListAPI = async ()=>{
     return response.data;
 }
 
-export const getMyPageHiringListAPI = async () => {
+export const getMyPageHiringListAPI = async (userId: string) => {
     const response = await axiosClient.get<HiringItem[]>(`/mypage/myHiringList`,
         {
             params:{userId: userId}
@@ -48,6 +46,7 @@ export const saveCrrHstrAPI = async (payload: CrrHstrPayLoad) => {
 }
 
 export const updateCrrHstrAPI = async (payload: CrrHstrPayLoad, crrHstrNo:number)=> {
+
     const response = await axiosClient.put<CrrHstrDtl>(`/crrHstr/update/${crrHstrNo}`, payload);
 
     return response.data;
@@ -56,5 +55,10 @@ export const updateCrrHstrAPI = async (payload: CrrHstrPayLoad, crrHstrNo:number
 export const deleteCrrHstrAPI = async (payload: CrrHstrPayLoad, crrHstrNo:number) => {
     const response = await axiosClient.delete(`/crrHstr/delete/${crrHstrNo}`, { data: payload });
 
+    return response.data;
+}
+
+export const updateUserInfo = async (payload:{})=> {
+    const response = await axiosClient.put(`/userInfo/updateUserInfo`,payload);
     return response.data;
 }

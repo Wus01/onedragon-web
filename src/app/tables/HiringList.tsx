@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {Pagination} from 'react-bootstrap';
+import {Modal, Pagination} from 'react-bootstrap';
 import {useParams, Link, useHistory} from 'react-router-dom';
 
 import CustModal from "../common/Modal";
 
 import { Button } from 'react-bootstrap';
 import {getHiringList} from "../../api/hiringBoardApi";
+import StoreSearchPopup from "../form-elements/StoreSearchPopup";
 
 function HiringList(){
     const { id } = useParams();
@@ -110,24 +111,24 @@ function HiringList(){
     };
 
   return (
-      <div>
-          <div className="page-header mb-3 mb-md-4 mt-2 mt-md-0 px-2 px-md-0 border-bottom pb-2 pb-md-3">
+       <div>
+           <div className="mb-3 mb-md-4 mt-2 mt-md-0 px-2 px-md-0">
               {/* 💡 position-relative를 주고 최소 높이를 잡아주어 내부 요소들이 absolute로 떠 있어도 영역이 무너지지 않게 합니다. */}
               <div className="d-flex align-items-center w-100 position-relative" style={{ minHeight: '32px' }}>
 
-                  {/* 💡 isMobile이 true면 화면 정중앙에 고정, false면 일반적인 좌측 정렬 */}
-                  <h3
-                      className="page-title fs-5 fs-md-3 fw-bold mb-0"
-                      style={
-                          isMobile
-                              ? { position: 'absolute', left: '50%', transform: 'translateX(-50%)', margin: 0 }
-                              : { textAlign: 'left' }
-                      }
-                  >
-                      공고 리스트
-                  </h3>
+          {/*        /!* 💡 isMobile이 true면 화면 정중앙에 고정, false면 일반적인 좌측 정렬 *!/*/}
+          {/*        <h3*/}
+          {/*            className="page-title fs-5 fs-md-3 fw-bold mb-0"*/}
+          {/*            style={*/}
+          {/*                isMobile*/}
+          {/*                    ? { position: 'absolute', left: '50%', transform: 'translateX(-50%)', margin: 0 }*/}
+          {/*                    : { textAlign: 'left' }*/}
+          {/*            }*/}
+          {/*        >*/}
+          {/*            공고 리스트*/}
+          {/*        </h3>*/}
 
-                  {/* 💡 모바일일 때만 우측 끝에 작성하기 버튼 배치 */}
+          {/*        /!* 💡 모바일일 때만 우측 끝에 작성하기 버튼 배치 *!/*/}
                   {isMobile && (
                       <button
                           type="button"
@@ -145,6 +146,8 @@ function HiringList(){
           {/* 💡 삼항 연산자 시작 */}
           {isMobile ? (
               /* ================= [모바일 모드: 카드 형태로 주욱 나열] ================= */
+
+
               <div className="mobile-list-wrapper">
                   {hiring.content && hiring.content.length > 0 ? (
                       hiring.content.map((hiringItem, index) => (
@@ -247,6 +250,8 @@ function HiringList(){
               onSaveSuccess={()=> fetchHirings(1, false)}
               header="공고작성"
           />
+
+
       </div>
   );
     };
