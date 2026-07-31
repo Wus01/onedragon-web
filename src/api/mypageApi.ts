@@ -7,7 +7,7 @@ import { CrrHstrPayLoad } from "../app/form-elements/CrrHstrCreate";
 
 
 export const getMyPageInfoAPI = async (userId: string)=> {
-    const response = await axiosClient.get(`/mypage/${userId}`);
+    const response = await axiosClient.get(`/mypage`);
     return response.data;
 }
 

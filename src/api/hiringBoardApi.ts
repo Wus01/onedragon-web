@@ -69,10 +69,10 @@ export const insertApply = async (data: ApplyData) => {
 
 // 공고 지원여부 체크
 export const checkApply = async(hiringNo: number, userId: string)=> {
+    const token = localStorage.getItem('token');
     const response = await axiosClient.get(`/apply/check`, {
         params: {
-            hiringNo: hiringNo,
-            rgstId: userId
+            hiringNo: hiringNo
         }
     });
     return response.data;

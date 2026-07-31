@@ -28,6 +28,8 @@ function HiringList(){
         rgstId: string;
         hiringStsNm: string;
         rgstDate: string;
+        workStartDate: string;
+        workEndDate: string;
     }
     const [hiring,setHiring] = useState<HiringResponse>({
             // hiringTitle:"",
@@ -110,25 +112,28 @@ function HiringList(){
         }
     };
 
+    const getBadgeStyle = (statusName) => {
+        const baseStyle = {
+            fontSize: '11px',       // 글씨 크기 축소 (보통 기본 배지보다 살짝 작게)
+            padding: '0.4em 0.6em', // 상하/좌우 여백을 줘서 덜 꽉 차 보이게 숨통 틔우기
+            fontWeight: '500'       // 글씨가 너무 두꺼우면 뭉개져 보이니 살짝 얇게 (선택사항)
+        };
+
+        if (statusName === '확정') {
+            return { ...baseStyle, backgroundColor: '#19d895' }; // 부트스트랩 기본 초록색(success)
+        }
+        if (statusName === '미확정') {
+            return { ...baseStyle, backgroundColor: '#6c7293' }; // 👈 기본 secondary보다 훨씬 진하고 또렷한 회색
+        }
+        return { ...baseStyle, backgroundColor: '#0d6efd' }; // 부트스트랩 기본 파란색(primary)
+    };
+
   return (
        <div>
-           <div className="mb-3 mb-md-4 mt-2 mt-md-0 px-2 px-md-0">
+           <div className="mb-3 mb-md-4 mt-2 mt-md-0 px-2 px-md-0 border-bottom pb-3">
               {/* 💡 position-relative를 주고 최소 높이를 잡아주어 내부 요소들이 absolute로 떠 있어도 영역이 무너지지 않게 합니다. */}
               <div className="d-flex align-items-center w-100 position-relative" style={{ minHeight: '32px' }}>
-
-          {/*        /!* 💡 isMobile이 true면 화면 정중앙에 고정, false면 일반적인 좌측 정렬 *!/*/}
-          {/*        <h3*/}
-          {/*            className="page-title fs-5 fs-md-3 fw-bold mb-0"*/}
-          {/*            style={*/}
-          {/*                isMobile*/}
-          {/*                    ? { position: 'absolute', left: '50%', transform: 'translateX(-50%)', margin: 0 }*/}
-          {/*                    : { textAlign: 'left' }*/}
-          {/*            }*/}
-          {/*        >*/}
-          {/*            공고 리스트*/}
-          {/*        </h3>*/}
-
-          {/*        /!* 💡 모바일일 때만 우측 끝에 작성하기 버튼 배치 *!/*/}
+                {/*💡 모바일일 때만 우측 끝에 작성하기 버튼 배치 */}
                   {isMobile && (
                       <button
                           type="button"
@@ -139,26 +144,34 @@ function HiringList(){
                           작성하기
                       </button>
                   )}
-
               </div>
           </div>
 
           {/* 💡 삼항 연산자 시작 */}
           {isMobile ? (
               /* ================= [모바일 모드: 카드 형태로 주욱 나열] ================= */
-
-
               <div className="mobile-list-wrapper">
                   {hiring.content && hiring.content.length > 0 ? (
                       hiring.content.map((hiringItem, index) => (
-                      <div key={hiringItem.hiringNo || index} className="card mb-3 p-3 shadow-sm" style={{borderRadius:'12px'}}>
-                          <Link to={`/hiring/${hiringItem.hiringNo}`}>
-                          <div className="fw-bold fs-5 mb-1">{hiringItem.hiringTitle}</div>
-                          <div className="text-muted small mb-2">
-                              {hiringItem.storeNm} | {hiringItem.rgstId} | {hiringItem.rgstDate ? String(hiringItem.rgstDate).substring(0, 10) : "-"} | {hiringItem.hiringStsNm}
+
+                          <div key={hiringItem.hiringNo || index} className="border-bottom pb-3 mb-3">
+                              {/* 3. Link에 스타일을 줘서 글씨가 파란색이 되거나 밑줄이 생기는 걸 막습니다. */}
+                              <Link to={`/hiring/${hiringItem.hiringNo}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                  <div className="d-flex justify-content-between align-items-center mb-1">
+                                      <div className="fw-bold fs-5 text-truncate" style={{ maxWidth: '75%' }}>
+                                          {hiringItem.hiringTitle}
+                                      </div>
+                                      <span className="badge text-white" style={getBadgeStyle(hiringItem.hiringStsNm)}>
+                                          {hiringItem.hiringStsNm}
+                                      </span>
+                                  </div>
+
+                                  <div className="text-muted small mb-0">
+                                      {hiringItem.storeNm} | {hiringItem.workStartDate?.substring(5)}~{hiringItem.workEndDate?.substring(5)}
+                                  </div>
+
+                              </Link>
                           </div>
-                          </Link>
-                      </div>
                   ))
                   ):(
                       <div className="text-center py-5 text-muted">
@@ -188,6 +201,7 @@ function HiringList(){
                                           <th>No</th>
                                           <th>지점명</th>
                                           <th>제목</th>
+                                          <th>근무기간</th>
                                           <th>작성자</th>
                                           <th>공고확정여부</th>
                                           <th>등록일시</th>
@@ -204,6 +218,7 @@ function HiringList(){
                                                           {item.hiringTitle}
                                                       </Link>
                                                   </td>
+                                                  <td>{item.workStartDate?.substring(5)}~{item.workEndDate.substring(5)}</td>
                                                   <td>{item.rgstId}</td>
                                                   <td>{item.hiringStsNm}</td>
                                                   <td>{String(item.rgstDate).substring(0,19)}</td>

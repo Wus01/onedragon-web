@@ -24,12 +24,21 @@ interface Hiring {
     hiringSts: string;
 }
 
+export interface ApplyChk {
+    applySts: string;
+    accepted : boolean;
+    applied : boolean;
+}
+
 function HiringDetail(){
     const { id } = useParams();
     const [hiring,setHiring] = useState<Hiring>({} as Hiring);
     const [isOwner, setIsOwner] = useState<boolean>(false);
     // 지원여부상태
     const [isApplied, setIsApplied] = useState(false);
+    const [isAccepted, setIsAccepted] = useState<boolean>(false);
+    const [applySts, setApplySts] = useState<string>("");
+
     // 게시글 불러오기
     const getHiringDetail= async () => {
         try {
@@ -57,10 +66,13 @@ function HiringDetail(){
     // 사용자가 지원한 공고인지 확인
     const checkApplySts= async(hiringNo: number)=> {
         const userId = localStorage.getItem('userId');
-        console.log("지원한 공고인지 체크: hiringNo: ", hiringNo);
+
         try{
-            const isApplied = await checkApply(hiringNo, userId);
-            setIsApplied(isApplied);
+            const applyChk: ApplyChk = await checkApply(hiringNo, userId);
+
+            setIsApplied(applyChk.applied);
+            setIsAccepted(applyChk.accepted);
+            setApplySts(applyChk.applySts);
         }catch(error){
             console.error("지원여부확인실패:", error);
         }
@@ -173,8 +185,15 @@ function HiringDetail(){
                                     className="btn btn-primary px-3 px-md-4"
                                     onClick={goToApply}
                                     disabled={hiring.hiringSts === '02' || isApplied}
+                                    style={{
+                                        backgroundColor: isAccepted ? '#19d895' : isApplied ? '#5c636a' : '#0d6efd',
+                                        borderColor: isAccepted ? '#19d895' : isApplied ? '#5c636a' : '#0d6efd',
+                                        color: 'white'
+                                    }}
                                 >
-                                    {isApplied ? "지원완료" : "지원하기"}
+                                    {isAccepted ? "🎉 최종합격"
+                                        : isApplied ? "지원완료"
+                                        : "지원하기"}
                                 </button>
                             )}
                         </div>
