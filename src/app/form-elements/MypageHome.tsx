@@ -354,7 +354,7 @@ export const MyPageHome = () => {
                             // onClick={() => setIsOpen(true)}
                             onClick={openUpdateMyInfo}
                         >
-                            정보 수정
+                            정보<br/>수정
                         </button>
                     </div>
                 </div>

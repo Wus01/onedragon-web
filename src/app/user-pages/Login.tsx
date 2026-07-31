@@ -79,11 +79,11 @@ const Login = () => {
                 <div className="row w-100 mx-0">
                     <div className="col-lg-4 mx-auto">
                         <div className="auth-form-light text-left py-5 px-4 px-sm-5">
-                            <div className="brand-logo">
-                                <img src={TestImage} alt="" width="150px" height="150px" />
+                            <div className="brand-logo" style={{}}>
+                                <img src={TestImage} alt="" width="150px" height="150px" className="d-block mx-auto"/>
                             </div>
 
-                            <h4>일용이네</h4>
+                            <h4 className="text-center">일용이네</h4>
 
                             <Form className="pt-3" onSubmit={onLogin}>
                                 <Form.Group className="d-flex search-field">

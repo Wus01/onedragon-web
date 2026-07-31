@@ -294,6 +294,7 @@ export const CrrHstrCreate = () => {
                                 dateFormat="yyyy-MM-dd"
                                 placeholderText="시작일"
                                 disabled={isReadOnly}
+                                withPortal
                             />
                             <span>~</span>
                             <DatePicker
@@ -303,6 +304,7 @@ export const CrrHstrCreate = () => {
                                 dateFormat="yyyy-MM-dd"
                                 placeholderText="종료일"
                                 disabled={isReadOnly}
+                                withPortal
                             />
                         </div>
                     </Form.Group>
@@ -331,14 +333,15 @@ export const CrrHstrCreate = () => {
                         {isEditMode ? (
                             <>
                                 <Button variant="primary" onClick={handleUpdate} disabled={isReadOnly}>
-                                    수정 내용 저장
+                                    수정내용<br/>
+                                    저장
                                 </Button>
-                                <Button variant="outline-danger" onClick={handleDelete}>기록 삭제</Button>
+                                <Button variant="outline-danger" onClick={handleDelete}>기록<br/>삭제</Button>
                             </>
                         ) : (
                             <Button variant="success" onClick={handleSave}>등록 후 확인</Button>
                         )}
-                        <Button variant="light" onClick={() => history.push("/mypageHome")}>목록으로</Button>
+                        <Button variant="light" onClick={() => history.push("/mypageHome")}>목록<br/>으로</Button>
                     </div>
                 </Form>
 

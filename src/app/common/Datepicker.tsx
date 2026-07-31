@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React, {forwardRef, useEffect, useState} from 'react';
 import DatePicker from 'react-datepicker';
 import { ko } from 'date-fns/locale';
 import "react-datepicker/dist/react-datepicker.css";
@@ -34,6 +34,46 @@ const CustomDatePicker = ({
   placeholder,
   placement
 }: CustomDatePickerProps) => {
+  const [isMobile, setIsMobile] = useState(false); // 모바일 여부 체크
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkIsMobile();
+
+    window.addEventListener('resize', checkIsMobile);
+    return ()=> window.removeEventListener('resize', checkIsMobile);
+  }, []);
+
+  const handleNativeChange = (e) => {
+    const newDate = new Date(e.target.value);
+    onChange(newDate, e);
+  };
+
+  // 4. Date 객체를 네이티브 input에 맞는 문자열 포맷(YYYY-MM-DDThh:mm)으로 변환
+  const getNativeValue = (date) => {
+    if (!date) return "";
+    // 한국 시간대(KST)에 맞춰서 포맷팅
+    const offset = date.getTimezoneOffset() * 60000;
+    const localISOTime = new Date(date - offset).toISOString().slice(0, 16);
+    return showTime ? localISOTime : localISOTime.split('T')[0];
+  };
+
+  // 5. 조건부 렌더링: 모바일일 때는 네이티브 input 반환
+  if (isMobile) {
+    return (
+        <input
+            type={showTime ? "datetime-local" : "date"}
+            value={getNativeValue(selectedDate)}
+            onChange={handleNativeChange}
+            className="form-control" // 부트스트랩 클래스 그대로 유지
+            placeholder={placeholder}
+        />
+    );
+  }
+
   return (
     <DatePicker
       selected={selectedDate}
