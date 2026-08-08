@@ -5,7 +5,6 @@ interface HiringData{
     storeInfo: {
         storeId: number;
     },
-    userId: string;
     hiringSts: string;
     serviceType: string;
     workStartDate: string;
@@ -14,7 +13,6 @@ interface HiringData{
     hiringTitle: string;
     hiringText: string;
     payPerHour: number;
-    rgstId: string;
 }
 
 interface ApplyData{
@@ -68,7 +66,7 @@ export const insertApply = async (data: ApplyData) => {
 }
 
 // 공고 지원여부 체크
-export const checkApply = async(hiringNo: number, userId: string)=> {
+export const checkApply = async(hiringNo: number)=> {
     const token = localStorage.getItem('token');
     const response = await axiosClient.get(`/apply/check`, {
         params: {

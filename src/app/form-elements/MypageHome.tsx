@@ -198,17 +198,17 @@ export const MyPageHome = () => {
     };
 
     useEffect(() => {
-        const userId = localStorage.getItem('userId');
+
 
         selectMyApplyList(); // 내 지원목록 조회
         selectMyHiringList(); // 내 공고목록 조회
 
-        // const userId = localStorage.getItem('userId') || 'abc123';
+
         setLoading(true);
 
         const fetchMyPage = async () => {
             try {
-                const result = await getMyPageInfoAPI(userId);
+                const result = await getMyPageInfoAPI();
                 if(result.success){
                     setProfile({
                         name: result.data.userInfo.userNm,
@@ -250,10 +250,8 @@ export const MyPageHome = () => {
     const [myApplyList, setMyApplyList] = useState<ApplyItem[]>([]);
 
     const selectMyApplyList = useCallback(async ()=>{
-        const userId = localStorage.getItem('userId');
-
         try {
-            const data = await getMypageApplyListAPI(userId);
+            const data = await getMypageApplyListAPI();
             setMyApplyList(data);
         } catch (err) {
             console.error("내가 지원한 목록 로드 실패:", err);
@@ -264,14 +262,8 @@ export const MyPageHome = () => {
     const [myHiringList, setMyHiringList] = useState<HiringItem[]>([]);
 
     const selectMyHiringList = useCallback(async ()=>{
-        const userId = localStorage.getItem('userId');
-
-        if (!userId) {
-            console.warn("로그인된 사용자 ID가 없습니다.");
-            return;
-        }
         try {
-            const data = await getMyPageHiringListAPI(userId);
+            const data = await getMyPageHiringListAPI();
             setMyHiringList(data);
             console.log("내 공고리스트: ",data);
         } catch (err) {

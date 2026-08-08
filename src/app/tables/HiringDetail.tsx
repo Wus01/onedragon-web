@@ -65,10 +65,8 @@ function HiringDetail(){
 
     // 사용자가 지원한 공고인지 확인
     const checkApplySts= async(hiringNo: number)=> {
-        const userId = localStorage.getItem('userId');
-
         try{
-            const applyChk: ApplyChk = await checkApply(hiringNo, userId);
+            const applyChk: ApplyChk = await checkApply(hiringNo);
 
             setIsApplied(applyChk.applied);
             setIsAccepted(applyChk.accepted);

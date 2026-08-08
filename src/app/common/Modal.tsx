@@ -153,13 +153,10 @@ const CustModal = (props: CustModalProps) => {
     console.log("내용 -- ",text);
     console.log("긴급성 -- ",urgencyYn);
 
-
-    const userId = localStorage.getItem("userId");
     const hiringData ={
       storeInfo: {
         storeId: selectedStoreId // 현재 선택된 가게의 ID
       },
-      userId: userId,
       hiringSts: '01', // 01 : 미확정, 02 : 확정
       serviceType: serviceTp,
       workStartDate: startDate || "",
@@ -167,8 +164,7 @@ const CustModal = (props: CustModalProps) => {
       negotiableYn: negotiYn === true ? "Y" as const : "N" as const ,
       hiringTitle: title,
       hiringText: text,
-      payPerHour: 8,
-      rgstId: userId
+      payPerHour: 8
     }
     try{
       const response = await postHiring(hiringData);
