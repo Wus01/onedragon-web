@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {useHistory, useLocation} from 'react-router-dom';
 import { Form, Nav } from 'react-bootstrap';
-import TestImage from "../../assets/images/temp.jpg";
+import DragonMascot from "../../assets/images/dragon-mascot-v2.png";
 import {findIdApi, findPWApi} from "../../api/loginApi";
 
 const FindIdPw = () => {
@@ -64,7 +64,7 @@ const FindIdPw = () => {
                     <div className="col-lg-4 mx-auto">
                         <div className="auth-form-light text-left py-5 px-4 px-sm-5">
                             <div className="brand-logo">
-                                <img src={TestImage} alt="logo" width="150px" height="150px" />
+                                <img src={DragonMascot} alt="일용이네 용 캐릭터" width="150px" height="150px" />
                             </div>
 
                             <h4>{activeTab === "id" ? "아이디 찾기" : "비밀번호 찾기"}</h4>

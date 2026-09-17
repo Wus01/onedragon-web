@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
-import TestImage from "../../assets/images/temp.jpg";
+import DragonMascot from "../../assets/images/dragon-mascot-v2.png";
 import { TERMS_DATA } from "./TermsData";
 
 function Register() {
@@ -89,7 +89,7 @@ function Register() {
                 <div className="col-lg-4 mx-auto">
                     <div className="auth-form-light text-left py-5 px-4 px-sm-5">
                         <div className="brand-logo">
-                            <img src={TestImage} alt="로고" width="150" height="150" />
+                            <img src={DragonMascot} alt="일용이네 용 캐릭터" width="150" height="150" />
                         </div>
                         <h4>회원가입</h4>
                         <form className="pt-3" onSubmit={registerCheck}>

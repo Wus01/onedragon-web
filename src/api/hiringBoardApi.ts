@@ -16,10 +16,7 @@ interface HiringData{
 }
 
 interface ApplyData{
-    hiringNo : number,
-    rgstId: string,
-    applySucYn : 'Y' | 'N',
-    applySts : string //지원완료
+    hiringNo : number
 }
 
 
@@ -67,7 +64,6 @@ export const insertApply = async (data: ApplyData) => {
 
 // 공고 지원여부 체크
 export const checkApply = async(hiringNo: number)=> {
-    const token = localStorage.getItem('token');
     const response = await axiosClient.get(`/apply/check`, {
         params: {
             hiringNo: hiringNo

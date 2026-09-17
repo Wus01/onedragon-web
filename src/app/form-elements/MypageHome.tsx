@@ -1,28 +1,21 @@
-
-import React, {useState, useEffect, useRef, useCallback} from 'react';
-import {Link, useHistory} from "react-router-dom";
-import {getMypageApplyListAPI, getMyPageHiringListAPI, getMyPageInfoAPI} from "../../api/mypageApi";
-import {Modal} from "react-bootstrap";
-import StoreSearchPopup from "./StoreSearchPopup";
-import MyPageEditModal from "./MyPageEditModal";
-import CustModal from "../common/Modal";
-
-interface MyCrrHstrListCardProps {
-    crrHstrItem: CrrHstrItem;
-}
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {Link, useHistory} from 'react-router-dom';
+import {Modal} from 'react-bootstrap';
+import {
+    getMypageApplyListAPI,
+    getMyPageHiringListAPI,
+    getMyPageInfoAPI
+} from '../../api/mypageApi';
+import MyPageEditModal from './MyPageEditModal';
 
 export interface ApplyItem {
     applyDate: string;
     applySts: string;
-    applySucYn: 'Y'|'N';
+    applySucYn: 'Y' | 'N';
     storeNm: string;
     hiringNo: number;
     applyStsNm: string;
     hiringStsNm: string;
-}
-
-interface ApplicationCardProps {
-    myApplyList: ApplyItem;
 }
 
 export interface HiringItem {
@@ -33,14 +26,9 @@ export interface HiringItem {
     workEndDate: string;
 }
 
-interface MyHiringListProps {
-    myHiringList: HiringItem;
-}
-
 interface Profile {
     name: string;
     email: string;
-    // count: number;
     phone: string;
     userId: string;
 }
@@ -52,7 +40,7 @@ export interface CrrHstrItem {
     storeId?: number;
     storeNm: string;
     status?: string;
-    applyDate?: string; // crrStartDate임
+    applyDate?: string;
     delYn?: boolean;
     storeInfo: StoreInfo;
 }
@@ -63,426 +51,376 @@ export interface StoreInfo {
     storeAddr?: string;
 }
 
-interface MyPageApiResponse {
-    success: boolean;
-    data: {
-        userInfo: {
-            userNm: string;
-            userEmail: string;
-            crrHstrList: CrrHstrItem[];
-
-
-        }
-    }
+interface SectionHeaderProps {
+    icon: string;
+    title: string;
+    description: string;
+    count: number;
+    action?: React.ReactNode;
 }
 
-const STATUS_LABEL = {
-    '01': '지원완료', '02': '서류검토중', '03': '면접제의',
-    '04': '최종합격', '05': '불합격', '09': '지원취소'
+const formatDate = (value?: string) => value ? value.split('T')[0] : '-';
+
+const formatDateTime = (value?: string) => {
+    if (!value) return '-';
+    return value.replace('T', ' ').substring(0, 16);
 };
 
-
-
-function MyCrrHstrListCard({ crrHstrItem }: MyCrrHstrListCardProps) {
+function SectionHeader({icon, title, description, count, action}: SectionHeaderProps) {
     return (
-    <div className="card shadow-sm p-3 border-0 rounded-3 application-card" style={{minWidth: '250px'}}>
-        {/* 추후 인증 상태로 표시 ㄱㄱ*/}
-        {/*<span className="badge bg-primary rounded-pill mb-3" style={{ width: 'fit-content' }}>*/}
-        {/*    {STATUS_LABEL[application.status] || '지원완료'}*/}
-        {/*</span>*/}
-        <h4 className="card-title fs-6 mb-1 text-truncate" title={crrHstrItem.storeInfo.storeNm}>{crrHstrItem.storeInfo.storeNm}</h4>
-        {/*<h4 className="card-title fs-6 mb-1 text-truncate" title={crrHstrItem.storeNm}>{crrHstrItem.storeNm}</h4>*/}
-        <p className="card-text text-muted small">{crrHstrItem.crrStrtDate}~{crrHstrItem.crrEndDate}</p>
-        <div className="mt-2 text-end">
-            <Link to={`/CrrHstrCreate/${crrHstrItem.crrHstrNo}`}>
-                <button className="btn btn-link btn-sm p-0 text-decoration-none">상세보기</button>
-            </Link>
+        <div className="mypage-section-header">
+            <div className="mypage-section-heading">
+                <span className="mypage-section-icon" aria-hidden="true">
+                    <i className={`mdi ${icon}`} />
+                </span>
+                <div>
+                    <div className="mypage-section-title-row">
+                        <h2>{title}</h2>
+                        <span className="mypage-count">{count}</span>
+                    </div>
+                    <p>{description}</p>
+                </div>
+            </div>
+            {action}
         </div>
-    </div>
     );
 }
 
+function MyCrrHstrListCard({crrHstrItem}: {crrHstrItem: CrrHstrItem}) {
+    const storeName = crrHstrItem.storeInfo?.storeNm || crrHstrItem.storeNm || '근무처 미등록';
 
-function ApplicationCard({ myApplyList }:ApplicationCardProps){
     return (
-        <div className="card shadow-sm p-3 border-0 rounded-3 application-card" style={{minWidth: '250px'}}>
-            <div className="d-flex gap-2 mb-3">
-                <span className="badge bg-primary rounded-pill mb-3" style={{width: 'fit-content'}}>
-                    {myApplyList.hiringStsNm}
-                </span>
-                <span className="badge bg-warning text-dark rounded-pill mb-3" style={{width: 'fit-content'}}>
-                    {myApplyList.applySts==='04' ? myApplyList.applyStsNm+ '🎉' : myApplyList.applyStsNm}
+        <article className="mypage-item-card mypage-career-card">
+            <div className="mypage-item-topline">
+                <span className="mypage-card-kicker">CAREER</span>
+                <span className="mypage-status is-career">경력 정보</span>
+            </div>
+            <div className="mypage-store-icon" aria-hidden="true">
+                <i className="mdi mdi-store" />
+            </div>
+            <h3 title={storeName}>{storeName}</h3>
+            <p className="mypage-card-meta">
+                <i className="mdi mdi-calendar" aria-hidden="true" />
+                {formatDate(crrHstrItem.crrStrtDate)} ~ {formatDate(crrHstrItem.crrEndDate)}
+            </p>
+            {crrHstrItem.storeInfo?.storeAddr && (
+                <p className="mypage-card-subtext" title={crrHstrItem.storeInfo.storeAddr}>
+                    <i className="mdi mdi-map-marker" aria-hidden="true" />
+                    {crrHstrItem.storeInfo.storeAddr}
+                </p>
+            )}
+            <Link className="mypage-card-link" to={`/crrHstrCreate/${crrHstrItem.crrHstrNo}`}>
+                경력 상세 보기
+                <i className="mdi mdi-arrow-right" aria-hidden="true" />
+            </Link>
+        </article>
+    );
+}
+
+function ApplicationCard({application}: {application: ApplyItem}) {
+    const isAccepted = application.applySts === '04' || application.applySucYn === 'Y';
+
+    return (
+        <article className="mypage-item-card mypage-apply-card">
+            <div className="mypage-item-topline">
+                <span className="mypage-status is-hiring">{application.hiringStsNm || '채용 진행'}</span>
+                <span className={`mypage-status ${isAccepted ? 'is-success' : 'is-pending'}`}>
+                    {application.applyStsNm || '지원 완료'}
                 </span>
             </div>
-            <h4 className="card-title fs-6 mb-1 text-truncate" title={myApplyList.storeNm}>{myApplyList.storeNm}</h4>
-            <p className="card-text text-muted small">지원일: {myApplyList?.applyDate.substring(0, 19)}</p>
-            <div className="mt-2 text-end">
-                <Link to={`/hiring/${myApplyList.hiringNo}`}>
-                    <button className="btn btn-link btn-sm p-0 text-decoration-none">상세보기</button>
-                </Link>
+            <div className="mypage-store-icon" aria-hidden="true">
+                <i className="mdi mdi-briefcase" />
             </div>
-        </div>
-
-    );
-}
-
-function MyHiringList({ myHiringList }:MyHiringListProps){
-    return (
-    <div className="card shadow-sm p-3 border-0 rounded-3 application-card" style={{minWidth: '250px'}}>
-        <div className="d-flex gap-2 mb-3">
-                <span className="badge bg-primary rounded-pill mb-3" style={{width: 'fit-content'}}>
-                    {myHiringList.hiringStsNm}
-                </span>
-        </div>
-        <h4 className="card-title fs-6 mb-1 text-truncate" title={myHiringList.storeNm}>{myHiringList.storeNm}</h4>
-
-        <p className="card-text text-muted small">근무기간: {myHiringList.workStartDate} ~ {myHiringList.workEndDate}</p>
-        <div className="mt-2 text-end">
-            <Link to={`/hiring/${myHiringList.hiringNo}`}>
-                <button className="btn btn-link btn-sm p-0 text-decoration-none">상세보기</button>
+            <h3 title={application.storeNm}>{application.storeNm || '채용 공고'}</h3>
+            <p className="mypage-card-meta">
+                <i className="mdi mdi-clock-outline" aria-hidden="true" />
+                지원일 {formatDateTime(application.applyDate)}
+            </p>
+            <Link className="mypage-card-link" to={`/hiring/${application.hiringNo}`}>
+                지원 공고 보기
+                <i className="mdi mdi-arrow-right" aria-hidden="true" />
             </Link>
-        </div>
-    </div>
+        </article>
     );
 }
-export const MyPageHome = () => {
+
+function HiringCard({hiring}: {hiring: HiringItem}) {
+    return (
+        <article className="mypage-item-card mypage-hiring-card">
+            <div className="mypage-item-topline">
+                <span className="mypage-card-kicker">MY POST</span>
+                <span className="mypage-status is-hiring">{hiring.hiringStsNm || '공고 등록'}</span>
+            </div>
+            <div className="mypage-store-icon" aria-hidden="true">
+                <i className="mdi mdi-bullhorn" />
+            </div>
+            <h3 title={hiring.storeNm}>{hiring.storeNm || '등록한 공고'}</h3>
+            <p className="mypage-card-meta">
+                <i className="mdi mdi-calendar" aria-hidden="true" />
+                {formatDate(hiring.workStartDate)} ~ {formatDate(hiring.workEndDate)}
+            </p>
+            <Link className="mypage-card-link" to={`/hiring/${hiring.hiringNo}`}>
+                공고 상세 보기
+                <i className="mdi mdi-arrow-right" aria-hidden="true" />
+            </Link>
+        </article>
+    );
+}
+
+const MyPageHome: React.FC = () => {
     const [profile, setProfile] = useState<Profile | null>(null);
-    // const [applications, setApplications] = useState([]);
-    const [crrHstrList, setCrrHstrList] = useState<CrrHstrItem[] | null>(null);
-    const [loading, setLoading] = useState(false);
-    const scrollRef = useRef<HTMLDivElement | null>(null);
-
-    // 드래그 상태 관리를 위한 변수
+    const [crrHstrList, setCrrHstrList] = useState<CrrHstrItem[]>([]);
+    const [myApplyList, setMyApplyList] = useState<ApplyItem[]>([]);
+    const [myHiringList, setMyHiringList] = useState<HiringItem[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [showModal, setShowModal] = useState(false);
     const [isDrag, setIsDrag] = useState(false);
     const [startX, setStartX] = useState(0);
-    const [scrollLeft, setScrollLeft] = useState(0);
 
-    const [showModal, setShowModal] = useState(false);
-    const [isOpen, setIsOpen] = useState<boolean>(false);
+    const crrScrollRef = useRef<HTMLDivElement | null>(null);
+    const applyScrollRef = useRef<HTMLDivElement | null>(null);
+    const hiringScrollRef = useRef<HTMLDivElement | null>(null);
+    const history = useHistory();
 
-    const API_BASE_URL = process.env.REACT_APP_API_URL || '';
-
-    // 1. 드래그 시작 (마우스 누름)
-    const onDragStart = (e: React.MouseEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        setIsDrag(true);
-        // e.currentTarget으로 현재 이벤트가 발생한 div 요소를 바로 가져옵니다!
-        setStartX(e.pageX + e.currentTarget.scrollLeft);
-    };
-
-    // 2. 드래그 진행 중 (마우스 이동)
-        const onDragMove = (e:React.MouseEvent<HTMLDivElement>) => {
-            if (!isDrag) return;
-            // e.currentTarget의 scrollLeft를 마우스 이동량에 맞춰 변경
-            e.currentTarget.scrollLeft = startX - e.pageX;
-        };
-
-    // 3. 드래그 종료 (마우스 뗌 / 영역 벗어남)
-        const onDragEnd = () => {
-            setIsDrag(false);
-        };
-
-    const crrScrollRef = useRef<HTMLDivElement|null>(null);
-    const applyScrollRef = useRef<HTMLDivElement|null>(null);
-    const hiringScrollRef = useRef<HTMLDivElement|null>(null);
-
-    // 기존 버튼 클릭 이동 함수
-    const handleScroll = (ref:React.RefObject<HTMLDivElement>, direction:'left' | 'right') => {
-        if(ref.current){
-            const scrollAmount = 600;
-            ref.current.scrollBy({
-                left:direction === 'left'? -scrollAmount : scrollAmount,
-                behavior:'smooth'
-            });
+    const selectMyApplyList = useCallback(async () => {
+        try {
+            const data = await getMypageApplyListAPI();
+            setMyApplyList(data || []);
+        } catch (error) {
+            console.error('지원 목록을 불러오지 못했습니다.', error);
         }
-    };
+    }, []);
+
+    const selectMyHiringList = useCallback(async () => {
+        try {
+            const data = await getMyPageHiringListAPI();
+            setMyHiringList(data || []);
+        } catch (error) {
+            console.error('등록한 공고 목록을 불러오지 못했습니다.', error);
+        }
+    }, []);
 
     useEffect(() => {
-
-
-        selectMyApplyList(); // 내 지원목록 조회
-        selectMyHiringList(); // 내 공고목록 조회
-
-
-        setLoading(true);
-
         const fetchMyPage = async () => {
+            setLoading(true);
             try {
                 const result = await getMyPageInfoAPI();
-                if(result.success){
+                if (result.success) {
                     setProfile({
                         name: result.data.userInfo.userNm,
                         email: result.data.userInfo.userEmail,
                         phone: result.data.userInfo.userPhoneNm,
                         userId: result.data.userInfo.userId
                     });
-                    setCrrHstrList(result.data.userInfo.crrHstrList);
+                    setCrrHstrList(result.data.userInfo.crrHstrList || []);
                 }
             } catch (error) {
-                console.error('내 경력목록 가져오기 실패:', error);
-                alert("내 경력목록을 불러오는 데 실패했습니다.");
+                console.error('마이페이지 정보를 불러오지 못했습니다.', error);
             } finally {
                 setLoading(false);
             }
-        }
+        };
+
         fetchMyPage();
+        selectMyApplyList();
+        selectMyHiringList();
+    }, [selectMyApplyList, selectMyHiringList]);
 
-        // fetch(`${API_BASE_URL}/mypage/${userId}`)
-        //     .then(res => res.json() as Promise<MyPageApiResponse>)
-        //     .then(json => {
-        //         if (json.success) {
-        //             setProfile({
-        //                 name: json.data.userInfo.userNm,
-        //                 email: json.data.userInfo.userEmail,
-        //                 // count: json.data.applications.length
-        //             });
-        //             // setApplications(json.data.applications);
-        //             setCrrHstrList(json.data.userInfo.crrHstrList);
-        //         }
-        //     })
-        //     .catch((error) => {
-        //         console.error('마이페이지 정보 조회 실패:', error);
-        //     })
-        //     .finally(() => setLoading(false));
-    }, []);
-
-    // 지원 목록 조회
-    const [myApplyList, setMyApplyList] = useState<ApplyItem[]>([]);
-
-    const selectMyApplyList = useCallback(async ()=>{
-        try {
-            const data = await getMypageApplyListAPI();
-            setMyApplyList(data);
-        } catch (err) {
-            console.error("내가 지원한 목록 로드 실패:", err);
-        }
-    }, []);
-
-    // 내 공고 목록 조회
-    const [myHiringList, setMyHiringList] = useState<HiringItem[]>([]);
-
-    const selectMyHiringList = useCallback(async ()=>{
-        try {
-            const data = await getMyPageHiringListAPI();
-            setMyHiringList(data);
-            console.log("내 공고리스트: ",data);
-        } catch (err) {
-            console.error("내 공고리스트 목록 로드 실패:", err);
-        }
-    }, []);
-
-    const history = useHistory();
-
-    function goToCreateCrr(): void {
-        history.push('/crrHstrCreate');
-    }
-
-    // 경력 내역 삭제 아닌 것만 추리기
-    const validCrrHstrList = (crrHstrList || []).filter(item=> item?.delYn !== true);
-
-    // 내 정보 수정 모달 상태 관리
-    const openUpdateMyInfo=()=>{
-        console.log("클릭");
-        // setIsOpen(true);
-        setShowModal(true);
-    }
-
-    const closeModalHandler = () => {
-        // setIsOpen(false);
-        setShowModal(false);
+    const onDragStart = (event: React.MouseEvent<HTMLDivElement>) => {
+        event.preventDefault();
+        setIsDrag(true);
+        setStartX(event.pageX + event.currentTarget.scrollLeft);
     };
 
-    // const handleUpdateUserInfo = () => {
-    //     setShow
-    // }
+    const onDragMove = (event: React.MouseEvent<HTMLDivElement>) => {
+        if (!isDrag) return;
+        event.currentTarget.scrollLeft = startX - event.pageX;
+    };
 
-    // const [myCrrHstrList, setMyCrrHstrList] = useState([]);
-    // const selectMyCrrHstrList = useCallback(async ()=>{
-    //     const userId = localStorage.getItem('userId');
-    //
-    //     if (!userId) {
-    //         console.warn("로그인된 사용자 ID가 없습니다.");
-    //         return;
-    //     }
-    //     try {
-    //         const res = await axios.get(`${process.env.REACT_APP_API_URL}/crrHstr/${userId}`,
-    //             {params:{userId: userId}});
-    //         setMyCrrHstrList(res.data);
-    //         console.log("내 경력리스트: ",res.data);
-    //     } catch (err) {
-    //         console.error("내 경력리스트 목록 로드 실패:", err);
-    //     }
-    // }, []);
+    const onDragEnd = () => setIsDrag(false);
 
-    if (loading) return <div className="p-5 text-center">로딩 중...</div>;
+    const handleScroll = (ref: React.RefObject<HTMLDivElement>, direction: 'left' | 'right') => {
+        ref.current?.scrollBy({
+            left: direction === 'left' ? -640 : 640,
+            behavior: 'smooth'
+        });
+    };
+
+    const scrollHandlers = {
+        onMouseDown: onDragStart,
+        onMouseMove: onDragMove,
+        onMouseUp: onDragEnd,
+        onMouseLeave: onDragEnd
+    };
+
+    const validCrrHstrList = crrHstrList.filter(item => item?.delYn !== true);
+    const displayName = profile?.name || '회원';
+    const initial = displayName.trim().charAt(0) || 'O';
+
+    if (loading) {
+        return (
+            <div className="mypage-loading">
+                <span className="mypage-loading-spinner" />
+                <p>나의 활동을 불러오고 있어요.</p>
+            </div>
+        );
+    }
 
     return (
-        <div className="container-fluid p-0 m-0 bg-light min-vh-100">
-            <div className="p-3 p-md-4 pb-5">
-
-                {/* 💡 1. 마이페이지 타이틀 폰트 축소 & 하단 구분선 추가 */}
-                <div className="border-bottom border-2 pb-2 mb-3 mb-md-4">
-                    <h1 className="fw-bold mb-0" style={{ fontSize: '1.1rem' }}>내 정보</h1>
+        <main className="mypage">
+            <section className="mypage-hero">
+                <div className="mypage-hero-copy">
+                    <span className="mypage-eyebrow">MY WORKSPACE</span>
+                    <h1>{displayName}님의<br />일자리 공간</h1>
+                    <p>내 경력과 지원 현황을 한곳에서 확인하고 다음 기회를 준비해 보세요.</p>
+                    <Link className="mypage-hero-link" to="/hiringList">
+                        채용 공고 둘러보기
+                        <i className="mdi mdi-arrow-right" aria-hidden="true" />
+                    </Link>
                 </div>
+                <div className="mypage-summary" aria-label="나의 활동 요약">
+                    <div className="mypage-summary-item">
+                        <span>등록 경력</span>
+                        <strong>{validCrrHstrList.length}</strong>
+                    </div>
+                    <div className="mypage-summary-item">
+                        <span>지원 내역</span>
+                        <strong>{myApplyList.length}</strong>
+                    </div>
+                    <div className="mypage-summary-item">
+                        <span>등록 공고</span>
+                        <strong>{myHiringList.length}</strong>
+                    </div>
+                </div>
+                <span className="mypage-hero-shape shape-one" aria-hidden="true" />
+                <span className="mypage-hero-shape shape-two" aria-hidden="true" />
+            </section>
 
-                {/* 프로필 카드 (유지) */}
-                <div className="card shadow-sm mb-4 mb-md-5 p-3 p-md-4 border-0 rounded-3" style={{ maxWidth: '1000px' }}>
-                    <div className="d-flex align-items-center gap-2 gap-md-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" className="bi bi-person-circle text-primary opacity-75" viewBox="0 0 16 16">
-                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-                            <path fillRule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 1 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
-                        </svg>
-                        <div style={{marginLeft: '10px'}}>
-                            <h2 className="fw-bold mb-1" style={{ fontSize: '1rem' }}>
-                                {profile?.name}님
-                                <span className="ms-2 badge bg-info bg-opacity-10 text-primary fw-normal" style={{ fontSize: '11px', marginLeft: '5px' }}>개인회원</span>
-                            </h2>
-                            <p className="text-muted small mb-0" style={{ fontSize: '0.85rem' }}>{profile?.email}</p>
-                        </div>
+            <section className="mypage-profile-card">
+                <div className="mypage-avatar" aria-hidden="true">{initial}</div>
+                <div className="mypage-profile-main">
+                    <span className="mypage-member-label">개인 회원</span>
+                    <h2>{displayName}님, 반가워요!</h2>
+                    <p>프로필 정보를 최신 상태로 유지하면 지원 과정이 더 편리해집니다.</p>
+                </div>
+                <dl className="mypage-profile-details">
+                    <div>
+                        <dt><i className="mdi mdi-email-outline" aria-hidden="true" />이메일</dt>
+                        <dd>{profile?.email || '-'}</dd>
+                    </div>
+                    <div>
+                        <dt><i className="mdi mdi-phone-outline" aria-hidden="true" />연락처</dt>
+                        <dd>{profile?.phone || '-'}</dd>
+                    </div>
+                </dl>
+                <button className="mypage-edit-button" type="button" onClick={() => setShowModal(true)}>
+                    <i className="mdi mdi-pencil-outline" aria-hidden="true" />
+                    정보 수정
+                </button>
+            </section>
 
-                        <button
-                            className="btn btn-outline-secondary btn-sm ms-auto px-3"
-                            style={{ fontSize: '0.85rem', borderRadius: '20px', marginLeft: '10px'}}
-                            // onClick={() => setIsOpen(true)}
-                            onClick={openUpdateMyInfo}
-                        >
-                            정보<br/>수정
+            <section className="mypage-content-section">
+                <SectionHeader
+                    icon="mdi-file-document-edit-outline"
+                    title="내 경력"
+                    description="등록한 근무 이력을 확인하고 관리하세요."
+                    count={validCrrHstrList.length}
+                    action={(
+                        <button className="mypage-primary-button" type="button" onClick={() => history.push('/crrHstrCreate')}>
+                            <i className="mdi mdi-plus" aria-hidden="true" />신규 경력 등록
                         </button>
-                    </div>
-                </div>
-
-                {/* 💡 2. 내 경력 타이틀 영역 폰트 축소 & 하단 구분선 */}
-                <div className="d-flex align-items-center gap-2 border-bottom pb-2 mb-3">
-                    <h3 className="fw-bold text-dark mb-0" style={{ fontSize: '0.95rem' }}>내 경력 목록</h3>
-                    <button onClick={goToCreateCrr} className="btn btn-outline-primary btn-sm ms-2" style={{ fontSize: '0.75rem', padding: '0.15rem 0.4rem', marginLeft:'10px'}}>등록하기</button>
-                </div>
-
-                <div className="position-relative d-flex align-items-center" style={{ maxWidth: '1100px' }}>
-                    <button onClick={() => handleScroll(crrScrollRef, 'left')} className="btn-move-arrow me-2 d-none d-md-flex">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-left" viewBox="0 0 16 16"><path fillRule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/></svg>
+                    )}
+                />
+                <div className="mypage-carousel">
+                    <button className="mypage-scroll-button is-left" type="button" aria-label="이전 경력 보기" onClick={() => handleScroll(crrScrollRef, 'left')}>
+                        <i className="mdi mdi-chevron-left" />
                     </button>
-
-                    <div
-                        ref={crrScrollRef}
-                        className={`d-flex overflow-auto gap-3 pb-3 scroll-container ${isDrag ? 'is-dragging' : ''}`}
-                        onMouseDown={onDragStart}
-                        onMouseMove={onDragMove}
-                        onMouseUp={onDragEnd}
-                        onMouseLeave={onDragEnd}
-                    >
-                        {validCrrHstrList.length === 0 ? (
-                            <div className="card shadow-sm p-3 p-md-4 border-0 rounded-3 text-center text-muted" style={{minWidth: '250px', width: '100%'}}>
-                                <p className="mb-0 small">경력 내역이 없습니다.</p>
+                    <div ref={crrScrollRef} className={`mypage-scroll-track ${isDrag ? 'is-dragging' : ''}`} {...scrollHandlers}>
+                        {validCrrHstrList.length > 0 ? validCrrHstrList.map(item => (
+                            <MyCrrHstrListCard key={item.crrHstrNo} crrHstrItem={item} />
+                        )) : (
+                            <div className="mypage-empty">
+                                <span><i className="mdi mdi-briefcase-plus-outline" /></span>
+                                <strong>등록된 경력이 없어요.</strong>
+                                <p>첫 경력을 등록하고 나의 업무 경험을 정리해 보세요.</p>
                             </div>
-                        ):(
-                            validCrrHstrList.map((item, index, filteredArray) => (
-                                    <div key={item.crrHstrNo} className="d-flex align-items-center scroll-item">
-                                        <MyCrrHstrListCard crrHstrItem={item} />
-                                        {index < filteredArray.length - 1 && (
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right text-muted opacity-50" viewBox="0 0 16 16"><path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>
-                                        )}
-                                    </div>
-                                )
-                            ))}
+                        )}
                     </div>
-
-                    <button onClick={() => handleScroll(crrScrollRef,'right')} className="btn-move-arrow ms-2 d-none d-md-flex">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right" viewBox="0 0 16 16"><path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>
+                    <button className="mypage-scroll-button is-right" type="button" aria-label="다음 경력 보기" onClick={() => handleScroll(crrScrollRef, 'right')}>
+                        <i className="mdi mdi-chevron-right" />
                     </button>
                 </div>
+            </section>
 
-                {/* 💡 3. 내 지원 목록 타이틀 영역 폰트 축소 & 하단 구분선 */}
-                <div className="border-bottom pb-2 mb-3 mt-4 mt-md-5">
-                    <h3 className="fw-bold text-dark mb-0" style={{ fontSize: '0.95rem' }}>내 지원 목록</h3>
-                </div>
-                <div className="position-relative d-flex align-items-center" style={{ maxWidth: '1100px' }}>
-                    <button onClick={() => handleScroll(applyScrollRef, 'left')} className="btn-move-arrow me-2 d-none d-md-flex">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-left" viewBox="0 0 16 16"><path fillRule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/></svg>
+            <section className="mypage-content-section">
+                <SectionHeader
+                    icon="mdi-send"
+                    title="내 지원 내역"
+                    description="지원한 공고와 현재 진행 상태를 확인하세요."
+                    count={myApplyList.length}
+                />
+                <div className="mypage-carousel">
+                    <button className="mypage-scroll-button is-left" type="button" aria-label="이전 지원 보기" onClick={() => handleScroll(applyScrollRef, 'left')}>
+                        <i className="mdi mdi-chevron-left" />
                     </button>
-
-                    <div
-                        ref={applyScrollRef}
-                        className={`d-flex overflow-auto gap-3 pb-3 scroll-container ${isDrag ? 'is-dragging' : ''}`}
-                        onMouseDown={onDragStart}
-                        onMouseMove={onDragMove}
-                        onMouseUp={onDragEnd}
-                        onMouseLeave={onDragEnd}
-                    >
-                        {myApplyList.length === 0 ? (
-                            <div className="card shadow-sm p-3 p-md-4 border-0 rounded-3 text-center text-muted" style={{minWidth: '250px', width: '100%'}}>
-                                <p className="mb-0 small">지원 내역이 없습니다.</p>
+                    <div ref={applyScrollRef} className={`mypage-scroll-track ${isDrag ? 'is-dragging' : ''}`} {...scrollHandlers}>
+                        {myApplyList.length > 0 ? myApplyList.map((item, index) => (
+                            <ApplicationCard key={`${item.hiringNo}-${index}`} application={item} />
+                        )) : (
+                            <div className="mypage-empty">
+                                <span><i className="mdi mdi-send-outline" /></span>
+                                <strong>아직 지원한 공고가 없어요.</strong>
+                                <p>나에게 맞는 일자리를 찾아 새로운 기회에 도전해 보세요.</p>
                             </div>
-                        ):(
-                            myApplyList.map((item: ApplyItem, index: number) => (
-                                    <div key={index} className="d-flex align-items-center scroll-item">
-                                        <ApplicationCard myApplyList={item}/>
-                                        {index < myApplyList.length - 1 && (
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right text-muted opacity-50" viewBox="0 0 16 16"><path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>
-                                        )}
-                                    </div>
-                                )
-                            ))}
+                        )}
                     </div>
-
-                    <button onClick={() => handleScroll(applyScrollRef,'right')} className="btn-move-arrow ms-2 d-none d-md-flex">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right" viewBox="0 0 16 16"><path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>
+                    <button className="mypage-scroll-button is-right" type="button" aria-label="다음 지원 보기" onClick={() => handleScroll(applyScrollRef, 'right')}>
+                        <i className="mdi mdi-chevron-right" />
                     </button>
                 </div>
+            </section>
 
-                {/* 💡 4. 내 공고 목록 타이틀 영역 폰트 축소 & 하단 구분선 */}
-                <div className="border-bottom pb-2 mb-3 mt-4 mt-md-5">
-                    <h3 className="fw-bold text-dark mb-0" style={{ fontSize: '0.95rem' }}>내 공고 목록</h3>
-                </div>
-                <div className="position-relative d-flex align-items-center" style={{ maxWidth: '1100px' }}>
-                    <button onClick={() => handleScroll(hiringScrollRef, 'left')} className="btn-move-arrow me-2 d-none d-md-flex">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-left" viewBox="0 0 16 16"><path fillRule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/></svg>
+            <section className="mypage-content-section">
+                <SectionHeader
+                    icon="mdi-bullhorn"
+                    title="내가 올린 공고"
+                    description="직접 등록한 채용 공고를 한눈에 관리하세요."
+                    count={myHiringList.length}
+                />
+                <div className="mypage-carousel">
+                    <button className="mypage-scroll-button is-left" type="button" aria-label="이전 공고 보기" onClick={() => handleScroll(hiringScrollRef, 'left')}>
+                        <i className="mdi mdi-chevron-left" />
                     </button>
-
-                    <div
-                        ref={hiringScrollRef}
-                        className={`d-flex overflow-auto gap-3 pb-3 scroll-container ${isDrag ? 'is-dragging' : ''}`}
-                        onMouseDown={onDragStart}
-                        onMouseMove={onDragMove}
-                        onMouseUp={onDragEnd}
-                        onMouseLeave={onDragEnd}
-                    >
-                        {myHiringList.length === 0? (
-                            <div className="card shadow-sm p-3 p-md-4 border-0 rounded-3 text-center text-muted" style={{minWidth: '250px', width: '100%'}}>
-                                <p className="mb-0 small">공고 내역이 없습니다.</p>
+                    <div ref={hiringScrollRef} className={`mypage-scroll-track ${isDrag ? 'is-dragging' : ''}`} {...scrollHandlers}>
+                        {myHiringList.length > 0 ? myHiringList.map((item, index) => (
+                            <HiringCard key={`${item.hiringNo}-${index}`} hiring={item} />
+                        )) : (
+                            <div className="mypage-empty">
+                                <span><i className="mdi mdi-bullhorn-outline" /></span>
+                                <strong>등록한 채용 공고가 없어요.</strong>
+                                <p>필요한 인재를 찾을 수 있도록 새로운 공고를 작성해 보세요.</p>
                             </div>
-                        ):(
-                            myHiringList.map((item, index) => (
-                                    <div key={index} className="d-flex align-items-center scroll-item">
-                                        <MyHiringList myHiringList={item}/>
-                                        {index < myHiringList.length - 1 && (
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right text-muted opacity-50" viewBox="0 0 16 16"><path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>
-                                        )}
-                                    </div>
-                                )
-                            ))}
+                        )}
                     </div>
-
-                    <button onClick={() => handleScroll(hiringScrollRef,'right')} className="btn-move-arrow ms-2 d-none d-md-flex">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-right" viewBox="0 0 16 16"><path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>
+                    <button className="mypage-scroll-button is-right" type="button" aria-label="다음 공고 보기" onClick={() => handleScroll(hiringScrollRef, 'right')}>
+                        <i className="mdi mdi-chevron-right" />
                     </button>
                 </div>
-
-            </div>
+            </section>
 
             <Modal
                 show={showModal}
                 onHide={() => setShowModal(false)}
-                centered  // 화면 정중앙에 배치
-                dialogClassName="custom-modal-size"
+                centered
+                dialogClassName="custom-modal-size mypage-edit-modal"
                 scrollable
-                style={{zIndex:1060}}
+                style={{zIndex: 1060}}
             >
                 <Modal.Header closeButton>
-                    <Modal.Title className="fw-bold">내 정보 수정</Modal.Title>
+                    <Modal.Title>내 정보 수정</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    {/* 팝업 컴포넌트를 렌더링하고, 선택 시 실행할 함수를 props로 넘겨줍니다! */}
-                    {showModal && (
+                    {showModal && profile && (
                         <MyPageEditModal
                             onClose={() => setShowModal(false)}
                             userEmail={profile.email}
@@ -493,69 +431,8 @@ export const MyPageHome = () => {
                     )}
                 </Modal.Body>
             </Modal>
-            {/*<MyPageEditModal*/}
-            {/*    open={isOpen}*/}
-            {/*    close={closeModalHandler}*/}
-            {/*    // onSaveSuccess={()=> fetchHirings(1, false)}*/}
-            {/*    header="내 정보 수정"*/}
-            {/*/>*/}
-
-
-
-
-
-            <style>{`
-                .container-fluid { padding-left: 0 !important; }
-
-                .scroll-container {
-                    scrollbar-width: none;
-                    -ms-overflow-style: none;
-                    cursor: grab;
-                    scroll-snap-type: x mandatory; /* 드래그 후 딱 맞게 멈춤 */
-                    user-select: none; /* 드래그 시 텍스트 선택 방지 */
-                }
-                .scroll-container::-webkit-scrollbar { display: none; }
-
-                .scroll-container.is-dragging {
-                    cursor: grabbing;
-                    scroll-behavior: auto; /* 드래그 중에는 즉각적인 반응을 위해 smooth 끔 */
-                    scroll-snap-type: none; /* 드래그 중에는 자석 효과 잠시 끔 */
-                }
-
-                .scroll-item {
-                    scroll-snap-align: start;
-                    flex-shrink: 0;
-                }
-
-                .btn-move-arrow {
-                    background: none; border: none; color: #adb5bd;
-                    padding: 0; display: flex; align-items: center; justify-content: center;
-                    transition: all 0.2s; cursor: pointer;
-                }
-                .btn-move-arrow:hover { color: #6c757d; transform: scale(1.2); }
-
-
-                .application-card {
-        min-width: 250px;
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* 부드러운 움직임을 위한 곡선 */
-        cursor: grab;
-        background-color: white;
-    }
-
-    /* 마우스를 올렸을 때 움찔하는 효과 */
-    .application-card:hover {
-        transform: translateY(-10px) scale(1.02); /* 위로 10px 이동하고 2% 커짐 */
-        box-shadow: 0 10px 20px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.06) !important; /* 그림자도 더 깊게 */
-        z-index: 5; /* 옆 카드보다 위로 올라오게 */
-    }
-
-    .scroll-container.is-dragging .application-card:hover {
-        transform: none; /* 드래그 중에는 움찔 효과 끄기 (어지러움 방지) */
-    }
-            `}</style>
-        </div>
+        </main>
     );
 };
-
 
 export default MyPageHome;

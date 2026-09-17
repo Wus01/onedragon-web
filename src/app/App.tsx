@@ -66,13 +66,13 @@ const App: React.FC = () => {
   }, [location.pathname, isFullPageLayout, i18n]);
 
   return (
-      <div className="container-scroller">
+      <div className={`container-scroller onedragon-shell ${isFullPageLayout ? 'is-full-page' : ''}`}>
         {/* 풀페이지가 아닐 때만 Navbar 렌더링 */}
         {!isFullPageLayout && <Navbar />}
         <div className="container-fluid page-body-wrapper">
           {/* 풀페이지가 아닐 때만 Sidebar 렌더링 */}
           {!isFullPageLayout && <Sidebar />}
-          <div className="main-panel">
+          <div className={`main-panel ${isFullPageLayout ? 'main-panel--full' : ''}`}>
             <div className="content-wrapper">
               <AppRoutes/>
               {/* 풀페이지가 아닐 때만 SettingsPanel 렌더링 */}

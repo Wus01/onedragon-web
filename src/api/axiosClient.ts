@@ -42,7 +42,8 @@ axiosClient.interceptors.response.use(
         if (error.response && error.response.status === 401) {
 
             // 2. 쓸모없어진 만료된 토큰을 스토리지에서 깨끗하게 지워줍니다.
-            localStorage.removeItem('accessToken'); // ⚠️ 쓰시는 키 이름으로 변경!
+            localStorage.removeItem('token');
+            localStorage.removeItem('userId');
 
             // 3. (선택사항) 사용자에게 상황 알림
             alert('로그인 시간이 만료되었습니다. 다시 로그인해 주세요 🥲');
