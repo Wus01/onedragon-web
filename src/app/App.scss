@@ -82,3 +82,92 @@
 
 /* === OneDragon product theme (keep this import last) === */
 @import "../assets/styles/onedragon-theme";
+
+.service-state {
+  position: fixed;
+  top: 14px;
+  right: 18px;
+  z-index: 1100;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 6px 20px rgba(22, 46, 37, 0.12);
+  color: #287b57;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  backdrop-filter: blur(8px);
+}
+
+.service-state i {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #37a473;
+  box-shadow: 0 0 0 4px rgba(55, 164, 115, 0.14);
+}
+
+.service-state.is-navbar {
+  position: static;
+  z-index: auto;
+  min-height: 42px;
+  margin-right: 2px;
+  box-sizing: border-box;
+  box-shadow: none;
+}
+
+.service-state.is-mobile {
+  display: none;
+}
+
+.service-state.is-checking {
+  color: #9a6c15;
+}
+
+.service-state.is-checking i {
+  background: #d09b35;
+  box-shadow: 0 0 0 4px rgba(208, 155, 53, 0.14);
+}
+
+.service-state.is-offline {
+  color: #9e3f34;
+}
+
+.service-state.is-offline i {
+  background: #bd4d42;
+  box-shadow: 0 0 0 4px rgba(189, 77, 66, 0.14);
+}
+
+@media (max-width: 991px) {
+  .service-state.is-navbar.is-mobile {
+    display: inline-flex;
+    justify-content: center;
+    width: 38px;
+    min-width: 38px;
+    height: 38px;
+    min-height: 38px;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 0;
+    border: 0;
+    font-size: 0;
+  }
+
+  .service-state.is-navbar.is-desktop {
+    display: none;
+  }
+}
+
+@media (max-width: 575px) {
+  .service-state {
+    top: 10px;
+    right: 10px;
+    padding: 9px;
+    font-size: 0;
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { Link, useHistory } from 'react-router-dom';
 import DragonMascot from '../../assets/images/dragon-mascot-v2.png';
@@ -11,11 +11,16 @@ interface NotificationItem {
   targetUrl: string;
 }
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  isApiOnline: boolean | null;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ isApiOnline }) => {
   const history = useHistory();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [hideBadge, setHideBadge] = useState(false);
   const [userId, setUserId] = useState('');
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
 
   const unreadCount = notifications.filter((notification) => notification.readYn === 'N').length;
   const hasUnread = unreadCount > 0;
@@ -58,6 +63,28 @@ const Navbar: React.FC = () => {
     return () => eventSource.close();
   }, []);
 
+  useEffect(() => {
+    const closeMobileSidebarOnOutsideClick = (event: MouseEvent | TouchEvent) => {
+      if (!window.matchMedia('(max-width: 991px)').matches) return;
+
+      const sidebar = document.querySelector('.sidebar-offcanvas');
+      const target = event.target as Node | null;
+
+      if (!sidebar?.classList.contains('active') || !target) return;
+      if (sidebar.contains(target) || mobileMenuButtonRef.current?.contains(target)) return;
+
+      sidebar.classList.remove('active');
+    };
+
+    document.addEventListener('mousedown', closeMobileSidebarOnOutsideClick);
+    document.addEventListener('touchstart', closeMobileSidebarOnOutsideClick);
+
+    return () => {
+      document.removeEventListener('mousedown', closeMobileSidebarOnOutsideClick);
+      document.removeEventListener('touchstart', closeMobileSidebarOnOutsideClick);
+    };
+  }, []);
+
   const handleNotificationToggle = async (isOpen: boolean) => {
     if (!isOpen || !hasUnread) return;
 
@@ -83,20 +110,44 @@ const Navbar: React.FC = () => {
           aria-label="사이드바 접기"
           onClick={() => document.body?.classList.toggle('sidebar-icon-only')}
         >
-          <i className="mdi mdi-menu" aria-hidden="true" />
+          <span className="hamburger-icon" aria-hidden="true" />
         </button>
 
-        <Link className="mobile-brand d-lg-none" to="/hiringList">
-          <span className="mobile-brand-mark"><i className="mdi mdi-briefcase-check-outline" /></span>
-          <strong>일용이네</strong>
-        </Link>
+        <div className="mobile-brand d-lg-none">
+          <button
+            ref={mobileMenuButtonRef}
+            className="navbar-toggler mobile-menu-toggler"
+            type="button"
+            aria-label="메뉴 열기"
+            onClick={() => document.querySelector('.sidebar-offcanvas')?.classList.toggle('active')}
+          >
+            <span className="hamburger-icon" aria-hidden="true" />
+          </button>
+          <Link className="mobile-brand-name" to="/hiringList">
+            <strong>일용이네</strong>
+          </Link>
+        </div>
 
         <div className="navbar-heading d-none d-md-block">
           <span>동네에서 만나는 가장 빠른 일자리</span>
-          <small>오늘도 좋은 일자리를 연결해 드릴게요.</small>
+          <small>&nbsp;&nbsp;오늘도 좋은 일자리를 연결해 드릴게요.</small>
         </div>
 
         <div className="navbar-actions ml-auto">
+          <span
+            className={`service-state is-navbar is-mobile ${isApiOnline === false ? 'is-offline' : isApiOnline === null ? 'is-checking' : ''}`}
+            role="status"
+            aria-live="polite"
+          >
+            <i aria-hidden="true" /> {isApiOnline === false ? '서비스 연결 끊김' : isApiOnline === null ? '서비스 연결 확인 중' : '서비스 연결됨'}
+          </span>
+          <span
+            className={`service-state is-navbar is-desktop ${isApiOnline === false ? 'is-offline' : isApiOnline === null ? 'is-checking' : ''}`}
+            role="status"
+            aria-live="polite"
+          >
+            <i aria-hidden="true" /> {isApiOnline === false ? '서비스 연결 끊김' : isApiOnline === null ? '서비스 연결 확인 중' : '서비스 연결됨'}
+          </span>
           <Dropdown onToggle={handleNotificationToggle}>
             <Dropdown.Toggle className="notification-button toggle-arrow-hide bg-transparent">
               <i className="mdi mdi-bell-outline" aria-hidden="true" />
@@ -143,14 +194,6 @@ const Navbar: React.FC = () => {
             </div>
           </div>
 
-          <button
-            className="navbar-toggler navbar-toggler-right d-lg-none"
-            type="button"
-            aria-label="메뉴 열기"
-            onClick={() => document.querySelector('.sidebar-offcanvas')?.classList.toggle('active')}
-          >
-            <i className="mdi mdi-menu" aria-hidden="true" />
-          </button>
         </div>
       </div>
     </nav>

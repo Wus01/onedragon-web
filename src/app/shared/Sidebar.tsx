@@ -9,6 +9,12 @@ const Sidebar: React.FC = () => {
 
   const isPathActive = (path: string): boolean => location.pathname.startsWith(path);
 
+  const closeMobileSidebar = () => {
+    if (window.matchMedia('(max-width: 991px)').matches) {
+      document.querySelector('.sidebar-offcanvas')?.classList.remove('active');
+    }
+  };
+
   const handleLogout = () => {
     if (!window.confirm('로그아웃 하시겠습니까?')) return;
 
@@ -26,7 +32,7 @@ const Sidebar: React.FC = () => {
   return (
     <nav className="sidebar sidebar-offcanvas onedragon-sidebar" id="sidebar" aria-label="주요 메뉴">
       <div className="sidebar-branding">
-        <Link to="/hiringList" className="sidebar-brand-link" aria-label="일용이네 채용 공고로 이동">
+        <Link to="/hiringList" className="sidebar-brand-link" aria-label="일용이네 채용 공고로 이동" onClick={closeMobileSidebar}>
           <span className="sidebar-brand-mark">
             <i className="mdi mdi-briefcase-check-outline" aria-hidden="true" />
           </span>
@@ -41,7 +47,7 @@ const Sidebar: React.FC = () => {
       <ul className="nav onedragon-nav">
         {menuItems.map((item) => (
           <li key={item.path} className={isPathActive(item.path) ? 'nav-item active' : 'nav-item'}>
-            <Link className="nav-link" to={item.path}>
+            <Link className="nav-link" to={item.path} onClick={closeMobileSidebar}>
               <i className={`mdi ${item.icon} menu-icon`} aria-hidden="true" />
               <span className="menu-title">{item.label}</span>
               <i className="mdi mdi-chevron-right menu-chevron" aria-hidden="true" />
@@ -58,7 +64,7 @@ const Sidebar: React.FC = () => {
         </span>
         <strong>빠르게 일할 곳을 찾나요?</strong>
         <p>우리 동네 최신 공고를 바로 확인해 보세요.</p>
-        <Link to="/hiringList">공고 둘러보기</Link>
+        <Link to="/hiringList" onClick={closeMobileSidebar}>공고 둘러보기</Link>
       </div>
 
       <button type="button" className="sidebar-logout" onClick={handleLogout}>

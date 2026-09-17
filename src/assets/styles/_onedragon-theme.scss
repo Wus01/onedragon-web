@@ -238,6 +238,11 @@ a:hover {
   transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease;
 }
 
+.onedragon-sidebar.sidebar .onedragon-nav .nav-item .nav-link::before {
+  display: none !important;
+  content: none !important;
+}
+
 .onedragon-sidebar.sidebar .onedragon-nav .nav-item .nav-link:hover {
   color: #fff;
   background: rgba(255, 255, 255, 0.08);
@@ -392,13 +397,39 @@ a:hover {
   background: #f0f6f4;
 }
 
-.onedragon-navbar .navbar-toggler i {
-  font-size: 23px;
+.onedragon-navbar .hamburger-icon,
+.onedragon-navbar .hamburger-icon::before,
+.onedragon-navbar .hamburger-icon::after {
+  display: block;
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+.onedragon-navbar .hamburger-icon {
+  position: relative;
+}
+
+.onedragon-navbar .hamburger-icon::before,
+.onedragon-navbar .hamburger-icon::after {
+  position: absolute;
+  left: 0;
+  content: '';
+}
+
+.onedragon-navbar .hamburger-icon::before {
+  top: -6px;
+}
+
+.onedragon-navbar .hamburger-icon::after {
+  top: 6px;
 }
 
 .navbar-heading {
   display: flex;
   flex-direction: column;
+  margin-left: 8px;
   line-height: 1.3;
 }
 
@@ -425,6 +456,14 @@ a:hover {
   color: var(--od-ink);
 }
 
+.mobile-brand-name {
+  color: inherit;
+}
+
+.mobile-brand-name:hover {
+  color: inherit;
+}
+
 .mobile-brand-mark {
   width: 36px;
   height: 36px;
@@ -439,7 +478,12 @@ a:hover {
 .navbar-actions {
   display: flex;
   align-items: center;
-  gap: 13px;
+  gap: 12px;
+}
+
+.navbar-actions > .dropdown {
+  display: flex;
+  align-items: center;
 }
 
 .onedragon-navbar .notification-button {
@@ -461,7 +505,14 @@ a:hover {
 }
 
 .onedragon-navbar .notification-button i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  margin: 0 !important;
   font-size: 21px;
+  line-height: 1;
 }
 
 .notification-count {
@@ -576,9 +627,10 @@ a:hover {
 .navbar-profile {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   min-width: 126px;
-  padding-left: 3px;
+  min-height: 42px;
+  padding-left: 0;
 }
 
 .navbar-profile img {
@@ -4092,6 +4144,40 @@ a:hover {
 }
 
 @media (max-width: 991px) {
+  .onedragon-navbar .navbar-menu-wrapper {
+    gap: 8px;
+  }
+
+  .navbar-heading {
+    display: none !important;
+  }
+
+  .mobile-brand {
+    flex: 0 0 auto;
+    gap: 8px;
+  }
+
+  .onedragon-navbar .mobile-menu-toggler {
+    display: inline-flex !important;
+    flex: 0 0 auto;
+    margin-right: 0;
+    padding: 0;
+    border: 0;
+    cursor: pointer;
+  }
+
+  .mobile-brand-mark,
+  .onedragon-navbar .notification-button,
+  .navbar-profile img,
+  .onedragon-navbar .navbar-toggler {
+    width: 38px;
+    height: 38px;
+  }
+
+  .navbar-actions {
+    gap: 8px;
+  }
+
   .onedragon-sidebar.sidebar {
     width: 248px;
     transform: translateX(-100%) !important;
@@ -4160,6 +4246,7 @@ a:hover {
   }
 
   .onedragon-navbar .navbar-menu-wrapper {
+    gap: 8px;
     height: 66px;
   }
 
@@ -4173,13 +4260,20 @@ a:hover {
     gap: 8px;
   }
 
-  .navbar-profile {
-    min-width: auto;
+  .mobile-brand {
+    flex: 0 0 auto;
+    gap: 8px;
   }
 
+  .mobile-brand-mark,
+  .onedragon-navbar .notification-button,
   .navbar-profile img {
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
+  }
+
+  .navbar-profile {
+    min-width: auto;
   }
 
   .notification-menu.navbar-dropdown {

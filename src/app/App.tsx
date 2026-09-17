@@ -1,4 +1,4 @@
-import React, {Component, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useLocation, withRouter} from 'react-router-dom';
 import './App.scss';
 import AppRoutes from './AppRoutes';
@@ -8,12 +8,48 @@ import SettingsPanel from './shared/SettingsPanel';
 import Footer from './shared/Footer';
 import {useTranslation, withTranslation} from "react-i18next";
 
+const API_BASE_URL = (process.env.REACT_APP_API_URL ?? 'http://localhost:8080/api').replace(/\/$/, '');
+const SERVICE_CHECK_INTERVAL = 30000;
+
 // class App extends Component {
 const App: React.FC = () => {
+  const [isApiOnline, setIsApiOnline] = useState<boolean | null>(null);
+
   // 1. 현재 라우트(URL) 정보 가져오기
   const location = useLocation();
 
   const { i18n } = useTranslation();
+
+  useEffect(() => {
+    let isMounted = true;
+    let activeController: AbortController | null = null;
+
+    const checkService = async () => {
+      activeController?.abort();
+      activeController = new AbortController();
+
+      try {
+        await fetch(`${API_BASE_URL}/hiring/getHirings?page=0&size=1`, {
+          method: 'GET',
+          signal: activeController.signal,
+        });
+        if (isMounted) setIsApiOnline(true);
+      } catch (error) {
+        if (isMounted && (error as Error).name !== 'AbortError') {
+          setIsApiOnline(false);
+        }
+      }
+    };
+
+    void checkService();
+    const intervalId = window.setInterval(() => void checkService(), SERVICE_CHECK_INTERVAL);
+
+    return () => {
+      isMounted = false;
+      activeController?.abort();
+      window.clearInterval(intervalId);
+    };
+  }, []);
 
   // 1. 풀페이지 레이아웃 경로 목록
   const fullPageLayoutRoutes: string[] = [
@@ -66,9 +102,19 @@ const App: React.FC = () => {
   }, [location.pathname, isFullPageLayout, i18n]);
 
   return (
+    <div>
+      {isFullPageLayout && (
+        <span
+          className={`service-state ${isApiOnline === false ? 'is-offline' : isApiOnline === null ? 'is-checking' : ''}`}
+          role="status"
+          aria-live="polite"
+        >
+          <i aria-hidden="true" /> {isApiOnline === false ? '서비스 연결 끊김' : isApiOnline === null ? '서비스 연결 확인 중' : '서비스 연결됨'}
+        </span>
+      )}
       <div className={`container-scroller onedragon-shell ${isFullPageLayout ? 'is-full-page' : ''}`}>
         {/* 풀페이지가 아닐 때만 Navbar 렌더링 */}
-        {!isFullPageLayout && <Navbar />}
+        {!isFullPageLayout && <Navbar isApiOnline={isApiOnline} />}
         <div className="container-fluid page-body-wrapper">
           {/* 풀페이지가 아닐 때만 Sidebar 렌더링 */}
           {!isFullPageLayout && <Sidebar />}
@@ -85,6 +131,7 @@ const App: React.FC = () => {
           </div>
         </div>
       </div>
+    </div>
     );
 }
 
