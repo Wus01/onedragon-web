@@ -1,592 +1,308 @@
-import React, {useEffect, useReducer, useRef, useState} from 'react';
-import CustomDatePicker from './Datepicker';
-import { ko } from 'date-fns/locale';
-import styled from '@emotion/styled';
-import '../../assets/css/modal.css';
+import React, {useEffect, useState} from 'react';
+import {Modal as BootstrapModal} from 'react-bootstrap';
 import dayjs, {Dayjs} from 'dayjs';
-import { postHiring } from '../../api/hiringBoardApi';
-import {useHistory} from "react-router-dom";
-import {Form, InputGroup, Modal} from "react-bootstrap";
-import StoreSearchPopup from "../form-elements/StoreSearchPopup";
+import {postHiring} from '../../api/hiringBoardApi';
+import StoreSearchPopup from '../form-elements/StoreSearchPopup';
+import CustomDatePicker from './Datepicker';
 
 interface CustModalProps {
   open: boolean;
-  close: ()=> void;
+  close: () => void;
   header: string;
   onSaveSuccess?: () => void;
 }
-const CustModal = (props: CustModalProps) => {
-  // 열기, 닫기, 모달 헤더 텍스트를 부모로부터 받아옴
-  const { open, close, header, onSaveSuccess} = props;
-  const [selectedStoreId, setSelectedStoreId] = useState<number|null>(null);
-  const [storeName, setStoreName] = useState("");
 
-  // const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-  //   setSelectedStoreId(e.target.value);
-  // };
-
-  // 지점, 업무, 협의여부, 긴급성, 제목, 내용
-  const [store, setStore] = useState("");
-  const [serviceTp, setServiceTp] = useState("편의점");
-  const [negotiYn, setNegotiYn] = useState(true);
-  const [isChecked, setIsChecked] = useState(true);  // 협의 체크 데이터
-  const [urgencyYn, setUrgencyYn] = useState("일반");
-  const [hiringTitle, setHiringTitle] = useState("");
-  const [hiringText, setHiringText] = useState("");
-
-  const [title, setTitle] = useState("")
-  const [text, setText] = useState("")
-  
-  // 1. State 선언 (타입 지정 부분 삭제)
+const CustModal: React.FC<CustModalProps> = ({open, close, header, onSaveSuccess}) => {
+  const [selectedStoreId, setSelectedStoreId] = useState<number | null>(null);
+  const [storeName, setStoreName] = useState('');
   const [selectedStartDate, setSelectedStartDate] = useState<Date | Dayjs | null>(null);
-  const [startDate, setStartDate] = useState<string | undefined>(undefined);
-
   const [selectedEndDate, setSelectedEndDate] = useState<Date | Dayjs | null>(null);
-  const [endDate, setEndDate] = useState<string | undefined>(undefined);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [isNegotiable, setIsNegotiable] = useState(true);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [showStoreSearch, setShowStoreSearch] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const [dateBtn, setDateBtn] = useState('전체');
-  const [isDateDisabled, setIsDateDisabled] = useState(false);
+  useEffect(() => {
+    if (!open) return;
 
-  // const [storeId, setStoreId] = useState<number|null>(null);
-  const [status, setStatus] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  // 💡 01(인증대기) 상태가 아닐 경우 읽기 전용 처리
-  // const isReadOnly = status !== '01';
+    const scrollY = window.scrollY;
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !showStoreSearch) close();
+    };
 
-
-
-  const openStoreSearch = () => {
-    setShowModal(true);
-  };
-
-
-  // 2. 시작 날짜 변경 핸들러
-  const handleStartDateChange = (date: Date | Dayjs | null) => {
-    setDateBtn('');
-    if (date) {
-      setSelectedStartDate(date);
-      setStartDate(dayjs(date).format('YYYY-MM-DD HH:mm')); // String()으로 감싸지 않아도 format은 문자열을 반환합니다.
-    }
-  };
-
-  // 3. 종료 날짜 변경 핸들러
-  const handleEndDateChange = (date: Date | Dayjs | null) => {
-    setDateBtn('');
-    if (date) {
-      setSelectedEndDate(date);
-      setEndDate(dayjs(date).format('YYYY-MM-DD HH:mm'));
-    }
-  };
-
-  // 업무 변경
-  const handleWorkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setServiceTp(value);
-    // console.log("선택된 업무 = ",value);
-
-  }
-
-  // 협의가능 변경
-  const handleNegotiChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // console.log("event === ",e.target.checked)
-    setIsChecked(e.target.checked);
-
-  }
-
-  // 긴급성 변경
-  const handleUrgencyYnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setUrgencyYn(value);
-  }
-
-  // 제목 변경
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setTitle(value);
-  }
-
-  // 내용 변경
-  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
-    setText(value);
-  }
-
-  // 데이터 리프레시
-  useEffect(()=> {
-    // setStore(selectedStoreId);
-    setNegotiYn(isChecked);
-    setHiringTitle(title);
-    setHiringText(text);
-
-    // 모달 띄울 때 부모화면 스크롤 방지
-    if(open){
-      const scrollY = window.scrollY;
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.left = '0';
-      document.body.style.right = '0';
-      document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', handleEscape);
 
     return () => {
-      // 3. 모달 닫힐 때 원래 스타일 복원 및 스크롤 위치 복구
       document.body.style.position = '';
       document.body.style.top = '';
       document.body.style.left = '';
       document.body.style.right = '';
       document.body.style.overflow = '';
+      document.removeEventListener('keydown', handleEscape);
       window.scrollTo(0, scrollY);
     };
-    };
-  }, [open]);
+  }, [open, showStoreSearch, close]);
 
-  const history = useHistory();
-
-  // 공고 저장
-    const saveHiring = async () => {
-
-    console.log("지점 -- ", selectedStoreId);
-    console.log("업종 -- ",serviceTp);
-    console.log("시작일자 -- ", startDate);
-    console.log("종료일자 -- ", endDate);
-    console.log("협의가능 -- ",negotiYn);
-    console.log("제목 -- ",title);
-    console.log("내용 -- ",text);
-    console.log("긴급성 -- ",urgencyYn);
-
-    const hiringData ={
-      storeInfo: {
-        storeId: selectedStoreId // 현재 선택된 가게의 ID
-      },
-      hiringSts: '01', // 01 : 미확정, 02 : 확정
-      serviceType: serviceTp,
-      workStartDate: startDate || "",
-      workEndDate: endDate || "",
-      negotiableYn: negotiYn === true ? "Y" as const : "N" as const ,
-      hiringTitle: title,
-      hiringText: text,
-      payPerHour: 8
-    }
-    try{
-      const response = await postHiring(hiringData);
-
-      if(response && (response.status === 200 || response.status === 201)){
-        alert("공고가 성공적으로 등록되었습니다.");
-        if (onSaveSuccess) onSaveSuccess();
-        resetForm();
-        close();
-      }else{
-        throw new Error("서버 응답 이상");
-      }
-    }catch(e){
-      alert("등록에 실패하였습니다.");
-      console.error(e);
-    }
-  }
-
-  // 점포 등록 개수에 따라 달라지게 !!
-  // const list = [{value:'3',name:'석호중앙점'}, {value:'4', name:'고잔중앙점'}];
-  //
-  // // 지점 리스트가 1개일 경우엔 자동 세팅되도록
-  // useEffect(() => {
-  //   if (list && list.length === 1) {
-  //     setStore(list[0].value);
-  //   }
-  // }, [list]); // list가 변경될 때마다 체크
-
-  // 💡 팝업에서 지점을 선택했을 때 실행될 함수
-  const handleSelectStore = (id: number, nm: string) => {
-    console.log("지점 선택 store_id: "+id);
-    setSelectedStoreId(id);
-    setStoreName(nm);
-
-    setShowModal(false);
+  const handleStartDateChange = (date: Date | Dayjs | null) => {
+    setSelectedStartDate(date);
+    setStartDate(date ? dayjs(date).format('YYYY-MM-DD HH:mm') : '');
   };
 
+  const handleEndDateChange = (date: Date | Dayjs | null) => {
+    setSelectedEndDate(date);
+    setEndDate(date ? dayjs(date).format('YYYY-MM-DD HH:mm') : '');
+  };
 
-  // 작성 후 초기화
+  const handleSelectStore = (id: number, name: string) => {
+    setSelectedStoreId(id);
+    setStoreName(name);
+    setShowStoreSearch(false);
+  };
+
   const resetForm = () => {
     setSelectedStoreId(null);
-    setNegotiYn(true);
-    setTitle("");
-    setText("");
+    setStoreName('');
     setSelectedStartDate(null);
     setSelectedEndDate(null);
-
-
-    setStoreName("");
-
+    setStartDate('');
+    setEndDate('');
+    setIsNegotiable(true);
+    setTitle('');
+    setDescription('');
   };
+
+  const saveHiring = async () => {
+    if (!selectedStoreId) {
+      alert('근무 지점을 선택해 주세요.');
+      return;
+    }
+    if (!startDate || !endDate) {
+      alert('근무 시작일과 종료일을 모두 선택해 주세요.');
+      return;
+    }
+    if (dayjs(endDate).isBefore(dayjs(startDate))) {
+      alert('종료일은 시작일보다 빠를 수 없습니다.');
+      return;
+    }
+    if (!title.trim()) {
+      alert('공고 제목을 입력해 주세요.');
+      return;
+    }
+    if (!description.trim()) {
+      alert('공고 내용을 입력해 주세요.');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const response = await postHiring({
+        storeInfo: {storeId: selectedStoreId},
+        hiringSts: '01',
+        serviceType: '편의점',
+        workStartDate: startDate,
+        workEndDate: endDate,
+        negotiableYn: isNegotiable ? 'Y' : 'N',
+        hiringTitle: title.trim(),
+        hiringText: description.trim(),
+        payPerHour: 8
+      });
+
+      if (!response || (response.status !== 200 && response.status !== 201)) {
+        throw new Error('공고 등록 응답이 올바르지 않습니다.');
+      }
+
+      alert('공고가 성공적으로 등록되었습니다.');
+      onSaveSuccess?.();
+      resetForm();
+      close();
+    } catch (error) {
+      console.error('공고 등록에 실패했습니다.', error);
+      alert('등록에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
-    // 모달이 열릴때 openModal 클래스가 생성된다.
-    <div className={open ? 'openModal modal' : 'modal'}>
-      {open ? (
-        <section style={{
-          marginTop: '60px',
-          maxHeight: '80vh',        /* ⭐️ 모달 전체 높이가 화면 높이의 85%를 넘지 않게 고정 */
-          maxWidth: '500px',        /* 모바일/PC 모두 적절한 최대 너비 */
-          width: '90%',             /* 모바일에서는 화면 너비의 90% 차치 */
-          display: 'flex',
-          flexDirection: 'column',
-          borderRadius: '12px',
-          overflow: 'hidden'
-
-        }}>
-          <header>
-            {header}
-            <button className="close" onClick={close}>
-              &times;
-            </button>
-          </header>
-          {/* <main>{props.children}</main> */}
-          <main style={{
-            flex: 1,
-            overflowY: 'auto',      /* ⭐️ 내용이 길면 main 안에서만 스크롤! */
-            padding: '15px'
-          }}>
-            <div className="row mb-3 align-items-center text-nowrap">
-              {/* 💡 col-sm-3 대신 col-3 (또는 col-4)을 쓰면 모바일에서도 줄바꿈 없이 비율을 유지합니다 */}
-              <label className="col-3 col-sm-2 fw-bold">지점명</label>
-
-              <div className="col-9 col-sm-10">
-                {/* 💡 input-group: 인풋과 버튼을 한 덩어리로 예쁘게 붙여줍니다! */}
-                <div className="input-group">
-                  <input
-                      type="text"
-                      className="form-control" // 👈 부트스트랩 기본 인풋 폼 스타일
-                      placeholder="지점을 검색하세요"
-                      value={storeName || ""}
-                      readOnly
-                      onClick={openStoreSearch}
-                      style={{
-                        cursor: 'pointer',
-                        backgroundColor: '#fff',
-                        color: '#495057'
-                      }}
-                  />
-                  <button
-                      className="btn btn-outline-secondary" // 👈 버튼 테두리 스타일
-                      type="button"
-                      onClick={openStoreSearch}
-                  >
-                    🔍
-                  </button>
+    <>
+      <div
+        className={`hiring-modal-overlay ${open ? 'is-open' : ''}`}
+        onMouseDown={(event) => {
+          if (event.target === event.currentTarget) close();
+        }}
+      >
+        {open && (
+          <section
+            className="hiring-modal-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="hiring-modal-title"
+          >
+            <header className="hiring-modal-header">
+              <div className="hiring-modal-heading">
+                <span className="hiring-modal-heading-icon" aria-hidden="true">
+                  <i className="mdi mdi-briefcase-plus" />
+                </span>
+                <div>
+                  <span className="hiring-modal-eyebrow">NEW OPENING</span>
+                  <h2 id="hiring-modal-title">{header}</h2>
+                  <p>필요한 근무 조건을 입력하고 우리 동네 인재를 만나보세요.</p>
                 </div>
               </div>
-            </div>
-            {/* 1. 업무 (라디오 버튼) : 일단 편의점만이니까 지워봄*/}
-            {/*<div className="row mb-3 align-items-center">*/}
-            {/*  /!* 왼쪽 라벨 *!/*/}
-            {/*  <label className="col-3 col-sm-2 fw-bold mb-0">업무</label>*/}
+              <button className="hiring-modal-close" type="button" aria-label="팝업 닫기" onClick={close}>
+                <i className="mdi mdi-close" aria-hidden="true" />
+              </button>
+            </header>
 
-            {/*  <div className="col-9 col-sm-10">*/}
-            {/*    /!* 💡 form-check-inline: 라디오 버튼들을 가로로 예쁘게 배치해주는 부트스트랩 공식 클래스 *!/*/}
-            {/*    /!* 💡 me-4 (margin-end-4): '편의점'과 다음 '카페' 라디오 버튼 사이를 시원하게 띄워줍니다 *!/*/}
-            {/*    <div className="form-check form-check-inline me-4">*/}
-            {/*      <input*/}
-            {/*          className="form-check-input"*/}
-            {/*          type="radio"*/}
-            {/*          value="편의점"*/}
-            {/*          name="업무"*/}
-            {/*          id="workConvenience"*/}
-            {/*          checked={serviceTp === "편의점"}*/}
-            {/*          onChange={handleWorkChange}*/}
-            {/*      />*/}
-            {/*      <label className="form-check-label" htmlFor="workConvenience">*/}
-            {/*        편의점*/}
-            {/*      </label>*/}
-            {/*    </div>*/}
+            <form onSubmit={(event) => { event.preventDefault(); saveHiring(); }}>
+              <main className="hiring-modal-body">
+                <div className="hiring-modal-progress" aria-label="공고 작성 순서">
+                  <span className={selectedStoreId ? 'is-complete' : 'is-current'}><b>1</b> 지점 선택</span>
+                  <i className="mdi mdi-chevron-right" aria-hidden="true" />
+                  <span className={startDate && endDate ? 'is-complete' : selectedStoreId ? 'is-current' : ''}><b>2</b> 근무 일정</span>
+                  <i className="mdi mdi-chevron-right" aria-hidden="true" />
+                  <span className={title && description ? 'is-complete' : startDate && endDate ? 'is-current' : ''}><b>3</b> 공고 내용</span>
+                </div>
 
-            {/*    <div className="form-check form-check-inline">*/}
-            {/*      <input*/}
-            {/*          className="form-check-input"*/}
-            {/*          type="radio"*/}
-            {/*          value="카페"*/}
-            {/*          name="업무"*/}
-            {/*          id="workCafe"*/}
-            {/*          checked={serviceTp === "카페"}*/}
-            {/*          onChange={handleWorkChange}*/}
-            {/*      />*/}
-            {/*      <label className="form-check-label" htmlFor="workCafe">*/}
-            {/*        카페*/}
-            {/*      </label>*/}
-            {/*    </div>*/}
-            {/*  </div>*/}
-            {/*</div>*/}
-
-            {/* 2. 근무 일자 (데이트 피커 + 체크박스) */}
-            <div className="row mb-3 align-items-center">
-              <label className="col-3 col-sm-2 fw-bold mb-0">
-                근무<br />일시
-              </label>
-              <div className="col-9 col-sm-10">
-
-                <div className="d-flex align-items-center flex-wrap gap-2">
-
-                  {/* 💡 겉 껍데기(div) 테두리는 지웠습니다! */}
-                  <div>
-                    <CustomDatePicker
-                        selectedDate={selectedStartDate}
-                        onChange={(date) => handleStartDateChange(date)}
-                        placeholder="시작일자 및 시간"
-                    />
+                <section className="hiring-form-section">
+                  <div className="hiring-form-section-title">
+                    <span>01</span>
+                    <div>
+                      <h3>어디에서 근무하나요?</h3>
+                      <p>채용을 진행할 지점을 선택해 주세요.</p>
+                    </div>
                   </div>
+                  <button
+                    className={`hiring-store-selector ${storeName ? 'has-value' : ''}`}
+                    type="button"
+                    onClick={() => setShowStoreSearch(true)}
+                  >
+                    <span className="hiring-store-selector-icon"><i className="mdi mdi-store" /></span>
+                    <span className="hiring-store-selector-copy">
+                      <strong>{storeName || '근무 지점을 검색해 주세요'}</strong>
+                      <small>{storeName ? '선택된 지점' : '등록된 지점 목록에서 선택할 수 있어요.'}</small>
+                    </span>
+                    <span className="hiring-store-search-action">
+                      <i className="mdi mdi-magnify" />검색
+                    </span>
+                  </button>
+                </section>
 
-                  {/* 💡 text-secondary를 제거해서 완전 진한 색(기본 검정)으로 눈에 확 띄게 바꿨습니다. mx-1로 양옆 여백도 살짝 줬습니다. */}
-                  <span className="fw-bold mx-1">~</span>
-
-                  <div>
-                    <CustomDatePicker
+                <section className="hiring-form-section">
+                  <div className="hiring-form-section-title">
+                    <span>02</span>
+                    <div>
+                      <h3>근무 일정을 알려주세요.</h3>
+                      <p>시작과 종료 날짜 및 시간을 선택해 주세요.</p>
+                    </div>
+                  </div>
+                  <div className="hiring-date-grid">
+                    <label className="hiring-date-field">
+                      <span><i className="mdi mdi-calendar" />시작 일시</span>
+                      <CustomDatePicker
+                        selectedDate={selectedStartDate}
+                        onChange={handleStartDateChange}
+                        placeholder="시작일자 및 시간"
+                      />
+                    </label>
+                    <span className="hiring-date-divider" aria-hidden="true"><i className="mdi mdi-arrow-right" /></span>
+                    <label className="hiring-date-field">
+                      <span><i className="mdi mdi-calendar" />종료 일시</span>
+                      <CustomDatePicker
                         selectedDate={selectedEndDate}
-                        onChange={(date) => handleEndDateChange(date)}
+                        onChange={handleEndDateChange}
                         placeholder="종료일자 및 시간"
                         placement="bottom-end"
-                    />
+                        minDate={selectedStartDate ? dayjs(selectedStartDate).toDate() : undefined}
+                      />
+                    </label>
                   </div>
-
-                </div>
-
-                {/* 협의가능 체크박스 */}
-                <div className="mt-2">
-                  <label className="d-flex align-items-center mb-0 text-muted" style={{ fontSize: '14px', cursor: 'pointer' }}>
+                  <label className="hiring-negotiable-option">
                     <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={handleNegotiChange}
-                        style={{ marginRight: '6px' }}
+                      type="checkbox"
+                      checked={isNegotiable}
+                      onChange={(event) => setIsNegotiable(event.target.checked)}
                     />
-                    협의가능
+                    <span className="hiring-checkmark"><i className="mdi mdi-check" /></span>
+                    <span>
+                      <strong>근무 일정 협의 가능</strong>
+                      <small>지원자와 세부 일정을 조율할 수 있어요.</small>
+                    </span>
                   </label>
+                </section>
+
+                <section className="hiring-form-section">
+                  <div className="hiring-form-section-title">
+                    <span>03</span>
+                    <div>
+                      <h3>공고 내용을 작성해 주세요.</h3>
+                      <p>지원자가 빠르게 이해할 수 있도록 구체적으로 작성해 주세요.</p>
+                    </div>
+                  </div>
+                  <label className="hiring-text-field">
+                    <span>공고 제목 <b>{title.length}/60</b></span>
+                    <input
+                      className="form-control"
+                      type="text"
+                      value={title}
+                      maxLength={60}
+                      onChange={(event) => setTitle(event.target.value)}
+                      placeholder="예: 중앙점 평일 저녁 근무자 모집"
+                    />
+                  </label>
+                  <label className="hiring-text-field">
+                    <span>상세 내용 <b>{description.length}/500</b></span>
+                    <textarea
+                      className="form-control"
+                      value={description}
+                      maxLength={500}
+                      onChange={(event) => setDescription(event.target.value)}
+                      placeholder="담당 업무, 근무 환경, 원하는 인재상 등을 알려주세요."
+                    />
+                  </label>
+                </section>
+
+                <div className="hiring-form-tip">
+                  <i className="mdi mdi-lightbulb-on-outline" aria-hidden="true" />
+                  <p><strong>작성 팁</strong> 구체적인 근무 시간과 업무 내용을 적으면 적합한 지원자를 더 빨리 만날 수 있어요.</p>
                 </div>
+              </main>
 
-              </div>
-            </div>
+              <footer className="hiring-modal-footer">
+                <button className="hiring-modal-cancel" type="button" onClick={close}>취소</button>
+                <button className="hiring-modal-submit" type="submit" disabled={isSaving}>
+                  {isSaving ? <><span className="hiring-submit-spinner" />등록 중...</> : <><i className="mdi mdi-check" />공고 등록하기</>}
+                </button>
+              </footer>
+            </form>
+          </section>
+        )}
+      </div>
 
-            {/* 3. 긴급성 (라디오 버튼) : 어차피 다 급할거같아서 일단 지워봄 */}
-            {/*<div className="row mb-3 align-items-center">*/}
-            {/*  <label className="col-3 col-sm-2 fw-bold">긴급성</label>*/}
-            {/*  <div className="col-9 col-sm-10 d-flex gap-3">*/}
-            {/*    <div className="form-check mb-0">*/}
-            {/*      <input className="form-check-input" type="radio" value="일반" name="긴급성" id="urgencyNormal" checked={urgencyYn === "일반"} onChange={handleUrgencyYnChange} />*/}
-            {/*      <label className="form-check-label" htmlFor="urgencyNormal">일반</label>*/}
-            {/*    </div>*/}
-            {/*    <div className="form-check mb-0">*/}
-            {/*      <input className="form-check-input" type="radio" value="급구" name="긴급성" id="urgencyUrgent" checked={urgencyYn === "급구"} onChange={handleUrgencyYnChange} />*/}
-            {/*      <label className="form-check-label" htmlFor="urgencyUrgent">급구</label>*/}
-            {/*    </div>*/}
-            {/*  </div>*/}
-            {/*</div>*/}
-
-            {/*/!* 4. 제목 (입력창) *!/*/}
-            <div className="row mb-3 align-items-center">
-              {/* 입력창과 라벨 높이를 맞추기 위해 pt-1(padding-top) 추가 */}
-              <label className="col-3 col-sm-2 fw-bold pt-1">제목</label>
-              <div className="col-9 col-sm-10">
-                {/* height: 30인 textarea는 사실 input text와 같으므로 깔끔하게 input으로 변경했습니다 */}
-                <input
-                    type="text"
-                    className="form-control"
-                    value={title}
-                    onChange={handleTitleChange}
-                    placeholder="지점 + 업무 + 주/야간 + 긴급성"
-                />
-              </div>
-            </div>
-
-            {/* 5. 내용 (텍스트 에어리어) */}
-            <div className="row mb-3">
-              {/* 여기는 textarea가 크니까 수직 중앙 정렬(align-items-center)을 빼서 라벨이 위로 붙게 했습니다 */}
-              <label className="col-3 col-sm-2 fw-bold pt-2">내용</label>
-              <div className="col-9 col-sm-10">
-    <textarea
-        className="form-control"
-        style={{ height: '150px' }}
-        value={text}
-        onChange={handleTextChange}
-        placeholder="업무 내용 및 원하는 인재상"
-    />
-              </div>
-            </div>
-
-
-            {/*<div className="row mb-3 align-items-center">*/}
-            {/*  <label className="col-sm-3 fw-bold" style={{margin:15}}>지점명</label>*/}
-            {/*  <div className="col-sm-6" >*/}
-            {/*      <input*/}
-            {/*          type="text"*/}
-            {/*          placeholder="지점을 검색하세요"*/}
-            {/*          value={storeName|| ""}*/}
-            {/*          readOnly*/}
-            {/*          // 💡 '01' 상태일 때만 클릭 시 팝업이 뜨도록 설정합니다.*/}
-            {/*          onClick={ openStoreSearch }*/}
-            {/*          style={{*/}
-            {/*            // 💡 클릭 가능 여부에 따라 커서 모양 변경*/}
-            {/*            cursor: 'pointer',*/}
-            {/*            // 💡 상태가 '01'이면 흰색(#fff), 아니면 부트스트랩 기본 회색(#e9ecef)*/}
-            {/*            backgroundColor: '#fff',*/}
-            {/*            // 💡 disabled 속성을 제거했으므로 글자색이 흐려지지 않습니다.*/}
-            {/*            color: '#495057',*/}
-            {/*            marginLeft: '-65px'*/}
-            {/*          }}*/}
-            {/*          // 💡 disabled={isReadOnly} 를 제거하여 회색 필터가 씌워지는 것을 방지합니다.*/}
-            {/*      />*/}
-            {/*      <button*/}
-            {/*          onClick={ openStoreSearch }*/}
-            {/*          style={{*/}
-            {/*            cursor:  'pointer',*/}
-            {/*            backgroundColor:  '#fff'*/}
-            {/*          }}*/}
-            {/*      >*/}
-            {/*        🔍*/}
-            {/*      </button>*/}
-            {/*  </div>*/}
-            {/*</div>*/}
-            {/*<div>*/}
-            {/*  <label style={{margin:15}}>업무</label>*/}
-            {/*  <label style={{marginLeft:30}}>*/}
-            {/*    <input*/}
-            {/*      type="radio"*/}
-            {/*      value="편의점"*/}
-            {/*      name="업무"*/}
-            {/*      checked={serviceTp === "편의점"}*/}
-            {/*      onChange={handleWorkChange}*/}
-            {/*    />*/}
-            {/*    편의점*/}
-            {/*  </label>*/}
-            {/*  <label style={{marginLeft:10}}>*/}
-            {/*    <input*/}
-            {/*      type="radio"*/}
-            {/*      value="카페"*/}
-            {/*      name="업무"*/}
-            {/*      checked={serviceTp === "카페"}*/}
-            {/*      onChange={handleWorkChange}*/}
-            {/*    />*/}
-            {/*    카페*/}
-            {/*  </label>*/}
-            {/*</div>*/}
-            {/*<div style={{ padding: '10px 15px' }}>*/}
-            {/*  <label style={{ marginBottom: '8px', display: 'block' }}>*/}
-            {/*    근무 일자*/}
-            {/*  </label>*/}
-
-            {/*  /!* flex-wrap: wrap 속성을 활용해 넓으면 가로 배치, 좁으면(모바일) 자동으로 위아래 배치! *!/*/}
-            {/*  <div style={{*/}
-            {/*    display: 'flex',*/}
-            {/*    alignItems: 'center'*/}
-            {/*  }}>*/}
-            {/*    <div>*/}
-            {/*      <CustomDatePicker*/}
-            {/*          selectedDate={selectedStartDate}*/}
-            {/*          onChange={(date) => handleStartDateChange(date)}*/}
-            {/*          placeholder="시작일자 및 시간"*/}
-            {/*      />*/}
-            {/*    </div>*/}
-            {/*      <div style={{*/}
-            {/*        // flex: '0 0 auto',       // 💡 크기가 늘어나거나 줄어들지 않고 딱 자기 크기만 유지!*/}
-            {/*        // textAlign: 'center',    // 💡 텍스트 중앙 정렬*/}
-            {/*        fontWeight: 'bold',     // (선택) 조금 두껍게 하면 더 잘 보입니다.*/}
-            {/*        color: '#6c757d',       // (선택) 너무 튀지 않게 약간 회색으로 처리*/}
-            {/*        // padding: '0 5px'        // 양옆 여백을 살짝 줍니다.*/}
-            {/*        margin: '0 15px'*/}
-            {/*      }}>*/}
-            {/*        ~*/}
-            {/*      </div>*/}
-            {/*    <div style={{ flex: '0 1 200px' }}>*/}
-            {/*      <CustomDatePicker*/}
-            {/*          selectedDate={selectedEndDate}*/}
-            {/*          onChange={(date) => handleEndDateChange(date)}*/}
-            {/*          placeholder="종료일자 및 시간"*/}
-            {/*      />*/}
-            {/*    </div>*/}
-            {/*  </div>*/}
-
-            {/*  /!* 협의가능 체크박스 *!/*/}
-            {/*  <div style={{ marginTop: '10px' }}>*/}
-            {/*    <label style={{ cursor: 'pointer', fontSize: '14px' }}>*/}
-            {/*      <input*/}
-            {/*          type='checkbox'*/}
-            {/*          checked={isChecked}*/}
-            {/*          onChange={handleNegotiChange}*/}
-            {/*          style={{ marginRight: '6px' }}*/}
-            {/*      />*/}
-            {/*      협의가능*/}
-            {/*    </label>*/}
-            {/*  </div>*/}
-            {/*</div>*/}
-            {/*<div>*/}
-            {/*  <label style={{margin:15}}>긴급성</label>*/}
-            {/*  <label style={{margin:15}}>*/}
-            {/*    <input*/}
-            {/*      type="radio"*/}
-            {/*      value="일반"*/}
-            {/*      name="긴급성"*/}
-            {/*      checked={urgencyYn === "일반"}*/}
-            {/*      onChange={handleUrgencyYnChange}                  */}
-            {/*    />*/}
-            {/*    일반*/}
-            {/*  </label>*/}
-            {/*  <label>*/}
-            {/*    <input*/}
-            {/*      type="radio"*/}
-            {/*      value="급구"*/}
-            {/*      name="긴급성"*/}
-            {/*      checked={urgencyYn === "급구"}*/}
-            {/*      onChange={handleUrgencyYnChange}*/}
-            {/*    />*/}
-            {/*    급구*/}
-            {/*  </label>*/}
-            {/*</div>*/}
-            {/*<div>*/}
-            {/*  <label style={{marginLeft:15, marginTop:15}}>*/}
-            {/*    제목*/}
-            {/*    <textarea*/}
-            {/*      style={{marginLeft:45, width:346, height:30, verticalAlign: 'top'}}*/}
-            {/*      value={title}*/}
-            {/*      onChange={handleTitleChange}*/}
-            {/*      placeholder='지점 + 업무 + 주/야간 + 긴급성'*/}
-            {/*    />*/}
-            {/*  </label>*/}
-            {/*</div>*/}
-            {/*<div>*/}
-            {/*  <label style={{marginLeft:15, marginTop:5}}>*/}
-            {/*    내용*/}
-            {/*    <textarea*/}
-            {/*      style={{marginLeft:45, width:346, height:150, verticalAlign: 'top'}}*/}
-            {/*      value={text}*/}
-            {/*      onChange={handleTextChange}*/}
-            {/*      placeholder='업무 내용 및 원하는 인재상??'*/}
-            {/*    />*/}
-            {/*  </label>*/}
-            {/*</div>*/}
-          </main>
-          <footer>
-            <button onClick={close}>
-              close
-            </button>
-            <button onClick={saveHiring} style={{marginLeft:10, backgroundColor:'#1388f6ff'}}>
-              save
-            </button>
-          </footer>
-        </section>
-      ) : null}
-
-      {/* 공고작성> 지점검색 팝업 모달*/}
-      <Modal
-          show={showModal}
-          onHide={() => setShowModal(false)}
-          centered  // 화면 정중앙에 배치
-          dialogClassName="custom-modal-size"
-          scrollable
-          style={{zIndex:1060}}
+      <BootstrapModal
+        show={showStoreSearch}
+        onHide={() => setShowStoreSearch(false)}
+        centered
+        dialogClassName="custom-modal-size store-search-modal"
+        scrollable
+        style={{zIndex: 1060}}
       >
-        <Modal.Header closeButton>
-          <Modal.Title className="fw-bold">🏢 지점 검색</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {/* 팝업 컴포넌트를 렌더링하고, 선택 시 실행할 함수를 props로 넘겨줍니다! */}
+        <BootstrapModal.Header closeButton>
+          <BootstrapModal.Title><i className="mdi mdi-store-search-outline" />근무 지점 검색</BootstrapModal.Title>
+        </BootstrapModal.Header>
+        <BootstrapModal.Body>
           <StoreSearchPopup onSelectStore={handleSelectStore} />
-        </Modal.Body>
-      </Modal>
-    </div>
+        </BootstrapModal.Body>
+      </BootstrapModal>
+    </>
   );
 };
 

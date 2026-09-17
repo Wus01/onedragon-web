@@ -1,95 +1,108 @@
 import React, {forwardRef, useEffect, useState} from 'react';
 import DatePicker from 'react-datepicker';
-import { ko } from 'date-fns/locale';
-import "react-datepicker/dist/react-datepicker.css";
-import {Dayjs} from "dayjs";
+import {ko} from 'date-fns/locale';
+import dayjs, {Dayjs} from 'dayjs';
+import 'react-datepicker/dist/react-datepicker.css';
 
-interface CustomInputProps {
-  value? : string;
-  onClick? : (e: React.MouseEvent<HTMLButtonElement>) => void;
-
+interface CalendarInputProps {
+  value?: string;
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  placeholder?: string;
+  disabled?: boolean;
 }
 
-// 입력창을 커스텀하고 싶을 때 사용하는 내부 컴포넌트
-const CustomInput = forwardRef<HTMLButtonElement, CustomInputProps>(({ value, onClick }, ref) => (
-  <button className="custom-datepicker-button" onClick={onClick} ref={ref}>
-    {value || "날짜를 선택하세요"}
+const CalendarInput = forwardRef<HTMLButtonElement, CalendarInputProps>(({
+  value,
+  onClick,
+  placeholder,
+  disabled
+}, ref) => (
+  <button
+    className={`onedragon-date-input ${value ? 'has-value' : ''}`}
+    type="button"
+    onClick={onClick}
+    ref={ref}
+    disabled={disabled}
+  >
+    <i className="mdi mdi-calendar" aria-hidden="true" />
+    <span>{value || placeholder || '날짜를 선택하세요'}</span>
+    <i className="mdi mdi-chevron-down" aria-hidden="true" />
   </button>
 ));
 
-CustomInput.displayName = 'CustomInput'; //forwardRef 사용 시 에러 방지용 이름 지정
+CalendarInput.displayName = 'CalendarInput';
 
 interface CustomDatePickerProps {
   selectedDate: Date | Dayjs | null;
-  onChange: (date: Date | null, event: React.SyntheticEvent<any> | undefined) => void; //react-datepicker 전용 onChange 타입
-  showTime?: boolean; // 있을 수도 없을 수도 있으니 ? 추가
+  onChange: (date: Date | null, event?: React.SyntheticEvent<any>) => void;
+  showTime?: boolean;
   placeholder?: string;
   placement?: string;
+  disabled?: boolean;
+  minDate?: Date;
 }
 
-const CustomDatePicker = ({ 
-  selectedDate, 
-  onChange, 
-  showTime = true, 
+const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
+  selectedDate,
+  onChange,
+  showTime = true,
   placeholder,
-  placement
-}: CustomDatePickerProps) => {
-  const [isMobile, setIsMobile] = useState(false); // 모바일 여부 체크
+  placement,
+  disabled = false,
+  minDate
+}) => {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768);
+  const normalizedDate = selectedDate
+    ? dayjs.isDayjs(selectedDate) ? selectedDate.toDate() : selectedDate
+    : null;
 
   useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
-    checkIsMobile();
-
+    const checkIsMobile = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener('resize', checkIsMobile);
-    return ()=> window.removeEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
   }, []);
 
-  const handleNativeChange = (e) => {
-    const newDate = new Date(e.target.value);
-    onChange(newDate, e);
-  };
-
-  // 4. Date 객체를 네이티브 input에 맞는 문자열 포맷(YYYY-MM-DDThh:mm)으로 변환
-  const getNativeValue = (date) => {
-    if (!date) return "";
-    // 한국 시간대(KST)에 맞춰서 포맷팅
+  const getNativeValue = (date: Date | null) => {
+    if (!date) return '';
     const offset = date.getTimezoneOffset() * 60000;
-    const localISOTime = new Date(date - offset).toISOString().slice(0, 16);
+    const localISOTime = new Date(date.getTime() - offset).toISOString().slice(0, 16);
     return showTime ? localISOTime : localISOTime.split('T')[0];
   };
 
-  // 5. 조건부 렌더링: 모바일일 때는 네이티브 input 반환
   if (isMobile) {
     return (
+      <div className={`onedragon-native-date ${normalizedDate ? 'has-value' : ''}`}>
+        <i className="mdi mdi-calendar" aria-hidden="true" />
         <input
-            type={showTime ? "datetime-local" : "date"}
-            value={getNativeValue(selectedDate)}
-            onChange={handleNativeChange}
-            className="form-control" // 부트스트랩 클래스 그대로 유지
-            placeholder={placeholder}
+          type={showTime ? 'datetime-local' : 'date'}
+          value={getNativeValue(normalizedDate)}
+          min={minDate ? getNativeValue(minDate) : undefined}
+          onChange={(event) => onChange(event.target.value ? new Date(event.target.value) : null, event)}
+          disabled={disabled}
+          aria-label={placeholder || '날짜 선택'}
         />
+      </div>
     );
   }
 
   return (
     <DatePicker
-      selected={selectedDate}
+      selected={normalizedDate}
       onChange={onChange}
       locale={ko}
-      // 시간 선택 여부를 props로 조절
       showTimeSelect={showTime}
       timeIntervals={15}
       timeCaption="시간"
-      dateFormat={showTime ? "yyyy-MM-dd HH:mm" : "yyyy-MM-dd"}
+      dateFormat={showTime ? 'yyyy.MM.dd HH:mm' : 'yyyy.MM.dd'}
       placeholderText={placeholder}
-      // 커스텀 입력창을 쓰고 싶다면 아래 주석을 해제하세요
-      // customInput={<CustomInput />} 
-      // className="common-datepicker-input"
-      className="form-control"
-      popperPlacement={placement || "bottom-start"}
+      popperPlacement={placement || 'bottom-start'}
+      popperClassName="onedragon-calendar-popper"
+      calendarClassName="onedragon-calendar"
+      showPopperArrow={false}
+      todayButton="오늘"
+      minDate={minDate}
+      disabled={disabled}
+      customInput={<CalendarInput placeholder={placeholder} disabled={disabled} />}
     />
   );
 };

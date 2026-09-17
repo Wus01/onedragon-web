@@ -1,274 +1,205 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import {Modal, Pagination} from 'react-bootstrap';
-import {useParams, Link, useHistory} from 'react-router-dom';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Button, Pagination } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import { getHiringList } from '../../api/hiringBoardApi';
+import CustModal from '../common/Modal';
 
-import CustModal from "../common/Modal";
+interface HiringInfo {
+  hiringTitle: string;
+  hiringText: string;
+  hiringNo: number;
+  storeNm: string;
+  rgstId: string;
+  hiringStsNm: string;
+  rgstDate: string;
+  workStartDate: string;
+  workEndDate: string;
+  payPerHour?: string;
+  serviceType?: string;
+}
 
-import { Button } from 'react-bootstrap';
-import {getHiringList} from "../../api/hiringBoardApi";
-import StoreSearchPopup from "../form-elements/StoreSearchPopup";
+interface HiringResponse {
+  content: HiringInfo[];
+  totalPages?: number;
+  totalElements?: number;
+  size?: number;
+  number?: number;
+}
 
-function HiringList(){
-    const { id } = useParams();
+const HiringList: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  const [hiring, setHiring] = useState<HiringResponse>({ content: [] });
+  const itemsPerPage = 10;
 
-    const [isOpen, setIsOpen] = useState<boolean>(false);
-    const [isClose, setIsClose] = useState<boolean>(false);
-    const [header, setHeader] = useState<string>('');
-    const [currentPage, setCurrentPage] = useState<number>(1);
-    const [totalPages, setTotalPage] = useState<number>(0);
-    const [isMobile, setIsMobile] = useState<boolean>(false);
-    const history = useHistory();
-    const itemsPerPage = 10;
+  const fetchHirings = useCallback(async (page: number, append = false) => {
+    const validPage = Number.isNaN(Number(page)) || !page ? 1 : Number(page);
 
-    interface HiringInfo {
-        hiringTitle: string;
-        hiringText: string;
-        hiringNo: number;
-        storeNm: string;
-        rgstId: string;
-        hiringStsNm: string;
-        rgstDate: string;
-        workStartDate: string;
-        workEndDate: string;
+    try {
+      const pageData = await getHiringList(validPage - 1, itemsPerPage) || {};
+      const newContent = pageData.content || [];
+
+      setHiring((previous) => append ? {
+        ...pageData,
+        content: [...(previous.content || []), ...newContent],
+      } : pageData);
+      setTotalPages(pageData.totalPages || 0);
+    } catch (error) {
+      console.error('공고를 불러오지 못했습니다.', error);
     }
-    const [hiring,setHiring] = useState<HiringResponse>({
-            // hiringTitle:"",
-            // hiringText:"",
-            // hiringNo: 0,
-            // storeNm: "",
-            // rgstId: "",
-            // hiringStsNm: "",
-            // rgstDate: ""
-            content:[]
-        });
+  }, []);
 
-    interface HiringResponse{
-        content: HiringInfo[];
-        totalPages?: number;
-        totalElements?: number;
-        size?: number;
-        number?: number;
-    }
+  useEffect(() => {
+    const checkSize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', checkSize);
+    fetchHirings(1);
 
-    // 공고 리스트 호출
-    const fetchHirings = useCallback(async (page: number, append:boolean =false) => {
-        const validPage = isNaN(Number(page)) || !page ? 1 : Number(page);
+    return () => window.removeEventListener('resize', checkSize);
+  }, [fetchHirings]);
 
-        try{
-                const pageData = await getHiringList(validPage -1, itemsPerPage) || {};
+  useEffect(() => {
+    if (!isMobile && currentPage > 1) fetchHirings(currentPage);
+  }, [currentPage, isMobile, fetchHirings]);
 
-                const newContent = pageData.content || [];
-                const total = pageData.totalPages || 0;
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    if (page === 1) fetchHirings(1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
-                if (append) {
-                    // 모바일 더보기 : 기존 목록 뒤에 새 데이터를 누적
-                    setHiring(prev => ({
-                        ...pageData,
-                        content: [...(prev?.content || []), ...newContent]
-                            }));
-                } else {
-                    // PC 페이징: 기존 데이터 '갈아끼우기'
-                    setHiring(pageData);
-                }
-                setTotalPage(total);
-            } catch (err) {
-                console.error("공고 로드 실패:", err);
-            }
-    }, []);
+  const handleLoadMore = () => {
+    const nextPage = currentPage + 1;
+    if (nextPage > totalPages) return;
 
-    // 1. 최초 렌더링 및 모바일/PC 화면 감지
-    useEffect(() => {
-        const checkSize = () => {
-            setIsMobile(window.innerWidth < 768);
-        };
+    setCurrentPage(nextPage);
+    fetchHirings(nextPage, true);
+  };
 
-        checkSize();
-        window.addEventListener('resize', checkSize);
-
-        // 💡 화면에 처음 들어왔을 때 딱 한 번만 1페이지 데이터를 불러옵니다.
-        fetchHirings(1, false);
-
-        return () => window.removeEventListener('resize', checkSize);
-    }, [fetchHirings]);
-
-    // 2. 페이지 번호(currentPage)가 바뀔 때의 동작 (PC 전용)
-    useEffect(() => {
-        // 💡 모바일은 '더보기 버튼(handleLoadMore)'이 직접 데이터를 누적하므로 개입하지 않습니다.
-        // 💡 PC 환경(isMobile === false)일 때만 페이지 번호에 맞춰 데이터를 새로 갈아끼웁니다.
-        if (!isMobile) {
-            fetchHirings(currentPage, false);
-        }
-    }, [currentPage, isMobile, fetchHirings]);
-
-    const closeModalHandler = () => {
-        setIsOpen(false);
-    };
-
-    const handleLoadMore = () =>{
-        const nextPage = currentPage+1;
-        if(nextPage <= totalPages){
-            setCurrentPage(nextPage);
-            fetchHirings(nextPage, true); // true를 넘겨서 데이터 누적시킴
-        }
-    };
-
-    const getBadgeStyle = (statusName) => {
-        const baseStyle = {
-            fontSize: '11px',       // 글씨 크기 축소 (보통 기본 배지보다 살짝 작게)
-            padding: '0.4em 0.6em', // 상하/좌우 여백을 줘서 덜 꽉 차 보이게 숨통 틔우기
-            fontWeight: '500'       // 글씨가 너무 두꺼우면 뭉개져 보이니 살짝 얇게 (선택사항)
-        };
-
-        if (statusName === '확정') {
-            return { ...baseStyle, backgroundColor: '#19d895' }; // 부트스트랩 기본 초록색(success)
-        }
-        if (statusName === '미확정') {
-            return { ...baseStyle, backgroundColor: '#6c7293' }; // 👈 기본 secondary보다 훨씬 진하고 또렷한 회색
-        }
-        return { ...baseStyle, backgroundColor: '#0d6efd' }; // 부트스트랩 기본 파란색(primary)
-    };
+  const handleSaved = () => {
+    setCurrentPage(1);
+    fetchHirings(1);
+  };
 
   return (
-       <div>
-           <div className="mb-3 mb-md-4 mt-2 mt-md-0 px-2 px-md-0 border-bottom pb-3">
-              {/* 💡 position-relative를 주고 최소 높이를 잡아주어 내부 요소들이 absolute로 떠 있어도 영역이 무너지지 않게 합니다. */}
-              <div className="d-flex align-items-center w-100 position-relative" style={{ minHeight: '32px' }}>
-                {/*💡 모바일일 때만 우측 끝에 작성하기 버튼 배치 */}
-                  {isMobile && (
-                      <button
-                          type="button"
-                          className="btn btn-primary btn-sm px-3"
-                          onClick={() => setIsOpen(true)}
-                          style={{ position: 'absolute', right: '0' }}
-                      >
-                          작성하기
-                      </button>
-                  )}
-              </div>
-          </div>
+    <div className="jobs-page">
+      <section className="jobs-hero">
+        <div className="jobs-hero-copy">
+          <span className="section-eyebrow">LOCAL JOBS</span>
+          <h1>
+            내게 맞는 일자리,<br />
+            가까운 곳에서 <span className="jobs-title-nowrap">찾아보세요.</span>
+          </h1>
+          <p>근무 일정과 지점을 한눈에 비교하고 간편하게 지원할 수 있어요.</p>
+        </div>
+        <button type="button" className="btn btn-primary jobs-create-button" onClick={() => setIsOpen(true)}>
+          <i className="mdi mdi-plus" aria-hidden="true" />
+          공고 등록하기
+        </button>
+        <div className="jobs-hero-decoration" aria-hidden="true">
+          <span><i className="mdi mdi-briefcase-outline" /></span>
+          <span><i className="mdi mdi-map-marker-outline" /></span>
+          <span><i className="mdi mdi-clock-fast" /></span>
+        </div>
+      </section>
 
-          {/* 💡 삼항 연산자 시작 */}
-          {isMobile ? (
-              /* ================= [모바일 모드: 카드 형태로 주욱 나열] ================= */
-              <div className="mobile-list-wrapper">
-                  {hiring.content && hiring.content.length > 0 ? (
-                      hiring.content.map((hiringItem, index) => (
-
-                          <div key={hiringItem.hiringNo || index} className="border-bottom pb-3 mb-3">
-                              {/* 3. Link에 스타일을 줘서 글씨가 파란색이 되거나 밑줄이 생기는 걸 막습니다. */}
-                              <Link to={`/hiring/${hiringItem.hiringNo}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                                  <div className="d-flex justify-content-between align-items-center mb-1">
-                                      <div className="fw-bold fs-5 text-truncate" style={{ maxWidth: '75%' }}>
-                                          {hiringItem.hiringTitle}
-                                      </div>
-                                      <span className="badge text-white" style={getBadgeStyle(hiringItem.hiringStsNm)}>
-                                          {hiringItem.hiringStsNm}
-                                      </span>
-                                  </div>
-
-                                  <div className="text-muted small mb-0">
-                                      {hiringItem.storeNm} | {hiringItem.workStartDate?.substring(5)}~{hiringItem.workEndDate?.substring(5)}
-                                  </div>
-
-                              </Link>
-                          </div>
-                  ))
-                  ):(
-                      <div className="text-center py-5 text-muted">
-                          <div className="mb-2 fs-1">📂</div>
-                          <p className="mb-0">등록된 공고가 없습니다.</p>
-                      </div>
-                  )}
-                  {/* 현재 페이지가 전체 페이지보다 작을 때만 더보기 버튼 노출 */}
-                  {currentPage < totalPages && (
-                      <div className="d-grid gap-2 mt-3 mb-5">
-                          <Button variant="outline-primary" onClick={handleLoadMore}>
-                              공고 더보기 👇
-                          </Button>
-                      </div>
-                  )}
-              </div>
-          ) : (
-              /* ================= [PC 모드] ================= */
-              <>
-                  <div className="col-lg-12 grid-margin stretch-card">
-                      <div className="card">
-                          <div className="card-body">
-                              <div className="table-responsive">
-                                  <table className="table table-striped">
-                                      <thead>
-                                      <tr style={{textAlign: 'center'}}>
-                                          <th>No</th>
-                                          <th>지점명</th>
-                                          <th>제목</th>
-                                          <th>근무기간</th>
-                                          <th>작성자</th>
-                                          <th>공고확정여부</th>
-                                          <th>등록일시</th>
-                                      </tr>
-                                      </thead>
-                                      <tbody>
-                                      {hiring && hiring.content && hiring.content.length > 0 ? (
-                                          hiring.content.map((item, index) => (
-                                              <tr key={item.hiringNo || index} style={{textAlign: 'center'}}>
-                                                  <td>{item.hiringNo}</td>
-                                                  <td>{item.storeNm}</td>
-                                                  <td>
-                                                      <Link to={`/hiring/${item.hiringNo}`} style={{ textDecoration: 'none', color: 'blue' }}>
-                                                          {item.hiringTitle}
-                                                      </Link>
-                                                  </td>
-                                                  <td>{item.workStartDate?.substring(5)}~{item.workEndDate.substring(5)}</td>
-                                                  <td>{item.rgstId}</td>
-                                                  <td>{item.hiringStsNm}</td>
-                                                  <td>{String(item.rgstDate).substring(0,19)}</td>
-                                              </tr>
-                                          ))
-                                      ) : (
-                                          <tr>
-                                              <td colSpan={6} style={{ textAlign: 'center', padding: '20px' }}>등록된 공고가 없습니다.</td>
-                                          </tr>
-                                      )}
-                                      </tbody>
-                                  </table>
-                                  {/* PC에서만 하단 하이라이트 페이징 바 노출 */}
-                                  {totalPages > 0 && (
-                                      <div className="d-flex justify-content-center mt-4">
-                                          <Pagination size="sm">
-                                              <Pagination.Prev onClick={() => setCurrentPage(p => Math.max(p - 1, 1))} disabled={currentPage === 1} />
-                                              {[...Array(totalPages)].map((_, i) => (
-                                                  <Pagination.Item key={i + 1} active={i + 1 === currentPage} onClick={() => setCurrentPage(i + 1)}>
-                                                      {i + 1}
-                                                  </Pagination.Item>
-                                              ))}
-                                              <Pagination.Next onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))} disabled={currentPage === totalPages} />
-                                          </Pagination>
-                                      </div>
-                                  )}
-                                  <div style={{textAlign:'right'}}>
-                                      <button type="button" className="btn btn-primary" onClick={() => setIsOpen(true)} style={{marginTop:'20px'}}>
-                                          작성하기
-                                      </button>
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-
-
-              </>
-          )}
-          {/* 💡 삼항 연산자 깔끔하게 종료! */}
-          <CustModal
-              open={isOpen}
-              close={closeModalHandler}
-              onSaveSuccess={()=> fetchHirings(1, false)}
-              header="공고작성"
-          />
-
-
+      <div className="jobs-toolbar">
+        <div>
+          <h2>최근 채용 공고</h2>
+          <p><strong>{hiring.totalElements ?? hiring.content.length}</strong>개의 일자리를 확인해 보세요.</p>
+        </div>
+        <span className="jobs-update-label">
+          <i className="mdi mdi-refresh" aria-hidden="true" /> 실시간 업데이트
+        </span>
       </div>
+
+      {hiring.content.length > 0 ? (
+        <div className="job-card-grid">
+          {hiring.content.map((item, index) => {
+            const isConfirmed = item.hiringStsNm === '확정';
+            const startDate = item.workStartDate?.substring(5, 16) || '일정 협의';
+            const endDate = item.workEndDate?.substring(5, 16) || '협의';
+
+            return (
+              <Link to={`/hiring/${item.hiringNo}`} className="job-card" key={item.hiringNo || index}>
+                <div className="job-card-topline">
+                  <span className={`job-status ${isConfirmed ? 'is-closed' : 'is-open'}`}>
+                    <span />{item.hiringStsNm || '모집중'}
+                  </span>
+                  <span className="job-number">NO. {item.hiringNo}</span>
+                </div>
+
+                <div className="job-store">
+                  <span className="job-store-icon"><i className="mdi mdi-storefront-outline" /></span>
+                  <span>{item.storeNm || '지점 정보 확인'}</span>
+                </div>
+
+                <h3>{item.hiringTitle}</h3>
+                <p className="job-description">{item.hiringText || '상세 근무 내용은 공고에서 확인해 주세요.'}</p>
+
+                <div className="job-meta-list">
+                  <span>
+                    <i className="mdi mdi-calendar-blank-outline" aria-hidden="true" />
+                    {startDate} ~ {endDate}
+                  </span>
+                  <span>
+                    <i className="mdi mdi-cash-multiple" aria-hidden="true" />
+                    {item.payPerHour ? `${Number(item.payPerHour).toLocaleString()}원` : '급여 협의'}
+                  </span>
+                </div>
+
+                <div className="job-card-footer">
+                  <div>
+                    <span className="job-writer-avatar">{(item.rgstId || '일').charAt(0).toUpperCase()}</span>
+                    <span>
+                      <strong>{item.rgstId || '일용이네'}</strong>
+                      <small>{String(item.rgstDate || '').substring(0, 10)}</small>
+                    </span>
+                  </div>
+                  <span className="job-detail-link">상세보기 <i className="mdi mdi-arrow-right" /></span>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="jobs-empty">
+          <span><i className="mdi mdi-briefcase-search-outline" /></span>
+          <h3>아직 등록된 공고가 없어요.</h3>
+          <p>첫 번째 일자리를 등록하고 좋은 인재를 만나보세요.</p>
+          <button type="button" className="btn btn-primary" onClick={() => setIsOpen(true)}>공고 등록하기</button>
+        </div>
+      )}
+
+      {isMobile ? (
+        currentPage < totalPages && (
+          <Button className="jobs-load-more" variant="outline-primary" onClick={handleLoadMore}>
+            공고 더보기 <i className="mdi mdi-chevron-down" />
+          </Button>
+        )
+      ) : (
+        totalPages > 1 && (
+          <Pagination className="jobs-pagination">
+            <Pagination.Prev onClick={() => handlePageChange(Math.max(currentPage - 1, 1))} disabled={currentPage === 1} />
+            {[...Array(totalPages)].map((_, index) => (
+              <Pagination.Item key={index + 1} active={index + 1 === currentPage} onClick={() => handlePageChange(index + 1)}>
+                {index + 1}
+              </Pagination.Item>
+            ))}
+            <Pagination.Next onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))} disabled={currentPage === totalPages} />
+          </Pagination>
+        )
+      )}
+
+      <CustModal
+        open={isOpen}
+        close={() => setIsOpen(false)}
+        onSaveSuccess={handleSaved}
+        header="새 채용 공고"
+      />
+    </div>
   );
-    };
+};
 
 export default HiringList;

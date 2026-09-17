@@ -4,10 +4,13 @@ const Footer  = () => {
     return (
       <footer className="footer">
         <div className="container-fluid">
-          <div className="d-sm-flex justify-content-center justify-content-sm-between py-2 w-100">
-              <span>Copyright © IL YONG 2026. Template by BootstrapDash</span>
-            {/*<span className="text-muted text-center text-sm-left d-block d-sm-inline-block">Copyright © <a href="https://www.bootstrapdash.com/" target="_blank" rel="noopener noreferrer">bootstrapdash.com </a>2020</span>*/}
-            {/*<span className="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Free <a href="https://www.bootstrapdash.com/react-admin-templates/" target="_blank" rel="noopener noreferrer"> react admin </a> templates from BootstrapDash.com.  </span>*/}
+          <div className="d-sm-flex align-items-center justify-content-between py-2 w-100 footer-content">
+            <div className="footer-brand">
+              <span><i className="mdi mdi-briefcase-check-outline" aria-hidden="true" /></span>
+              <strong>일용이네</strong>
+            </div>
+            <span>가까운 일자리와 좋은 사람을 연결합니다.</span>
+            <span>© 2026 OneDragon</span>
           </div>
         </div>
       </footer>

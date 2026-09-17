@@ -2,7 +2,6 @@ import React, { Component,Suspense, lazy } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 
 import Spinner from '../app/shared/Spinner';
-import Sidebar from './shared/Sidebar';
 import HiringList from './tables/HiringList';
 import ErrorPage from "./common/ErrorPage";
 import GlobalAxiosInterceptor from "./common/GlobalAxiosInterceptor";
@@ -35,13 +34,9 @@ const ApplyList = lazy(() => import('./tables/ApplyList'));
 
 
 const AppRoutes: React.FC = () => {
-    const isLoggedIn = !!localStorage.getItem("user_id");
-
     return (
         <GlobalAxiosInterceptor>
           <Suspense fallback={<Spinner/>}>
-          {/* 로그인 상태일 때만 메뉴바를 렌더링 */}
-          {isLoggedIn && <Sidebar />}
             <Switch>
               <Route exact path="/">
                 <Redirect to="/login" />

@@ -1,14 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useHistory } from 'react-router-dom';
 import ApplyList from "./ApplyList";
 import {checkApply, getHiringDetailAPI, insertApply} from "../../api/hiringBoardApi";
-import login from "../user-pages/Login";
 
 interface ApplyData {
     hiringNo: number;
-    rgstId: string;
-    applySucYn : 'Y' | 'N';
-    applySts : string;
 }
 
 interface Hiring {
@@ -32,6 +28,7 @@ export interface ApplyChk {
 
 function HiringDetail(){
     const { id } = useParams();
+    const history = useHistory();
     const [hiring,setHiring] = useState<Hiring>({} as Hiring);
     const [isOwner, setIsOwner] = useState<boolean>(false);
     // 지원여부상태
@@ -81,6 +78,18 @@ function HiringDetail(){
     }, [id]);
 
     const goToApply = async () => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("로그인 후 지원할 수 있습니다.");
+            history.push('/login');
+            return;
+        }
+
+        if (!hiring.hiringNo) {
+            alert("채용 공고 정보를 불러온 뒤 다시 시도해 주세요.");
+            return;
+        }
+
         // 지원여부 확인
         if(isApplied){
             alert("이미 지원한 공고입니다.");
@@ -88,25 +97,28 @@ function HiringDetail(){
         }
 
         if(window.confirm("취소할 수 없습니다. 지원하시겠습니까?")){
-            // 데이터 세팅
-            const userId = localStorage.getItem("userId");
             const applyData: ApplyData ={
-                hiringNo : Number(hiring.hiringNo),
-                rgstId: userId,
-                applySucYn : 'N',
-                applySts : '01' //지원완료
+                hiringNo : Number(hiring.hiringNo)
             }
 
             try{
                 await insertApply(applyData);
                 alert("지원에 성공하였습니다.");
-                // setIsApplied(true);
-                getHiringDetail();
-            }catch(e){
-                if (e.response.status === 409) {
-                    alert(e.response.data); //"이미 지원하신 공고입니다."
+                setIsApplied(true);
+                await checkApplySts(hiring.hiringNo);
+            }catch(e: any){
+                const status = e.response?.status;
+                const responseMessage = typeof e.response?.data === 'string'
+                    ? e.response.data
+                    : null;
+
+                if (status === 409) {
+                    alert(responseMessage || "이미 지원했거나 지원할 수 없는 공고입니다.");
+                    await checkApplySts(hiring.hiringNo);
+                } else if (status === 401) {
+                    return;
                 } else {
-                    alert("지원 중 오류가 발생했습니다.");
+                    alert(responseMessage || "지원 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
                 }
                 console.error(e);
             }
@@ -182,7 +194,7 @@ function HiringDetail(){
                                     type="button"
                                     className="btn btn-primary px-3 px-md-4"
                                     onClick={goToApply}
-                                    disabled={hiring.hiringSts === '02' || isApplied}
+                                    disabled={!hiring.hiringNo || hiring.hiringSts === '02' || isApplied}
                                     style={{
                                         backgroundColor: isAccepted ? '#19d895' : isApplied ? '#5c636a' : '#0d6efd',
                                         borderColor: isAccepted ? '#19d895' : isApplied ? '#5c636a' : '#0d6efd',
