@@ -1,5 +1,5 @@
 import React, {Component, useEffect} from 'react';
-import {useLocation, withRouter} from 'react-router-dom';
+import {Redirect, useLocation, withRouter} from 'react-router-dom';
 import './App.scss';
 import AppRoutes from './AppRoutes';
 import Navbar from './shared/Navbar';
@@ -7,11 +7,13 @@ import Sidebar from './shared/Sidebar';
 import SettingsPanel from './shared/SettingsPanel';
 import Footer from './shared/Footer';
 import {useTranslation, withTranslation} from "react-i18next";
+import {useAuth} from './shared/AuthContext';
 
 // class App extends Component {
 const App: React.FC = () => {
   // 1. 현재 라우트(URL) 정보 가져오기
   const location = useLocation();
+  const { isLoggedIn } = useAuth();
 
   const { i18n } = useTranslation();
 
@@ -37,6 +39,9 @@ const App: React.FC = () => {
     }
     return location.pathname === path;
   });
+
+  const publicRoutes = ['/login', '/register', '/findIdPw'];
+  const isPublicRoute = publicRoutes.includes(location.pathname);
 
   // 3. 기존 onRouteChanged() 로직을 useEffect로 대체 (경로 변경 시 실행)
   useEffect(() => {
@@ -64,6 +69,10 @@ const App: React.FC = () => {
       }
     }
   }, [location.pathname, isFullPageLayout, i18n]);
+
+  if (!isPublicRoute && !isLoggedIn) {
+    return <Redirect to="/login" />;
+  }
 
   return (
       <div className={`container-scroller onedragon-shell ${isFullPageLayout ? 'is-full-page' : ''}`}>

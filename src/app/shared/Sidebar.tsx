@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link, useHistory, useLocation, withRouter } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 
@@ -6,6 +6,23 @@ const Sidebar: React.FC = () => {
   const history = useHistory();
   const location = useLocation();
   const { logout } = useAuth();
+  const sidebarRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const handleOutsidePointerDown = (event: PointerEvent) => {
+      const sidebar = sidebarRef.current;
+      const target = event.target;
+
+      if (window.innerWidth >= 992 || !sidebar?.classList.contains('active')) return;
+      if (!(target instanceof Element)) return;
+      if (sidebar.contains(target) || target.closest('[aria-controls="sidebar"]')) return;
+
+      sidebar.classList.remove('active');
+    };
+
+    document.addEventListener('pointerdown', handleOutsidePointerDown, true);
+    return () => document.removeEventListener('pointerdown', handleOutsidePointerDown, true);
+  }, []);
 
   const isPathActive = (path: string): boolean => location.pathname.startsWith(path);
 
@@ -24,7 +41,7 @@ const Sidebar: React.FC = () => {
   ];
 
   return (
-    <nav className="sidebar sidebar-offcanvas onedragon-sidebar" id="sidebar" aria-label="주요 메뉴">
+    <nav ref={sidebarRef} className="sidebar sidebar-offcanvas onedragon-sidebar" id="sidebar" aria-label="주요 메뉴">
       <div className="sidebar-branding">
         <Link to="/hiringList" className="sidebar-brand-link" aria-label="일용이네 채용 공고로 이동">
           <span className="sidebar-brand-mark">

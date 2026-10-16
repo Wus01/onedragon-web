@@ -7,15 +7,14 @@ import { useAuth } from '../shared/AuthContext';
 
 const Login: React.FC = () => {
   const history = useHistory();
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
   const [userId, setUserId] = useState('');
   const [userPwd, setUserPwd] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   useEffect(() => {
-    localStorage.removeItem('userId');
-    localStorage.removeItem('token');
-  }, []);
+    logout();
+  }, [logout]);
 
   const onLogin = async (event: React.SyntheticEvent) => {
     event.preventDefault();

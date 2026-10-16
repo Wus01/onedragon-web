@@ -86,14 +86,24 @@ const Navbar: React.FC = () => {
           <i className="mdi mdi-menu" aria-hidden="true" />
         </button>
 
-        <Link className="mobile-brand d-lg-none" to="/hiringList">
-          <span className="mobile-brand-mark"><i className="mdi mdi-briefcase-check-outline" /></span>
-          <strong>일용이네</strong>
-        </Link>
+        <div className="mobile-brand d-lg-none">
+          <button
+            className="navbar-toggler navbar-toggler-right"
+            type="button"
+            aria-label="메뉴 열기"
+            aria-controls="sidebar"
+            onClick={() => document.querySelector('.sidebar-offcanvas')?.classList.toggle('active')}
+          >
+            <i className="mdi mdi-menu" aria-hidden="true" />
+          </button>
+          <Link className="mobile-brand-name" to="/hiringList">
+            <strong>일용이네</strong>
+          </Link>
+        </div>
 
         <div className="navbar-heading d-none d-md-block">
-          <span>동네에서 만나는 가장 빠른 일자리</span>
-          <small>오늘도 좋은 일자리를 연결해 드릴게요.</small>
+          <span style={{marginLeft: 5 }}>동네에서 만나는 가장 빠른 일자리</span>
+          <small style={{marginLeft: 5 }}>오늘도 좋은 일자리를 연결해 드릴게요.</small>
         </div>
 
         <div className="navbar-actions ml-auto">
@@ -143,14 +153,6 @@ const Navbar: React.FC = () => {
             </div>
           </div>
 
-          <button
-            className="navbar-toggler navbar-toggler-right d-lg-none"
-            type="button"
-            aria-label="메뉴 열기"
-            onClick={() => document.querySelector('.sidebar-offcanvas')?.classList.toggle('active')}
-          >
-            <i className="mdi mdi-menu" aria-hidden="true" />
-          </button>
         </div>
       </div>
     </nav>
