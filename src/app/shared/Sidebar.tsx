@@ -38,6 +38,7 @@ const Sidebar: React.FC = () => {
     { path: '/hiringList', label: '채용 공고', icon: 'mdi-briefcase-search-outline' },
     { path: '/mypageHome', label: '마이페이지', icon: 'mdi-account-circle-outline' },
     { path: '/crrHstrCreate', label: '경력 등록', icon: 'mdi-file-document-edit-outline' },
+    { path: '/inquiries', label: '문의사항', icon: 'mdi-comment-question-outline' },
   ];
 
   return (

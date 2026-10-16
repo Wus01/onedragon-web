@@ -637,6 +637,344 @@ a:hover {
   font-size: 10px;
 }
 
+/* Inquiries */
+.inquiries-page {
+  display: grid;
+  gap: 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.inquiries-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 40px;
+  border-radius: 26px;
+  color: #fff;
+  background: linear-gradient(120deg, var(--od-navy-deep), #24554d);
+  box-shadow: var(--od-shadow-sm);
+}
+
+.inquiries-eyebrow {
+  color: #a7ead1;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.inquiries-hero h1 {
+  margin: 16px 0 12px;
+  font-size: clamp(25px, 3vw, 36px);
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.inquiries-hero p {
+  margin: 0;
+  color: #c8ddd8;
+  line-height: 1.7;
+}
+
+.inquiries-hero-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 88px;
+  height: 88px;
+  border: 1px solid rgba(167, 234, 209, 0.2);
+  border-radius: 26px;
+  color: #a7ead1;
+  background: rgba(167, 234, 209, 0.08);
+  font-size: 44px;
+}
+
+.inquiries-card {
+  padding: 30px;
+  border: 1px solid var(--od-border);
+  border-radius: 24px;
+  background: var(--od-surface);
+  box-shadow: var(--od-shadow-sm);
+}
+
+.inquiries-section-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.inquiries-section-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 46px;
+  height: 46px;
+  border-radius: 14px;
+  color: var(--od-primary-dark);
+  background: var(--od-primary-soft);
+  font-size: 25px;
+}
+
+.inquiries-section-heading h2 {
+  margin: 0 0 5px;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.inquiries-section-heading p {
+  margin: 0;
+  color: var(--od-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.inquiries-faq + .inquiries-faq {
+  border-top: 1px solid var(--od-border);
+}
+
+.inquiries-faq summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 4px;
+  font-weight: 700;
+  line-height: 1.6;
+  cursor: pointer;
+  list-style: none;
+}
+
+.inquiries-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.inquiries-faq summary:focus-visible {
+  outline: 2px solid var(--od-primary);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+.inquiries-faq summary i {
+  color: var(--od-primary-dark);
+  font-size: 23px;
+  transition: transform 0.2s ease;
+}
+
+.inquiries-faq[open] summary i {
+  transform: rotate(180deg);
+}
+
+.inquiries-answer {
+  padding: 0 4px 22px;
+  color: var(--od-ink-soft);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.inquiries-answer p {
+  margin: 0 0 10px;
+}
+
+.inquiries-answer a {
+  font-weight: 700;
+}
+
+.inquiries-form {
+  display: grid;
+  gap: 20px;
+}
+
+.inquiries-form label {
+  display: block;
+  margin-bottom: 9px;
+  font-weight: 700;
+}
+
+.inquiries-form .form-control {
+  padding: 14px;
+  height: auto;
+  border: 1px solid var(--od-border);
+  border-radius: 12px;
+  background: #fbfdfc;
+  color: var(--od-ink);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.inquiries-form textarea {
+  resize: vertical;
+  min-height: 170px;
+}
+
+.inquiries-form .form-control:focus {
+  border-color: var(--od-primary);
+  box-shadow: 0 0 0 3px rgba(40, 167, 123, 0.12);
+}
+
+.inquiries-character-count {
+  display: block;
+  margin-top: 6px;
+  color: var(--od-muted);
+  font-size: 12px;
+  text-align: right;
+}
+
+.inquiries-form-help {
+  margin: 6px 0 0;
+  color: var(--od-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.inquiries-form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.inquiries-feedback {
+  margin: 0;
+  padding: 14px;
+  border-radius: 12px;
+  color: var(--od-primary-dark);
+  background: var(--od-primary-soft);
+}
+
+.inquiries-feedback.is-error {
+  color: #a13927;
+  background: #fff1ed;
+}
+
+.inquiries-list-message {
+  padding: 20px 0;
+  color: var(--od-muted);
+  line-height: 1.8;
+}
+
+.inquiries-history-item {
+  margin-top: 14px;
+  border: 1px solid var(--od-border);
+  border-radius: 12px;
+}
+
+.inquiries-history-item summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.inquiries-history-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.inquiries-history-item summary:focus-visible {
+  outline: 2px solid var(--od-primary);
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+
+.inquiries-history-item strong {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.inquiries-history-item time {
+  color: var(--od-muted);
+  font-size: 12px;
+}
+
+.inquiries-receipt-badge {
+  flex-shrink: 0;
+  padding: 5px 9px;
+  border-radius: 8px;
+  color: var(--od-primary-dark);
+  background: var(--od-primary-soft);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.inquiries-history-content {
+  padding: 18px;
+  border-top: 1px solid var(--od-border);
+}
+
+.inquiries-history-content small {
+  color: var(--od-muted);
+}
+
+.inquiries-history-content p {
+  margin: 12px 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.8;
+}
+
+.inquiries-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 22px;
+}
+
+.inquiries-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 22px;
+  border: 1px solid #d6eee5;
+  border-radius: 18px;
+  background: var(--od-primary-soft);
+  color: var(--od-primary-dark);
+}
+
+.inquiries-notice > i {
+  font-size: 22px;
+}
+
+.inquiries-notice p {
+  margin: 6px 0 0;
+  color: var(--od-ink-soft);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+@media (max-width: 767px) {
+  .inquiries-page {
+    gap: 16px;
+  }
+
+  .inquiries-hero {
+    padding: 28px 24px;
+  }
+
+  .inquiries-hero-icon {
+    display: none;
+  }
+
+  .inquiries-card {
+    padding: 24px 20px;
+  }
+
+  .inquiries-history-item summary {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .inquiries-history-item time {
+    flex-basis: 100%;
+  }
+
+  .inquiries-form-actions .btn {
+    width: 100%;
+  }
+}
+
 /* Authentication */
 .auth {
   min-height: 100vh;

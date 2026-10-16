@@ -30,6 +30,7 @@ const CrrHstrCreate = lazy(() => import('./form-elements/CrrHstrCreate'));
 const StoreSearchPopup = lazy(() => import('./form-elements/StoreSearchPopup'));
 const StoreInfoList = lazy(() => import('./storeInfo/StoreInfoList'));
 const MypageHome = lazy(() => import('./form-elements/MypageHome'));
+const Inquiries = lazy(() => import('./support/Inquiries'));
 const ApplyList = lazy(() => import('./tables/ApplyList'));
 
 
@@ -66,6 +67,7 @@ const AppRoutes: React.FC = () => {
               <Route path="/storeSearchPopup" component={ StoreSearchPopup } />
               {/*내 공고리스트*/}
               <Route path='/hiringList' component={ HiringList } />
+              <Route exact path='/inquiries' component={ Inquiries } />
               {/* 에러페이지 */}
               <Route path="/error" component={ ErrorPage } />
               <Route path="/*" component={ ErrorPage } />
